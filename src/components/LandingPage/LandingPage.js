@@ -49,7 +49,7 @@ const LandingPage = ({ onLaunchPresentify }) => {
             </div>
             
             <div className="hero-image">
-              <img src={`${process.env.PUBLIC_URL}/images/hero-workspace.jpg`} alt="Presentify Workspace" />
+              <img src="/images/hero-workspace.jpg" alt="Presentify Workspace" />
             </div>
           </div>
         </div>
@@ -67,7 +67,7 @@ const LandingPage = ({ onLaunchPresentify }) => {
           
           <div className="learn-more-content">
             <div className="app-mockup">
-              <img src={`${process.env.PUBLIC_URL}/images/feature-presentations.jpg`} alt="Presentify App Interface" />
+              <img src="/images/feature-presentations.jpg" alt="Presentify App Interface" />
             </div>
             
             <div className="features-list">
