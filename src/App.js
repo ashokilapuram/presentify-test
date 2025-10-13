@@ -21,74 +21,18 @@ function App() {
         {
           id: uuidv4(),
           type: 'text',
-          content: 'Welcome to Presentify Pro',
-          x: 150,
-          y: 120,
-          width: 600,
-          height: 80,
+          content: 'Welcome To Presentify',
+          x: 200,
+          y: 250,
+          width: 400,
+          height: 100,
           fontSize: 48,
           fontWeight: 'bold',
           textAlign: 'center',
           color: '#1e293b',
           fontFamily: 'Playfair Display'
-        },
-        {
-          id: uuidv4(),
-          type: 'text',
-          content: 'Create stunning presentations with premium templates, advanced typography, and beautiful animations.',
-          x: 100,
-          y: 220,
-          width: 700,
-          height: 60,
-          fontSize: 18,
-          fontWeight: 'normal',
-          textAlign: 'center',
-          color: '#64748b',
-          fontFamily: 'Inter'
-        },
-        {
-          id: uuidv4(),
-          type: 'shape',
-          shapeType: 'rectangle',
-          x: 300,
-          y: 300,
-          width: 300,
-          height: 3,
-          fillColor: '#0ea5e9',
-          borderColor: 'transparent',
-          borderWidth: 0
-        },
-        {
-          id: uuidv4(),
-          type: 'text',
-          content: '✨ Premium Features • 🎨 Beautiful Templates • 🚀 Export Options',
-          x: 50,
-          y: 350,
-          width: 800,
-          height: 45,
-          fontSize: 14,
-          fontWeight: '500',
-          textAlign: 'center',
-          color: '#0ea5e9',
-          fontFamily: 'Inter'
         }
       ]
-    },
-    {
-      id: uuidv4(),
-      elements: []
-    },
-    {
-      id: uuidv4(),
-      elements: []
-    },
-    {
-      id: uuidv4(),
-      elements: []
-    },
-    {
-      id: uuidv4(),
-      elements: []
     }
   ]);
   
