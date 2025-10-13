@@ -77,8 +77,10 @@
 /* Canvas */
 .canvas {
   position: relative;
-  width: 900px !important;
-  height: 650px !important;
+  width: 95%;
+  max-width: 850px;
+  height: auto;
+  aspect-ratio: 850 / 614; /* Maintain proportional aspect ratio */
   background: white;
   border: 3px solid #e2e8f0;
   border-radius: 16px;
@@ -88,8 +90,6 @@
     0 8px 16px rgba(14, 165, 233, 0.04);
   overflow: hidden;
   margin: 0 auto;
-  transform-origin: center center;
-  transition: transform 0.2s ease;
   z-index: 102;
   display: block;
 }
@@ -335,7 +335,7 @@
 
 /* Enhanced Animations - Removed to prevent positioning issues */
 
-/* Responsive Design - Canvas size remains fixed */
+/* Responsive Design - Canvas adapts to available space */
 @media (max-width: 1200px) {
   .canvas-container {
     left: 244px; /* slightly reduced width on medium screens */
@@ -343,12 +343,10 @@
     top: 120px; /* Same good gap as 1024px screens */
   }
   
-  /* Canvas footer styles moved to CanvasFooter component */
-  
-  /* Canvas size remains fixed */
+  /* Canvas adapts to container width */
   .canvas {
-    width: 900px !important;
-    height: 650px !important;
+    width: 95%;
+    max-width: 850px;
   }
 }
 
@@ -363,12 +361,10 @@
     justify-content: center;
   }
   
-  /* Canvas footer styles moved to CanvasFooter component */
-  
-  /* Canvas size remains fixed */
+  /* Canvas adapts to container width */
   .canvas {
-    width: 900px !important;
-    height: 650px !important;
+    width: 100%;
+    max-width: 900px;
     margin: 0 auto;
   }
 }
@@ -380,12 +376,10 @@
     top: 150px; /* slightly reduced height on small screens */
   }
   
-  /* Canvas footer styles moved to CanvasFooter component */
-  
-  /* Canvas size remains fixed */
+  /* Canvas adapts to container width */
   .canvas {
-    width: 900px !important;
-    height: 650px !important;
+    width: 95%;
+    max-width: 850px;
   }
 }
 

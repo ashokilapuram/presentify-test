@@ -20,10 +20,6 @@ const Toolbar = ({
   canUndo,
   canRedo,
   slides,
-  manualZoom,
-  setManualZoom,
-  isPanning,
-  setIsPanning,
   onBackToLanding,
   onShowProfile,
   setShowDragMessage
@@ -178,48 +174,6 @@ const Toolbar = ({
             <FiMaximize2 size={16} />
           </button>
           
-          {/* Pan Mode Button */}
-          <button
-            className={`toolbar-button ${isPanning ? 'active' : ''}`}
-            onClick={() => {
-              const newPanningState = !isPanning;
-              setIsPanning(newPanningState);
-              
-              // Show drag message when turning ON pan mode
-              if (newPanningState && setShowDragMessage) {
-                setShowDragMessage(true);
-                setTimeout(() => setShowDragMessage(false), 30000); // 30 seconds
-              } else if (setShowDragMessage) {
-                // When turning OFF, immediately hide any existing message
-                setShowDragMessage(false);
-              }
-            }}
-            title={isPanning ? "Exit Pan Mode" : "Enter Pan Mode"}
-          >
-            🖐️
-          </button>
-          
-          {/* Zoom Controls */}
-          <div className="zoom-controls">
-            <div className="zoom-separator"></div>
-            <button 
-              className="zoom-button"
-              onClick={() => setManualZoom(z => Math.max(0.25, z - 0.1))}
-              title="Zoom Out (Ctrl+-)"
-            >
-              −
-            </button>
-            <span className="zoom-percentage">
-              {Math.round(manualZoom * 100)}%
-            </span>
-            <button 
-              className="zoom-button"
-              onClick={() => setManualZoom(z => Math.min(3, z + 0.1))}
-              title="Zoom In (Ctrl++)"
-            >
-              +
-            </button>
-          </div>
           
           <div className="toolbar-user" onClick={onShowProfile} title="Profile Settings">
             <FiUser size={20} />
@@ -294,7 +248,13 @@ const Toolbar = ({
               onClick={() => document.querySelector('.color-picker').click()}
               style={{ color: textFormatting.color }}
             >
-              T
+              <span style={{ 
+                fontWeight: 'bold', 
+                textDecoration: 'underline', 
+                color: '#dc2626' 
+              }}>
+                A
+              </span>
             </button>
             <input 
               type="color" 

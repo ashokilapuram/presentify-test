@@ -1146,12 +1146,10 @@ body.dark .toolbar-bottom {
 
 .canvas {
   position: relative;
-  width: 900px !important;
-  height: 650px !important;
-  min-width: 900px;
-  min-height: 650px;
-  max-width: 900px;
-  max-height: 650px;
+  width: 95%;
+  max-width: 850px;
+  height: auto;
+  aspect-ratio: 850 / 614;
   background: hsl(var(--background));
   border: 3px solid hsl(var(--border));
   border-radius: 16px;
@@ -2020,10 +2018,12 @@ body.dark .toolbar-bottom {
     right: 324px;
   }
   
-  /* Canvas size remains fixed */
+  /* Canvas adapts to container */
   .canvas {
-    width: 900px !important;
-    height: 650px !important;
+    width: 95%;
+    max-width: 850px;
+    height: auto;
+    aspect-ratio: 850 / 614;
     margin: 20px auto;
   }
   
@@ -2064,10 +2064,12 @@ body.dark .toolbar-bottom {
     top: 150px;
   }
   
-  /* Canvas size remains fixed */
+  /* Canvas adapts to container */
   .canvas {
-    width: 900px !important;
-    height: 650px !important;
+    width: 95%;
+    max-width: 850px;
+    height: auto;
+    aspect-ratio: 850 / 614;
     margin: 15px auto;
   }
   
@@ -2120,10 +2122,12 @@ body.dark .toolbar-bottom {
     right: 264px; /* 240px + 8px gap + 4px margin */
   }
   
-  /* Canvas size remains fixed */
+  /* Canvas adapts to container */
   .canvas {
-    width: 900px !important;
-    height: 650px !important;
+    width: 95%;
+    max-width: 850px;
+    height: auto;
+    aspect-ratio: 850 / 614;
     margin: 12px auto;
   }
   
@@ -2174,10 +2178,12 @@ body.dark .toolbar-bottom {
     top: 150px;
   }
   
-  /* Canvas size remains fixed */
+  /* Canvas adapts to container */
   .canvas {
-    width: 900px !important;
-    height: 650px !important;
+    width: 95%;
+    max-width: 850px;
+    height: auto;
+    aspect-ratio: 850 / 614;
     margin: 10px auto;
   }
   
@@ -2231,10 +2237,12 @@ body.dark .toolbar-bottom {
     right: 224px; /* 200px + 8px gap + 4px margin */
   }
   
-  /* Canvas size remains fixed */
+  /* Canvas adapts to container */
   .canvas {
-    width: 900px !important;
-    height: 650px !important;
+    width: 95%;
+    max-width: 850px;
+    height: auto;
+    aspect-ratio: 850 / 614;
     margin: 8px auto;
   }
   
@@ -2270,10 +2278,12 @@ body.dark .toolbar-bottom {
     right: 204px; /* 180px + 8px gap + 4px margin */
   }
   
-  /* Canvas size remains fixed */
+  /* Canvas adapts to container */
   .canvas {
-    width: 900px !important;
-    height: 650px !important;
+    width: 95%;
+    max-width: 850px;
+    height: auto;
+    aspect-ratio: 850 / 614;
     margin: 5px auto;
   }
   

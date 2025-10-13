@@ -13,19 +13,11 @@ const Canvas = ({
   textFormatting,
   isDarkMode,
   onToggleDarkMode,
-  hoverPreview,
-  manualZoom,
-  isPanning
+  hoverPreview
 }) => {
   const [editingElement, setEditingElement] = useState(null);
   const [dragState, setDragState] = useState(null);
-  const [zoom, setZoom] = useState(100);
   const canvasRef = useRef(null);
-  
-  // Pan mode state
-  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
-  const [isDraggingCanvas, setIsDraggingCanvas] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   const handleElementSelect = (element) => {
     setSelectedElement(element);
@@ -42,25 +34,6 @@ const Canvas = ({
     setEditingElement(null);
   };
 
-  // Pan mode handlers
-  const handleMouseDownCanvas = (e) => {
-    if (!isPanning) return; // Only when Pan mode is ON
-    e.preventDefault();
-    setIsDraggingCanvas(true);
-    setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
-  };
-
-  const handleMouseMoveCanvas = (e) => {
-    if (!isDraggingCanvas) return;
-    e.preventDefault();
-    const newX = e.clientX - dragStart.x;
-    const newY = e.clientY - dragStart.y;
-    setPanOffset({ x: newX, y: newY });
-  };
-
-  const handleMouseUpCanvas = () => {
-    setIsDraggingCanvas(false);
-  };
 
 
   const handleMouseDown = (e, element, handle = null) => {
@@ -209,18 +182,12 @@ const Canvas = ({
           className="canvas"
           ref={canvasRef}
           onClick={handleCanvasClick}
-          onMouseDown={handleMouseDownCanvas}
-          onMouseMove={handleMouseMoveCanvas}
-          onMouseUp={handleMouseUpCanvas}
           style={{ 
             backgroundColor: slide?.backgroundColor || 'white',
             backgroundImage: slide?.backgroundImage ? `url(${slide.backgroundImage})` : 'none',
-            backgroundSize: 'contain',
+            backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
-            transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${manualZoom || 0.55})`,
-            transformOrigin: 'center center',
-            cursor: isPanning ? (isDraggingCanvas ? 'grabbing' : 'grab') : 'default',
             margin: '0 auto'
           }}
         >

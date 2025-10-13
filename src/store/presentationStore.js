@@ -6,22 +6,7 @@ const usePresentationStore = create((set, get) => ({
   slides: [
     {
       id: uuidv4(),
-      elements: [
-        {
-          id: uuidv4(),
-          type: 'text',
-          content: 'Welcome To Presentify',
-          x: 200,
-          y: 250,
-          width: 400,
-          height: 100,
-          fontSize: 48,
-          fontWeight: 'bold',
-          textAlign: 'center',
-          color: '#1e293b',
-          fontFamily: 'Playfair Display'
-        }
-      ]
+      elements: []
     }
   ],
   currentSlideIndex: 0,

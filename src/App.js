@@ -6,7 +6,6 @@ import Canvas from './components/Canvas/Canvas';
 import Templates from './components/Templates/Templates';
 import RightToolbar from './components/RightToolbar/RightToolbar';
 import FullScreenSlideshow from './components/FullScreenSlideshow/FullScreenSlideshow';
-import CanvasFooter from './components/CanvasFooter/CanvasFooter';
 import LandingPage from './components/LandingPage/LandingPage';
 import ProfileModal from './components/ProfileModal/ProfileModal';
 import { BarChart, LineChart, PieChart } from './components/ChartBox/ChartBox';
@@ -17,22 +16,7 @@ function App() {
   const [slides, setSlides] = useState([
     {
       id: uuidv4(),
-      elements: [
-        {
-          id: uuidv4(),
-          type: 'text',
-          content: 'Welcome To Presentify',
-          x: 200,
-          y: 250,
-          width: 400,
-          height: 100,
-          fontSize: 48,
-          fontWeight: 'bold',
-          textAlign: 'center',
-          color: '#1e293b',
-          fontFamily: 'Playfair Display'
-        }
-      ]
+      elements: []
     }
   ]);
   
@@ -55,11 +39,6 @@ function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSlideshowOpen, setIsSlideshowOpen] = useState(false);
   
-  // Manual zoom state
-  const [manualZoom, setManualZoom] = useState(0.55);
-  
-  // Pan mode state
-  const [isPanning, setIsPanning] = useState(false);
   const [showDragMessage, setShowDragMessage] = useState(false);
   
   // Simple undo/redo state
@@ -450,12 +429,6 @@ function App() {
         } else if (e.key === 'y' || (e.key === 'z' && e.shiftKey)) {
           e.preventDefault();
           redo();
-        } else if (e.key === '=' || e.key === '+') {
-          e.preventDefault();
-          setManualZoom(z => Math.min(3, z + 0.1));
-        } else if (e.key === '-') {
-          e.preventDefault();
-          setManualZoom(z => Math.max(0.25, z - 0.1));
         }
       }
     };
@@ -488,10 +461,6 @@ function App() {
         isDarkMode={isDarkMode}
         onToggleDarkMode={handleToggleDarkMode}
         slides={slides}
-        manualZoom={manualZoom}
-        setManualZoom={setManualZoom}
-        isPanning={isPanning}
-        setIsPanning={setIsPanning}
         onBackToLanding={handleBackToLanding}
         onShowProfile={() => setShowProfileModal(true)}
         setShowDragMessage={setShowDragMessage}
@@ -515,8 +484,6 @@ function App() {
           textFormatting={textFormatting}
           isDarkMode={isDarkMode}
           onToggleDarkMode={handleToggleDarkMode}
-          manualZoom={manualZoom}
-          isPanning={isPanning}
         />
         <RightToolbar 
           selectedElement={selectedElement}
@@ -616,14 +583,6 @@ function App() {
         />
       )}
       
-      {/* Canvas Footer with Controls */}
-      <CanvasFooter
-        manualZoom={manualZoom}
-        setManualZoom={setManualZoom}
-        isPanning={isPanning}
-        setIsPanning={setIsPanning}
-        setShowDragMessage={setShowDragMessage}
-      />
       
       {/* Simple Drag Message */}
       {showDragMessage && (

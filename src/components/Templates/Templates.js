@@ -85,7 +85,7 @@ const Templates = ({ onSelectTemplate, onClose }) => {
               {filteredTemplates.map(template => (
                 <div
                   key={template.id}
-                  className="template-card"
+                  className={`template-card template-${template.category.toLowerCase().replace(/\s+/g, '-')}`}
                   onClick={() => handleTemplateSelect(template)}
                 >
                   <div className="template-thumbnail">
