@@ -1,0 +1,188 @@
+/* TextBox Component Styles */
+
+.textbox-container {
+  position: relative;
+  box-sizing: border-box;
+}
+
+.textbox-container.selected {
+  box-shadow: 0 0 0 2px #0ea5e9;
+}
+
+.textbox-container.hovered {
+  box-shadow: 0 0 0 2px #7dd3fc;
+}
+
+.textbox-container.editing {
+  box-shadow: 0 0 0 2px #10b981;
+}
+
+.textbox-ce {
+  position: relative;
+  box-sizing: border-box;
+}
+
+.textbox-ce:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.textbox-ce:empty:before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+/* Drag handle styles */
+.textbox-drag-handle {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  background: #0ea5e9;
+  border-radius: 50%;
+  cursor: move;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  transition: all 0.2s ease;
+}
+
+.textbox-drag-handle:hover {
+  background: #0284c7;
+  transform: translateX(-50%) scale(1.1);
+}
+
+/* Delete button styles */
+.textbox-delete-button {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.textbox-delete-button:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+/* Resize handles */
+.textbox-container .react-resizable-handle {
+  background: #0ea5e9;
+  border: 2px solid white;
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.textbox-container.selected .react-resizable-handle {
+  opacity: 1;
+}
+
+.textbox-container:hover .react-resizable-handle {
+  opacity: 0.7;
+}
+
+/* Text formatting styles */
+.textbox-ce strong,
+.textbox-ce b {
+  font-weight: bold;
+}
+
+.textbox-ce em,
+.textbox-ce i {
+  font-style: italic;
+}
+
+.textbox-ce u {
+  text-decoration: underline;
+}
+
+/* Selection styles */
+.textbox-ce::selection {
+  background: #0ea5e9;
+  color: white;
+}
+
+.textbox-ce::-moz-selection {
+  background: #0ea5e9;
+  color: white;
+}
+
+/* Focus styles */
+.textbox-container.editing {
+  z-index: 1000;
+}
+
+/* Animation for smooth transitions */
+.textbox-container {
+  animation: textboxFadeIn 0.3s ease-out;
+}
+
+@keyframes textboxFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Dark mode support */
+.dark .textbox-container {
+  color: #f9fafb;
+}
+
+.dark .textbox-ce:empty:before {
+  color: #6b7280;
+}
+
+.dark .textbox-container.selected {
+  box-shadow: 0 0 0 2px #0ea5e9;
+}
+
+.dark .textbox-container.hovered {
+  box-shadow: 0 0 0 2px #7dd3fc;
+}
+
+.dark .textbox-container.editing {
+  box-shadow: 0 0 0 2px #10b981;
+}
+
+/* Responsive text sizing */
+@media (max-width: 768px) {
+  .textbox-container {
+    min-width: 100px;
+    min-height: 30px;
+  }
+  
+  .textbox-ce {
+    font-size: 14px;
+    padding: 6px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .textbox-container {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+  }
+  
+  .textbox-drag-handle,
+  .textbox-delete-button {
+    display: none !important;
+  }
+}
+

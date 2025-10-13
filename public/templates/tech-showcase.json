@@ -1,0 +1,223 @@
+{
+  "name": "Tech Showcase",
+  "description": "Modern technology template with images and gradients",
+  "category": "Technology",
+  "slides": [
+    {
+      "id": "slide-1",
+      "title": "Tech Innovation",
+      "backgroundColor": "#667eea",
+      "backgroundImage": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      "elements": [
+        {
+          "id": "title-1",
+          "type": "text",
+          "content": "Innovation in Technology",
+          "x": 150,
+          "y": 150,
+          "width": 600,
+          "height": 80,
+          "fontFamily": "Inter",
+          "fontSize": 48,
+          "fontWeight": "bold",
+          "color": "#ffffff",
+          "textAlign": "center",
+          "backgroundColor": "rgba(0,0,0,0.3)",
+          "padding": "20px",
+          "borderRadius": "15px"
+        },
+        {
+          "id": "subtitle-1",
+          "type": "text",
+          "content": "Exploring the future of digital transformation",
+          "x": 200,
+          "y": 250,
+          "width": 500,
+          "height": 60,
+          "fontFamily": "Inter",
+          "fontSize": 24,
+          "fontWeight": "normal",
+          "color": "#f0f0f0",
+          "textAlign": "center"
+        },
+        {
+          "id": "tech-icon-1",
+          "type": "shape",
+          "shapeType": "circle",
+          "x": 100,
+          "y": 400,
+          "width": 80,
+          "height": 80,
+          "fillColor": "#ff6b6b",
+          "borderColor": "#ffffff",
+          "borderWidth": 4
+        },
+        {
+          "id": "tech-icon-2",
+          "type": "shape",
+          "shapeType": "circle",
+          "x": 400,
+          "y": 400,
+          "width": 80,
+          "height": 80,
+          "fillColor": "#4ecdc4",
+          "borderColor": "#ffffff",
+          "borderWidth": 4
+        },
+        {
+          "id": "tech-icon-3",
+          "type": "shape",
+          "shapeType": "circle",
+          "x": 700,
+          "y": 400,
+          "width": 80,
+          "height": 80,
+          "fillColor": "#45b7d1",
+          "borderColor": "#ffffff",
+          "borderWidth": 4
+        }
+      ]
+    },
+    {
+      "id": "slide-2",
+      "title": "Features Overview",
+      "backgroundColor": "#f093fb",
+      "backgroundImage": "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+      "elements": [
+        {
+          "id": "title-2",
+          "type": "text",
+          "content": "Key Technologies",
+          "x": 200,
+          "y": 100,
+          "width": 500,
+          "height": 60,
+          "fontFamily": "Inter",
+          "fontSize": 36,
+          "fontWeight": "bold",
+          "color": "#ffffff",
+          "textAlign": "center"
+        },
+        {
+          "id": "tech-card-1",
+          "type": "text",
+          "content": "🤖 AI & Machine Learning\n\nAdvanced algorithms for intelligent automation",
+          "x": 50,
+          "y": 200,
+          "width": 250,
+          "height": 150,
+          "fontFamily": "Inter",
+          "fontSize": 16,
+          "fontWeight": "normal",
+          "color": "#2c3e50",
+          "textAlign": "center",
+          "backgroundColor": "rgba(255,255,255,0.9)",
+          "padding": "20px",
+          "borderRadius": "15px"
+        },
+        {
+          "id": "tech-card-2",
+          "type": "text",
+          "content": "☁️ Cloud Computing\n\nScalable infrastructure for modern applications",
+          "x": 350,
+          "y": 200,
+          "width": 250,
+          "height": 150,
+          "fontFamily": "Inter",
+          "fontSize": 16,
+          "fontWeight": "normal",
+          "color": "#2c3e50",
+          "textAlign": "center",
+          "backgroundColor": "rgba(255,255,255,0.9)",
+          "padding": "20px",
+          "borderRadius": "15px"
+        },
+        {
+          "id": "tech-card-3",
+          "type": "text",
+          "content": "🔒 Cybersecurity\n\nProtecting digital assets and data privacy",
+          "x": 650,
+          "y": 200,
+          "width": 250,
+          "height": 150,
+          "fontFamily": "Inter",
+          "fontSize": 16,
+          "fontWeight": "normal",
+          "color": "#2c3e50",
+          "textAlign": "center",
+          "backgroundColor": "rgba(255,255,255,0.9)",
+          "padding": "20px",
+          "borderRadius": "15px"
+        },
+        {
+          "id": "decorative-line",
+          "type": "shape",
+          "shapeType": "rectangle",
+          "x": 100,
+          "y": 400,
+          "width": 700,
+          "height": 8,
+          "fillColor": "#ffffff",
+          "borderColor": "transparent",
+          "borderWidth": 0
+        }
+      ]
+    },
+    {
+      "id": "slide-3",
+      "title": "Future Vision",
+      "backgroundColor": "#a8edea",
+      "backgroundImage": "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
+      "elements": [
+        {
+          "id": "title-3",
+          "type": "text",
+          "content": "The Future is Here",
+          "x": 200,
+          "y": 100,
+          "width": 500,
+          "height": 60,
+          "fontFamily": "Inter",
+          "fontSize": 36,
+          "fontWeight": "bold",
+          "color": "#2c3e50",
+          "textAlign": "center"
+        },
+        {
+          "id": "future-content",
+          "type": "text",
+          "content": "🚀 Emerging Technologies\n\n• Quantum Computing\n• Blockchain Innovation\n• IoT Integration\n• 5G Networks\n• Augmented Reality",
+          "x": 150,
+          "y": 200,
+          "width": 400,
+          "height": 250,
+          "fontFamily": "Inter",
+          "fontSize": 18,
+          "fontWeight": "normal",
+          "color": "#34495e",
+          "textAlign": "left",
+          "backgroundColor": "rgba(255,255,255,0.8)",
+          "padding": "25px",
+          "borderRadius": "20px"
+        },
+        {
+          "id": "vision-statement",
+          "type": "text",
+          "content": "Building tomorrow's digital landscape today",
+          "x": 200,
+          "y": 480,
+          "width": 500,
+          "height": 40,
+          "fontFamily": "Inter",
+          "fontSize": 20,
+          "fontWeight": "600",
+          "color": "#2c3e50",
+          "textAlign": "center",
+          "backgroundColor": "rgba(255,255,255,0.6)",
+          "padding": "15px",
+          "borderRadius": "25px"
+        }
+      ]
+    }
+  ]
+}

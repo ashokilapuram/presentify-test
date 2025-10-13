@@ -1,0 +1,129 @@
+{
+  "name": "Big Data Analytics",
+  "description": "Professional template for big data and analytics presentations",
+  "category": "Technology",
+  "slides": [
+    {
+      "id": "slide-1",
+      "title": "Big Data Analytics",
+      "backgroundColor": "#ffffff",
+      "backgroundImage": null,
+      "elements": [
+        {
+          "id": "title-1",
+          "type": "text",
+          "content": "Empowering Insights through Big Data and Analytics",
+          "x": 150,
+          "y": 120,
+          "width": 600,
+          "height": 80,
+          "fontFamily": "Inter",
+          "fontSize": 48,
+          "fontWeight": "bold",
+          "color": "#1e293b",
+          "textAlign": "center"
+        },
+        {
+          "id": "subtitle-1",
+          "type": "text",
+          "content": "Let's explore the dynamic realm of Big Data and Analytics where data becomes a powerful resource driving innovation and decision making. This presentation uncovers the foundational concepts, cutting edge techniques and real world applications of this rapidly evolving field, highlighting its profound impact on industries and the future.",
+          "x": 100,
+          "y": 220,
+          "width": 700,
+          "height": 120,
+          "fontFamily": "Inter",
+          "fontSize": 18,
+          "fontWeight": "normal",
+          "color": "#64748b",
+          "textAlign": "center"
+        }
+      ]
+    },
+    {
+      "id": "slide-2",
+      "title": "What is Big Data?",
+      "backgroundColor": "#ffffff",
+      "backgroundImage": null,
+      "elements": [
+        {
+          "id": "header-1",
+          "type": "text",
+          "content": "What is Big Data?",
+          "x": 200,
+          "y": 100,
+          "width": 500,
+          "height": 60,
+          "fontFamily": "Inter",
+          "fontSize": 36,
+          "fontWeight": "bold",
+          "color": "#1e293b",
+          "textAlign": "left"
+        },
+        {
+          "id": "content-1",
+          "type": "text",
+          "content": "Big data refers to exceptionally large and complex datasets that cannot be effectively managed, processed or analysed using traditional tools and methods. It is characterized by 5V's: volume, velocity, variety, veracity and value. Big data is generated from diverse sources including social media, sensors, e-commerce and IoT devices. Specialized tools like Hadoop and machine learning algorithms analyze this data to uncover patterns, improve decision-making and drive innovations in industries such as healthcare, finance and transportation.",
+          "x": 100,
+          "y": 200,
+          "width": 700,
+          "height": 200,
+          "fontFamily": "Inter",
+          "fontSize": 16,
+          "fontWeight": "normal",
+          "color": "#374151",
+          "textAlign": "left"
+        }
+      ]
+    },
+    {
+      "id": "slide-3",
+      "title": "Conclusion",
+      "backgroundColor": "#ffffff",
+      "backgroundImage": null,
+      "elements": [
+        {
+          "id": "conclusion-title",
+          "type": "text",
+          "content": "Conclusion",
+          "x": 200,
+          "y": 100,
+          "width": 500,
+          "height": 60,
+          "fontFamily": "Inter",
+          "fontSize": 36,
+          "fontWeight": "bold",
+          "color": "#1e293b",
+          "textAlign": "left"
+        },
+        {
+          "id": "conclusion-content",
+          "type": "text",
+          "content": "In conclusion, big data and analytics have become essential tools for unlocking insights, driving innovation and enabling informed decision making. By embracing these technologies responsibly, organisations can tackle challenges effectively, optimize processes and secure a sustainable competitive advantage in an increasingly data-driven world.",
+          "x": 100,
+          "y": 200,
+          "width": 700,
+          "height": 120,
+          "fontFamily": "Inter",
+          "fontSize": 18,
+          "fontWeight": "normal",
+          "color": "#374151",
+          "textAlign": "left"
+        },
+        {
+          "id": "author",
+          "type": "text",
+          "content": "Saipooja Ch\n21JJ1A1208",
+          "x": 100,
+          "y": 350,
+          "width": 300,
+          "height": 60,
+          "fontFamily": "Inter",
+          "fontSize": 16,
+          "fontWeight": "normal",
+          "color": "#6b7280",
+          "textAlign": "left"
+        }
+      ]
+    }
+  ]
+}
