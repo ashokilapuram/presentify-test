@@ -1,0 +1,289 @@
+/* TextBox Component Styles */
+.textbox-container {
+  position: absolute;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: var(--radius-md, 8px);
+  transition: all var(--transition-normal, 250ms ease);
+  background: transparent;
+  outline: none;
+  user-select: none;
+  min-width: 50px;
+  min-height: 30px;
+}
+
+.textbox-container.selected:not(.editing) {
+  cursor: move;
+}
+
+.textbox-container:hover:not(.editing) {
+  border-color: var(--primary-300, #7dd3fc);
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.1);
+}
+
+.textbox-container.selected {
+  border-color: var(--primary-500, #0ea5e9);
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.2);
+}
+
+.textbox-container.editing {
+  border-color: var(--primary-600, #0284c7);
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.3);
+  background: rgba(14, 165, 233, 0.02);
+}
+
+/* Textarea for editing */
+.textbox-textarea {
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  border: none;
+  outline: none;
+  background: transparent;
+  resize: none;
+  overflow: hidden;
+  font-family: inherit;
+  line-height: inherit;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  cursor: text;
+  user-select: text;
+}
+
+.textbox-textarea:focus {
+  outline: none;
+  background: rgba(14, 165, 233, 0.03);
+}
+
+.textbox-textarea::selection {
+  background: var(--primary-200, #bae6fd);
+  color: var(--neutral-900, #171717);
+}
+
+.textbox-textarea::-webkit-scrollbar {
+  display: none;
+}
+
+.textbox-textarea {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Display mode */
+.textbox-display {
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.textbox-container:not(.editing) .textbox-display {
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+/* Placeholder styling */
+.textbox-display:empty::before {
+  content: 'Click to edit text';
+  color: var(--neutral-400, #a3a3a3);
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.textbox-container.editing .textbox-display:empty::before {
+  content: '';
+}
+
+/* Resize handles */
+.textbox-resize-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--primary-500, #0ea5e9);
+  background: linear-gradient(135deg, var(--primary-600, #0284c7) 0%, var(--primary-700, #0369a1) 100%);
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transition: all var(--transition-fast, 150ms ease);
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+.textbox-container.selected .textbox-resize-handle {
+  opacity: 1;
+}
+
+.textbox-resize-handle:hover {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(135deg, var(--primary-500, #0ea5e9) 0%, var(--primary-600, #0284c7) 100%);
+}
+
+/* Resize handle positions */
+.textbox-resize-handle-nw { 
+  top: -5px; 
+  left: -5px; 
+  cursor: nw-resize; 
+}
+
+.textbox-resize-handle-n { 
+  top: -5px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  cursor: n-resize; 
+}
+
+.textbox-resize-handle-ne { 
+  top: -5px; 
+  right: -5px; 
+  cursor: ne-resize; 
+}
+
+.textbox-resize-handle-e { 
+  top: 50%; 
+  right: -5px; 
+  transform: translateY(-50%); 
+  cursor: e-resize; 
+}
+
+.textbox-resize-handle-se { 
+  bottom: -5px; 
+  right: -5px; 
+  cursor: se-resize; 
+}
+
+.textbox-resize-handle-s { 
+  bottom: -5px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  cursor: s-resize; 
+}
+
+.textbox-resize-handle-sw { 
+  bottom: -5px; 
+  left: -5px; 
+  cursor: sw-resize; 
+}
+
+.textbox-resize-handle-w { 
+  top: 50%; 
+  left: -5px; 
+  transform: translateY(-50%); 
+  cursor: w-resize; 
+}
+
+/* Hover effects for resize handles */
+.textbox-resize-handle-nw:hover,
+.textbox-resize-handle-ne:hover,
+.textbox-resize-handle-sw:hover,
+.textbox-resize-handle-se:hover {
+  background: linear-gradient(135deg, var(--accent-purple, #8b5cf6) 0%, var(--primary-600, #0284c7) 100%);
+}
+
+/* Focus and selection states */
+.textbox-container:focus {
+  outline: none;
+}
+
+.textbox-container.editing:focus-within {
+  border-color: var(--primary-600, #0284c7);
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.4);
+}
+
+/* Animation for new textboxes */
+.textbox-container {
+  animation: textboxFadeIn var(--transition-slow, 350ms) ease-out;
+}
+
+@keyframes textboxFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Text selection improvements */
+.textbox-textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+.textbox-textarea::-moz-selection {
+  background: var(--primary-200, #bae6fd);
+  color: var(--neutral-900, #171717);
+}
+
+/* Improved typography */
+.textbox-container {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+  .textbox-resize-handle {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .textbox-resize-handle-nw,
+  .textbox-resize-handle-ne,
+  .textbox-resize-handle-sw,
+  .textbox-resize-handle-se {
+    top: -6px;
+    right: -6px;
+    bottom: -6px;
+    left: -6px;
+  }
+  
+  .textbox-textarea,
+  .textbox-display {
+    padding: 6px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .textbox-container.selected {
+    border-color: #000;
+    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.3);
+  }
+  
+  .textbox-resize-handle {
+    background: #000;
+    border-color: #fff;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .textbox-container,
+  .textbox-resize-handle {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .textbox-resize-handle {
+    display: none;
+  }
+  
+  .textbox-container {
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
