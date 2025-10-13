@@ -413,6 +413,43 @@ body.dark .pan-label {
   border-right-color: rgba(0, 0, 0, 0.9);
 }
 
+.tutorial-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tutorial-text {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.tutorial-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.tutorial-skip-button {
+  background: transparent;
+  color: #999;
+  border: 1px solid #666;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  pointer-events: auto;
+}
+
+.tutorial-skip-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ccc;
+  border-color: #999;
+}
+
 .tutorial-next-button {
   background: #007bff;
   color: white;
@@ -422,7 +459,6 @@ body.dark .pan-label {
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  margin-left: 8px;
   transition: all 0.2s ease;
   pointer-events: auto;
 }

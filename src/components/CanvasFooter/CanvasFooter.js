@@ -16,24 +16,21 @@ const CanvasFooter = ({
   // Debug: Log props to see what we're receiving
   console.log('CanvasFooter props:', { manualZoom, isPanning, setManualZoom, setIsPanning, setShowDragMessage });
   
-  // Check if tutorial should be shown on first load
+  // Show tutorial on every page load
   useEffect(() => {
-    const hasSeenTutorial = localStorage.getItem('canvasFooterTutorialSeen');
-    if (!hasSeenTutorial) {
-      setShowTutorial(true);
-      setTutorialStep(0);
-      // Set initial tooltip position for zoom button
-      setTimeout(() => {
-        const zoomButton = document.querySelector('.zoom-out');
-        if (zoomButton) {
-          const rect = zoomButton.getBoundingClientRect();
-          setTooltipPosition({
-            top: rect.top - 60,
-            left: rect.left - 50
-          });
-        }
-      }, 100);
-    }
+    setShowTutorial(true);
+    setTutorialStep(0);
+    // Set initial tooltip position for zoom button
+    setTimeout(() => {
+      const zoomButton = document.querySelector('.zoom-out');
+      if (zoomButton) {
+        const rect = zoomButton.getBoundingClientRect();
+        setTooltipPosition({
+          top: rect.top - 60,
+          left: rect.left - 50
+        });
+      }
+    }, 100);
   }, []);
   
   // Handle tutorial navigation
@@ -54,8 +51,11 @@ const CanvasFooter = ({
     } else {
       // End tutorial
       setShowTutorial(false);
-      localStorage.setItem('canvasFooterTutorialSeen', 'true');
     }
+  };
+
+  const handleSkipTutorial = () => {
+    setShowTutorial(false);
   };
   
   const handleZoomOut = (e) => {
@@ -159,13 +159,25 @@ const CanvasFooter = ({
             left: tooltipPosition.left,
           }}
         >
-          {tutorialStep === 0 ? 'Zoom according to display' : 'Click here and drag canvas'}
-          <button 
-            className="tutorial-next-button"
-            onClick={handleTutorialNext}
-          >
-            Next
-          </button>
+          <div className="tutorial-content">
+            <div className="tutorial-text">
+              {tutorialStep === 0 ? 'Zoom according to display' : 'Click here and drag canvas'}
+            </div>
+            <div className="tutorial-buttons">
+              <button 
+                className="tutorial-skip-button"
+                onClick={handleSkipTutorial}
+              >
+                Skip
+              </button>
+              <button 
+                className="tutorial-next-button"
+                onClick={handleTutorialNext}
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </>
