@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { FiX, FiChevronLeft, FiChevronRight, FiPause, FiPlay } from 'react-icons/fi';
 import './FullScreenSlideshow.css';
 
 const FullScreenSlideshow = ({ slides, currentSlideIndex, onClose, onSlideChange }) => {
   const [isPlaying, setIsPlaying] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(currentSlideIndex);
-  const [timeRemaining, setTimeRemaining] = useState(2);
+  const [timeRemaining, setTimeRemaining] = useState(5);
 
   // Auto-advance timer
   useEffect(() => {
@@ -20,7 +21,7 @@ const FullScreenSlideshow = ({ slides, currentSlideIndex, onClose, onSlideChange
             setCurrentSlide(nextIndex);
             onSlideChange(nextIndex);
           }, 0);
-          return 2;
+          return 5;
         }
         return prev - 1;
       });
@@ -33,20 +34,28 @@ const FullScreenSlideshow = ({ slides, currentSlideIndex, onClose, onSlideChange
     const nextIndex = (currentSlide + 1) % slides.length;
     setCurrentSlide(nextIndex);
     onSlideChange(nextIndex);
-    setTimeRemaining(2);
+    setTimeRemaining(5);
   }, [currentSlide, slides.length, onSlideChange]);
 
   const prevSlide = useCallback(() => {
     const prevIndex = (currentSlide - 1 + slides.length) % slides.length;
     setCurrentSlide(prevIndex);
     onSlideChange(prevIndex);
-    setTimeRemaining(2);
+    setTimeRemaining(5);
   }, [currentSlide, slides.length, onSlideChange]);
 
   // Reset timer when slide changes manually
   useEffect(() => {
-    setTimeRemaining(2);
+    setTimeRemaining(5);
   }, [currentSlide]);
+
+  // Prevent body scrolling when slideshow is open
+  useEffect(() => {
+    document.body.classList.add('slideshow-open');
+    return () => {
+      document.body.classList.remove('slideshow-open');
+    };
+  }, []);
 
   const togglePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -85,7 +94,29 @@ const FullScreenSlideshow = ({ slides, currentSlideIndex, onClose, onSlideChange
   const renderSlideContent = (slide) => {
     if (!slide || !slide.elements) return null;
 
-    return slide.elements.map((element) => {
+    // Calculate scale factor to fit slide content in fullscreen
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const slideWidth = 800; // Standard slide width
+    const slideHeight = 600; // Standard slide height
+    
+    const scaleX = screenWidth / slideWidth;
+    const scaleY = screenHeight / slideHeight;
+    const scale = Math.min(scaleX, scaleY);
+
+    return (
+      <div 
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          width: slideWidth,
+          height: slideHeight,
+          transform: `translate(-50%, -50%) scale(${scale})`,
+          transformOrigin: 'center center'
+        }}
+      >
+        {slide.elements.map((element) => {
       if (element.type === 'text') {
         return (
           <div
@@ -182,10 +213,12 @@ const FullScreenSlideshow = ({ slides, currentSlideIndex, onClose, onSlideChange
       }
       
       return null;
-    });
+    })}
+      </div>
+    );
   };
 
-  return (
+  return createPortal(
     <div className="fullscreen-slideshow">
       <div className="slideshow-header">
         <div className="slideshow-controls">
@@ -232,37 +265,14 @@ const FullScreenSlideshow = ({ slides, currentSlideIndex, onClose, onSlideChange
         </button>
       </div>
       
-      <div 
-        className="slideshow-content"
-        style={{
-          backgroundColor: slides[currentSlide]?.backgroundColor || '#ffffff',
-          backgroundImage: slides[currentSlide]?.backgroundImage ? `url(${slides[currentSlide].backgroundImage})` : 'none',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          position: 'relative',
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-      >
+      <div className="slideshow-content">
         <div 
           className="slide-container"
           style={{
-            position: 'relative',
-            width: '95vw',
-            height: '85vh',
-            maxWidth: '95vw',
-            maxHeight: '85vh',
             backgroundColor: slides[currentSlide]?.backgroundColor || '#ffffff',
             backgroundImage: slides[currentSlide]?.backgroundImage ? `url(${slides[currentSlide].backgroundImage})` : 'none',
             backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            border: '2px solid #333333',
-            borderRadius: '8px',
-            boxShadow: '0 0 20px rgba(0, 0, 0, 0.5)',
-            overflow: 'hidden'
+            backgroundPosition: 'center'
           }}
         >
           {renderSlideContent(slides[currentSlide])}
@@ -278,13 +288,14 @@ const FullScreenSlideshow = ({ slides, currentSlideIndex, onClose, onSlideChange
               onClick={() => {
                 setCurrentSlide(index);
                 onSlideChange(index);
-                setTimeRemaining(2);
+                setTimeRemaining(5);
               }}
             />
           ))}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
