@@ -3,7 +3,7 @@ import { Rnd } from 'react-rnd';
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
-export const BarChart = ({ width, height, labels, values, color }) => {
+export const BarChart = ({ width, height, labels, values, color, barColors }) => {
   const padding = 24;
   const innerW = Math.max(10, width - padding * 2);
   const innerH = Math.max(10, height - padding * 2);
@@ -19,9 +19,22 @@ export const BarChart = ({ width, height, labels, values, color }) => {
           const h = (v / maxVal) * (innerH - 16);
           const x = i * (barWidth + barGap);
           const y = innerH - h;
+          const barColor = (barColors && barColors[i]) || color;
           return (
             <g key={i}>
-              <rect x={x} y={y} width={barWidth} height={h} fill={color} rx={4} />
+              <rect x={x} y={y} width={barWidth} height={h} fill={barColor} rx={4} />
+              {/* Value label on top of bar */}
+              <text 
+                x={x + barWidth / 2} 
+                y={y - 4} 
+                textAnchor="middle" 
+                fontSize="10" 
+                fill="#374151"
+                fontWeight="500"
+              >
+                {v}
+              </text>
+              {/* Label below bar */}
               <text x={x + barWidth / 2} y={innerH + 14} textAnchor="middle" fontSize="10" fill="#6b7280">
                 {labels[i]}
               </text>
@@ -65,13 +78,13 @@ export const LineChart = ({ width, height, labels, values, color }) => {
   );
 };
 
-export const PieChart = ({ width, height, labels, values, color }) => {
+export const PieChart = ({ width, height, labels, values, color, sliceColors }) => {
   const cx = width / 2;
   const cy = height / 2;
   const radius = Math.max(10, Math.min(width, height) / 2 - 8);
   const total = values.reduce((a, b) => a + b, 0) || 1;
   let startAngle = -Math.PI / 2;
-  const palette = [color, '#8b5cf6', '#10b981', '#f59e0b', '#f43f5e', '#06b6d4'];
+  const defaultPalette = [color, '#8b5cf6', '#10b981', '#f59e0b', '#f43f5e', '#06b6d4'];
 
   const arcs = values.map((v, i) => {
     const angle = (v / total) * Math.PI * 2;
@@ -93,9 +106,11 @@ export const PieChart = ({ width, height, labels, values, color }) => {
     
     startAngle = endAngle;
     
+    const sliceColor = (sliceColors && sliceColors[i]) || defaultPalette[i % defaultPalette.length];
+    
     return (
       <g key={i}>
-        <path d={d} fill={palette[i % palette.length]} stroke="#ffffff" strokeWidth={1} />
+        <path d={d} fill={sliceColor} stroke="#ffffff" strokeWidth={1} />
         <text 
           x={labelX} 
           y={labelY} 
@@ -126,17 +141,17 @@ const ChartBox = ({
   scale = 1
 }) => {
   const rndRef = useRef(null);
-  const { width, height, x, y, chartType, labels, values, color } = element;
+  const { width, height, x, y, chartType, labels, values, color, barColors, sliceColors } = element;
 
   const renderChart = () => {
     switch (chartType) {
       case 'line':
         return <LineChart width={width} height={height} labels={labels} values={values} color={color} />;
       case 'pie':
-        return <PieChart width={width} height={height} labels={labels} values={values} color={color} />;
+        return <PieChart width={width} height={height} labels={labels} values={values} color={color} sliceColors={sliceColors} />;
       case 'bar':
       default:
-        return <BarChart width={width} height={height} labels={labels} values={values} color={color} />;
+        return <BarChart width={width} height={height} labels={labels} values={values} color={color} barColors={barColors} />;
     }
   };
 

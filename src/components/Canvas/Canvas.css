@@ -78,26 +78,18 @@
 .canvas {
   position: relative;
   width: 95%;
-  max-width: 850px;
+  max-width: 800px;
   height: auto;
-  aspect-ratio: 850 / 614; /* Maintain proportional aspect ratio */
+  aspect-ratio: 16 / 9; /* Maintain proper 16:9 aspect ratio */
   background: white;
   border: 3px solid #e2e8f0;
   border-radius: 16px;
-  box-shadow:
-    0 32px 64px rgba(14, 165, 233, 0.15),
-    0 16px 32px rgba(14, 165, 233, 0.08),
-    0 8px 16px rgba(14, 165, 233, 0.04);
   overflow: hidden;
   margin: 0 auto;
   z-index: 102;
   display: block;
 }
 
-.canvas:hover {
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px);
-}
 
 /* Canvas Elements */
 .canvas-element {
@@ -346,7 +338,7 @@
   /* Canvas adapts to container width */
   .canvas {
     width: 95%;
-    max-width: 850px;
+    max-width: 800px;
   }
 }
 
@@ -379,7 +371,7 @@
   /* Canvas adapts to container width */
   .canvas {
     width: 95%;
-    max-width: 850px;
+    max-width: 800px;
   }
 }
 

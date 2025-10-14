@@ -22,6 +22,30 @@
   box-sizing: border-box;
 }
 
+/* Hide scrollbar but keep scroll functionality */
+.textbox-ce::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+.textbox-ce::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.textbox-ce::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+/* For Firefox */
+.textbox-ce {
+  scrollbar-width: none;
+}
+
+/* For IE and Edge */
+.textbox-ce {
+  -ms-overflow-style: none;
+}
+
 .textbox-ce:focus {
   outline: none;
   box-shadow: none;

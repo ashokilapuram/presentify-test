@@ -16,6 +16,7 @@ const TextBox = ({
   const textDivRef = useRef(null);
   const [localContent, setLocalContent] = useState(element.content);
   const [isHovered, setIsHovered] = useState(false);
+  const [currentSize, setCurrentSize] = useState({ width: element.width, height: element.height });
 
   // Sync content
   useEffect(() => {
@@ -23,6 +24,11 @@ const TextBox = ({
       textDivRef.current.innerHTML = element.content || '';
     }
   }, [element.content]);
+
+  // Sync size with element dimensions
+  useEffect(() => {
+    setCurrentSize({ width: element.width, height: element.height });
+  }, [element.width, element.height]);
 
   // Apply element-level visual styles
   useEffect(() => {
@@ -60,12 +66,68 @@ const TextBox = ({
     }
   }, []);
 
-  // Handle text input
+  // Calculate text dimensions for auto-sizing
+  const calculateTextDimensions = useCallback(() => {
+    if (!textDivRef.current) return { width: element.width, height: element.height };
+    
+    // Get the canvas container to determine available space
+    const canvasContainer = document.querySelector('.canvas');
+    const maxAvailableWidth = canvasContainer ? canvasContainer.offsetWidth - 100 : 600; // Leave some margin
+    const maxAvailableHeight = canvasContainer ? canvasContainer.offsetHeight - 100 : 400; // Leave some margin
+    
+    // Use the current width or a reasonable default, but don't exceed slide boundaries
+    const fixedWidth = Math.min(element.width || 200, maxAvailableWidth);
+    
+    // Create a temporary div to measure text with fixed width
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.visibility = 'hidden';
+    tempDiv.style.width = `${fixedWidth}px`;
+    tempDiv.style.whiteSpace = 'pre-wrap';
+    tempDiv.style.wordWrap = 'break-word';
+    tempDiv.style.fontSize = `${element.fontSize || 16}px`;
+    tempDiv.style.fontWeight = element.fontWeight || 'normal';
+    tempDiv.style.fontStyle = element.fontStyle || 'normal';
+    tempDiv.style.fontFamily = element.fontFamily || 'Inter, sans-serif';
+    tempDiv.style.padding = '8px';
+    tempDiv.style.border = 'none';
+    tempDiv.style.outline = 'none';
+    tempDiv.style.boxSizing = 'border-box';
+    
+    // Set the content and measure height
+    tempDiv.innerHTML = textDivRef.current.innerHTML;
+    document.body.appendChild(tempDiv);
+    const totalHeight = tempDiv.offsetHeight;
+    document.body.removeChild(tempDiv);
+    
+    // Keep the fixed width, adjust height but respect slide boundaries
+    const newWidth = fixedWidth;
+    const newHeight = Math.min(
+      Math.max(totalHeight, 30), // Ensure minimum height
+      maxAvailableHeight // Don't exceed slide height
+    );
+    
+    return { width: newWidth, height: newHeight };
+  }, [element.fontSize, element.fontWeight, element.fontStyle, element.fontFamily, element.width]);
+
+  // Handle text input with auto-sizing
   const handleInput = useCallback(() => {
     const html = textDivRef.current.innerHTML;
     setLocalContent(html);
-    onUpdate(element.id, { content: html });
-  }, [element.id, onUpdate]);
+    
+    // Calculate new dimensions based on content
+    const { width, height } = calculateTextDimensions();
+    
+    // Update current size state immediately for visual feedback
+    setCurrentSize({ width, height });
+    
+    // Update element with new content and dimensions
+    onUpdate(element.id, { 
+      content: html,
+      width: width,
+      height: height
+    });
+  }, [element.id, onUpdate, calculateTextDimensions]);
 
   // Core formatting logic
   const applyFormatting = useCallback(
@@ -115,9 +177,20 @@ const TextBox = ({
           break;
       }
 
-      onUpdate(element.id, { content: el.innerHTML, [property]: value });
+      // Calculate new dimensions after formatting change
+      const { width, height } = calculateTextDimensions();
+      
+      // Update current size state immediately for visual feedback
+      setCurrentSize({ width, height });
+      
+      onUpdate(element.id, { 
+        content: el.innerHTML, 
+        [property]: value,
+        width: width,
+        height: height
+      });
     },
-    [element.id, onUpdate, restoreSelection]
+    [element.id, onUpdate, restoreSelection, calculateTextDimensions]
   );
 
   // 🔒 Call onFormatChange only once (not every render)
@@ -130,23 +203,29 @@ const TextBox = ({
 
   return (
     <Rnd
-      size={{ width: element.width, height: element.height }}
+      size={{ width: currentSize.width, height: currentSize.height }}
       position={{ x: element.x, y: element.y }}
       onDragStop={(e, d) => onUpdate(element.id, { x: d.x, y: d.y })}
-      onResizeStop={(e, dir, ref, delta, pos) =>
+      onResizeStop={(e, dir, ref, delta, pos) => {
+        const newWidth = parseInt(ref.style.width);
+        const newHeight = parseInt(ref.style.height);
+        setCurrentSize({ width: newWidth, height: newHeight });
         onUpdate(element.id, {
-          width: parseInt(ref.style.width),
-          height: parseInt(ref.style.height),
+          width: newWidth,
+          height: newHeight,
           x: pos.x,
           y: pos.y
-        })
-      }
+        });
+      }}
       bounds="parent"
       disableDragging={isEditing}
       className={`textbox-container ${isSelected ? 'selected' : ''} ${isEditing ? 'editing' : ''}`}
       style={{
         background: element.backgroundColor || 'transparent',
-        cursor: isEditing ? 'text' : 'move'
+        cursor: isEditing ? 'text' : 'move',
+        border: element.borderWidth && element.borderWidth > 0 
+          ? `${element.borderWidth}px solid ${element.borderColor || '#e5e7eb'}` 
+          : 'none'
       }}
       onClick={(e) => {
         e.stopPropagation();
@@ -186,9 +265,12 @@ const TextBox = ({
           width: '100%',
           height: '100%',
           padding: 8,
-          overflow: 'hidden',
+          overflow: 'auto',
           outline: 'none',
           background: 'transparent',
+          whiteSpace: 'pre-wrap',
+          wordWrap: 'break-word',
+          boxSizing: 'border-box',
           ...{
             fontSize: element.fontSize,
             fontWeight: element.fontWeight,

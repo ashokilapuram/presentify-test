@@ -185,7 +185,7 @@ const Canvas = ({
           style={{ 
             backgroundColor: slide?.backgroundColor || 'white',
             backgroundImage: slide?.backgroundImage ? `url(${slide.backgroundImage})` : 'none',
-            backgroundSize: 'cover',
+            backgroundSize: 'contain',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             margin: '0 auto'
