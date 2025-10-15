@@ -156,18 +156,18 @@ function App() {
       case 'title':
         fontSize = 60;
         fontWeight = 'bold';
-        content = 'Click to edit title';
+        content = 'Click to add title';
         break;
       case 'subtitle':
         fontSize = 36;
         fontWeight = 'bold';
-        content = 'Click to edit subtitle';
+        content = 'Click to add subtitle';
         break;
       case 'content':
       default:
         fontSize = 24;
         fontWeight = 'normal';
-        content = 'Click to edit content';
+        content = 'Click to add content';
         break;
     }
 
@@ -177,7 +177,7 @@ function App() {
       content: content,
       x: 100,
       y: 100,
-      width: textType === 'title' ? 400 : textType === 'subtitle' ? 300 : 250,
+      width: textType === 'title' ? 600 : textType === 'subtitle' ? 450 : 300,
       height: textType === 'title' ? 80 : textType === 'subtitle' ? 50 : 40,
       fontSize: fontSize,
       fontWeight: fontWeight,

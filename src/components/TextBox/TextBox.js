@@ -110,6 +110,52 @@ const TextBox = ({
     return { width: newWidth, height: newHeight };
   }, [element.fontSize, element.fontWeight, element.fontStyle, element.fontFamily, element.width]);
 
+  // Calculate text dimensions for a specific width (used during resize)
+  const calculateTextDimensionsForWidth = useCallback((targetWidth) => {
+    if (!textDivRef.current) return { width: targetWidth, height: element.height };
+    
+    // Get the canvas container to determine available space
+    const canvasContainer = document.querySelector('.canvas');
+    const maxAvailableHeight = canvasContainer ? canvasContainer.offsetHeight - 100 : 400; // Leave some margin
+    
+    // Create a temporary div to measure text with the target width
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.visibility = 'hidden';
+    tempDiv.style.top = '-9999px';
+    tempDiv.style.left = '-9999px';
+    tempDiv.style.width = `${targetWidth}px`;
+    tempDiv.style.whiteSpace = 'pre-wrap';
+    tempDiv.style.wordWrap = 'break-word';
+    tempDiv.style.fontSize = `${element.fontSize || 16}px`;
+    tempDiv.style.fontWeight = element.fontWeight || 'normal';
+    tempDiv.style.fontStyle = element.fontStyle || 'normal';
+    tempDiv.style.fontFamily = element.fontFamily || 'Inter, sans-serif';
+    tempDiv.style.padding = '8px';
+    tempDiv.style.border = 'none';
+    tempDiv.style.outline = 'none';
+    tempDiv.style.boxSizing = 'border-box';
+    tempDiv.style.lineHeight = 'normal';
+    tempDiv.style.margin = '0';
+    
+    // Set the content and measure height
+    tempDiv.innerHTML = textDivRef.current.innerHTML;
+    document.body.appendChild(tempDiv);
+    
+    // Force a reflow to ensure accurate measurement
+    const totalHeight = tempDiv.offsetHeight;
+    document.body.removeChild(tempDiv);
+    
+    // Calculate optimal height for the target width
+    // PowerPoint-like behavior: height adjusts dynamically based on text wrapping
+    const newHeight = Math.min(
+      Math.max(totalHeight, 30), // Ensure minimum height
+      maxAvailableHeight // Don't exceed slide height
+    );
+    
+    return { width: targetWidth, height: newHeight };
+  }, [element.fontSize, element.fontWeight, element.fontStyle, element.fontFamily, element.height]);
+
   // Handle text input with auto-sizing
   const handleInput = useCallback(() => {
     const html = textDivRef.current.innerHTML;
@@ -208,7 +254,15 @@ const TextBox = ({
       onDragStop={(e, d) => onUpdate(element.id, { x: d.x, y: d.y })}
       onResizeStop={(e, dir, ref, delta, pos) => {
         const newWidth = parseInt(ref.style.width);
-        const newHeight = parseInt(ref.style.height);
+        let newHeight = parseInt(ref.style.height);
+        
+        // Auto-adjust height when resizing horizontally (width changes)
+        // This includes: 'e' (east), 'w' (west), 'se' (southeast), 'sw' (southwest), 'ne' (northeast), 'nw' (northwest)
+        if (dir.includes('e') || dir.includes('w')) {
+          const { height: calculatedHeight } = calculateTextDimensionsForWidth(newWidth);
+          newHeight = calculatedHeight;
+        }
+        
         setCurrentSize({ width: newWidth, height: newHeight });
         onUpdate(element.id, {
           width: newWidth,

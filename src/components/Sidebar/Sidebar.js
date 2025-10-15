@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { FiPlus, FiLayout } from 'react-icons/fi';
 import { BarChart, LineChart, PieChart } from '../ChartBox/ChartBox';
+import TextBox from '../TextBox/TextBox';
+import ShapeBox from '../ShapeBox/ShapeBox';
+import ImageBox from '../ImageBox/ImageBox';
+import ChartBox from '../ChartBox/ChartBox';
 import './Sidebar.css';
 
 const Sidebar = ({ 
@@ -98,106 +102,77 @@ const Sidebar = ({
                     backgroundPosition: 'center'
                   }}
                 >
-                  <div className="slide-thumbnail-content">
+                  <div className="slide-thumbnail-content" style={{ transform: 'scale(0.15)', transformOrigin: 'top left', width: '666.67%', height: '666.67%' }}>
                     {slide.elements.map((element) => {
+                      // Scale down the element properties for the preview
+                      const scaledElement = {
+                        ...element,
+                        x: element.x,
+                        y: element.y,
+                        width: element.width,
+                        height: element.height,
+                        fontSize: element.fontSize,
+                        borderWidth: element.borderWidth,
+                        borderRadius: element.borderRadius
+                      };
+
                       if (element.type === 'text') {
                         return (
-                          <div
+                          <TextBox
                             key={element.id}
-                            style={{
-                              position: 'absolute',
-                              left: element.x * 0.15,
-                              top: element.y * 0.15,
-                              width: element.width * 0.15,
-                              height: element.height * 0.15,
-                              fontSize: Math.max(element.fontSize * 0.15, 6),
-                              fontWeight: element.fontWeight,
-                              fontStyle: element.fontStyle,
-                              textDecoration: element.textDecoration,
-                              textAlign: element.textAlign,
-                              color: element.color,
-                              fontFamily: element.fontFamily,
-                              backgroundColor: element.backgroundColor || 'transparent',
-                              padding: element.padding ? `${parseFloat(element.padding) * 0.15}px` : '1px',
-                              borderRadius: element.borderRadius ? `${parseFloat(element.borderRadius) * 0.15}px` : '0',
-                              overflow: 'hidden',
-                              whiteSpace: 'nowrap',
-                              textOverflow: 'ellipsis',
-                              lineHeight: 1.1,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: element.textAlign === 'center' ? 'center' : element.textAlign === 'right' ? 'flex-end' : 'flex-start'
-                            }}
-                            dangerouslySetInnerHTML={{ __html: element.content }}
+                            element={scaledElement}
+                            isSelected={false}
+                            isEditing={false}
+                            onSelect={() => {}}
+                            onEdit={() => {}}
+                            onUpdate={() => {}}
+                            onDelete={() => {}}
+                            onMouseDown={() => {}}
+                            textFormatting={{}}
+                            hoverPreview={null}
                           />
                         );
                       }
+
                       if (element.type === 'shape') {
                         return (
-                          <div
+                          <ShapeBox
                             key={element.id}
-                            style={{
-                              position: 'absolute',
-                              left: element.x * 0.15,
-                              top: element.y * 0.15,
-                              width: element.width * 0.15,
-                              height: element.height * 0.15,
-                              backgroundColor: element.fillColor,
-                              border: `${(element.borderWidth || 0) * 0.15}px solid ${element.borderColor}`,
-                              borderRadius: element.shapeType === 'circle' ? '50%' : element.borderRadius ? `${parseFloat(element.borderRadius) * 0.15}px` : '0',
-                              minWidth: '2px',
-                              minHeight: '2px'
-                            }}
+                            element={scaledElement}
+                            isSelected={false}
+                            onSelect={() => {}}
+                            onUpdate={() => {}}
+                            onDelete={() => {}}
                           />
                         );
                       }
+
                       if (element.type === 'image') {
                         return (
-                          <img
+                          <ImageBox
                             key={element.id}
-                            src={element.src}
-                            alt=""
-                            style={{
-                              position: 'absolute',
-                              left: element.x * 0.15,
-                              top: element.y * 0.15,
-                              width: element.width * 0.15,
-                              height: element.height * 0.15,
-                              objectFit: 'contain',
-                              minWidth: '2px',
-                              minHeight: '2px'
-                            }}
+                            element={scaledElement}
+                            isSelected={false}
+                            onSelect={() => {}}
+                            onUpdate={() => {}}
+                            onDelete={() => {}}
                           />
                         );
                       }
+
                       if (element.type === 'chart') {
-                        const props = { 
-                          width: Math.max(element.width * 0.15, 8), 
-                          height: Math.max(element.height * 0.15, 8), 
-                          labels: element.labels, 
-                          values: element.values, 
-                          color: element.color 
-                        };
                         return (
-                          <div
+                          <ChartBox
                             key={element.id}
-                            style={{
-                              position: 'absolute',
-                              left: element.x * 0.15,
-                              top: element.y * 0.15,
-                              width: Math.max(element.width * 0.15, 8),
-                              height: Math.max(element.height * 0.15, 8),
-                              overflow: 'hidden',
-                              minWidth: '8px',
-                              minHeight: '8px'
-                            }}
-                          >
-                            {element.chartType === 'line' && <LineChart {...props} />}
-                            {element.chartType === 'pie' && <PieChart {...props} />}
-                            {element.chartType === 'bar' && <BarChart {...props} />}
-                          </div>
+                            element={scaledElement}
+                            isSelected={false}
+                            onSelect={() => {}}
+                            onUpdate={() => {}}
+                            onDelete={() => {}}
+                          />
                         );
                       }
+
                       return null;
                     })}
                   </div>

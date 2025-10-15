@@ -3,6 +3,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import TextBox from '../TextBox/TextBox';
 import ChartBox from '../ChartBox/ChartBox';
 import ShapeBox from '../ShapeBox/ShapeBox';
+import ImageBox from '../ImageBox/ImageBox';
 
 const Canvas = ({ 
   slide, 
@@ -236,37 +237,20 @@ const Canvas = ({
               );
             }
 
-            return (
-              <div
-                key={element.id}
-                className={`canvas-element ${selectedElement?.id === element.id ? 'selected' : ''}`}
-                style={{
-                  left: element.x,
-                  top: element.y,
-                  width: element.width,
-                  height: element.height,
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleElementSelect(element);
-                }}
-                onMouseDown={(e) => handleMouseDown(e, element)}
-              >
-                
-                {element.type === 'image' && (
-                  <img
-                    src={element.src}
-                    alt="Slide element"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'contain'
-                    }}
-                  />
-                )}
-                {renderResizeHandles(element)}
-              </div>
-            );
+            if (element.type === 'image') {
+              return (
+                <ImageBox
+                  key={element.id}
+                  element={element}
+                  isSelected={selectedElement?.id === element.id}
+                  onSelect={handleElementSelect}
+                  onUpdate={updateSlideElement}
+                  onDelete={deleteElement}
+                />
+              );
+            }
+
+            return null;
           })}
         </div>
       
