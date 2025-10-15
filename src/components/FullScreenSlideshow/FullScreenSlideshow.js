@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { FiX, FiChevronLeft, FiChevronRight, FiPause, FiPlay } from 'react-icons/fi';
+import { BarChart, LineChart, PieChart } from '../ChartBox/ChartBox';
 import './FullScreenSlideshow.css';
 
 const FullScreenSlideshow = ({ slides, currentSlideIndex, onClose, onSlideChange }) => {
@@ -94,15 +95,21 @@ const FullScreenSlideshow = ({ slides, currentSlideIndex, onClose, onSlideChange
   const renderSlideContent = (slide) => {
     if (!slide || !slide.elements) return null;
 
-    // Calculate scale factor to fit slide content in fullscreen
+    // Use the same dimensions as the canvas (16:9 aspect ratio, max 800px width)
+    const slideWidth = 800;
+    const slideHeight = 450; // 800 * 9/16 = 450 (16:9 aspect ratio)
+    
+    // Calculate scale factor to fit slide content in fullscreen while maintaining aspect ratio
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
-    const slideWidth = 800; // Standard slide width
-    const slideHeight = 600; // Standard slide height
     
-    const scaleX = screenWidth / slideWidth;
-    const scaleY = screenHeight / slideHeight;
-    const scale = Math.min(scaleX, scaleY);
+    // Account for header and footer space (approximately 120px total)
+    const availableHeight = screenHeight - 120;
+    const availableWidth = screenWidth;
+    
+    const scaleX = availableWidth / slideWidth;
+    const scaleY = availableHeight / slideHeight;
+    const scale = Math.min(scaleX, scaleY, 1); // Don't scale up beyond 100%
 
     return (
       <div 
@@ -157,9 +164,13 @@ const FullScreenSlideshow = ({ slides, currentSlideIndex, onClose, onSlideChange
               top: element.y,
               width: element.width,
               height: element.height,
-              backgroundColor: element.fillColor,
-              border: `${element.borderWidth || 0}px solid ${element.borderColor}`,
-              borderRadius: element.shapeType === 'circle' ? '50%' : element.borderRadius || 0
+              backgroundColor: element.fillColor || '#3b82f6',
+              border: `${element.borderWidth || 0}px solid ${element.borderColor || '#1e40af'}`,
+              borderRadius: element.shapeType === 'circle' ? '50%' : (element.shapeType === 'rectangle' ? 0 : element.borderRadius || 0),
+              transform: `rotate(${element.rotation || 0}deg)`,
+              transformOrigin: 'center',
+              clipPath: element.shapeType === 'triangle' ? 'polygon(50% 0%, 0% 100%, 100% 100%)' : 
+                         element.shapeType === 'star' ? 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)' : 'none'
             }}
           />
         );
@@ -184,30 +195,54 @@ const FullScreenSlideshow = ({ slides, currentSlideIndex, onClose, onSlideChange
       }
       
       if (element.type === 'chart') {
-        // Render chart based on chartType
+        // Render chart based on chartType using the actual chart components
         const chartStyle = {
           position: 'absolute',
           left: element.x,
           top: element.y,
           width: element.width,
-          height: element.height
+          height: element.height,
+          background: '#ffffff',
+          borderRadius: 8,
+          boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+          padding: 8
         };
         
-        // This would need to be implemented based on your chart components
+        const renderChart = () => {
+          switch (element.chartType) {
+            case 'line':
+              return <LineChart 
+                width={element.width - 16} 
+                height={element.height - 16} 
+                labels={element.labels} 
+                values={element.values} 
+                color={element.color} 
+              />;
+            case 'pie':
+              return <PieChart 
+                width={element.width - 16} 
+                height={element.height - 16} 
+                labels={element.labels} 
+                values={element.values} 
+                color={element.color} 
+                sliceColors={element.sliceColors} 
+              />;
+            case 'bar':
+            default:
+              return <BarChart 
+                width={element.width - 16} 
+                height={element.height - 16} 
+                labels={element.labels} 
+                values={element.values} 
+                color={element.color} 
+                barColors={element.barColors} 
+              />;
+          }
+        };
+        
         return (
           <div key={element.id} style={chartStyle}>
-            <div style={{ 
-              width: '100%', 
-              height: '100%', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              backgroundColor: '#f0f0f0',
-              border: '1px solid #ccc',
-              borderRadius: '4px'
-            }}>
-              Chart: {element.chartType}
-            </div>
+            {renderChart()}
           </div>
         );
       }
