@@ -121,151 +121,217 @@ const RightToolbar = ({
     <div className="right-toolbar-section">
 
       <div className="section-title">Themes</div>
-      <div className="option-group">
-        <div className="theme-grid">
-          <div 
-            className="theme-option premium1"
-            onClick={() => updateSlide && updateSlide({ 
-              backgroundColor: '#ff8008',
-              backgroundImage: 'linear-gradient(to right, #ff8008, #ffc837)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            })}
-          >
-            <div className="theme-preview"></div>
+      <div className="theme-images-grid">
+        <div 
+          className="theme-image-placeholder"
+          onClick={() => updateSlide && updateSlide({ 
+            backgroundImage: '/images/themes/theme1.jpg',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          })}
+        >
+          <img 
+            src="/images/themes/theme1.jpg" 
+            alt="Theme 1" 
+            className="theme-image"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+          <div className="theme-fallback" style={{ display: 'none' }}>
+            <FiImage style={{ fontSize: '2.5rem', color: '#9ca3af' }} />
           </div>
-          <div 
-            className="theme-option premium2"
-            onClick={() => updateSlide && updateSlide({ 
-              backgroundColor: '#ccccb2',
-              backgroundImage: 'linear-gradient(to right, #ccccb2, #757519)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            })}
-          >
-            <div className="theme-preview"></div>
+        </div>
+        <div 
+          className="theme-image-placeholder"
+          onClick={() => updateSlide && updateSlide({ 
+            backgroundImage: '/images/themes/theme2.jpg',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          })}
+        >
+          <img 
+            src="/images/themes/theme2.jpg" 
+            alt="Theme 2" 
+            className="theme-image"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+          <div className="theme-fallback" style={{ display: 'none' }}>
+            <FiImage style={{ fontSize: '2.5rem', color: '#9ca3af' }} />
           </div>
-          <div 
-            className="theme-option premium3"
-            onClick={() => updateSlide && updateSlide({ 
-              backgroundColor: '#434343',
-              backgroundImage: 'linear-gradient(to right, #434343, #000000)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            })}
-          >
-            <div className="theme-preview"></div>
+        </div>
+        <div 
+          className="theme-image-placeholder"
+          onClick={() => updateSlide && updateSlide({ 
+            backgroundImage: '/images/themes/theme3.jpg',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          })}
+        >
+          <img 
+            src="/images/themes/theme3.jpg" 
+            alt="Theme 3" 
+            className="theme-image"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+          <div className="theme-fallback" style={{ display: 'none' }}>
+            <FiImage style={{ fontSize: '2.5rem', color: '#9ca3af' }} />
           </div>
-          <div 
-            className="theme-option premium4"
-            onClick={() => updateSlide && updateSlide({ 
-              backgroundColor: '#F0F2F0',
-              backgroundImage: 'linear-gradient(to right, #000C40, #F0F2F0)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            })}
-          >
-            <div className="theme-preview"></div>
+        </div>
+        <div 
+          className="theme-image-placeholder"
+          onClick={() => updateSlide && updateSlide({ 
+            backgroundImage: '/images/themes/theme4.jpg',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          })}
+        >
+          <img 
+            src="/images/themes/theme4.jpg" 
+            alt="Theme 4" 
+            className="theme-image"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+          <div className="theme-fallback" style={{ display: 'none' }}>
+            <FiImage style={{ fontSize: '2.5rem', color: '#9ca3af' }} />
+          </div>
+        </div>
+        <div 
+          className="theme-image-placeholder"
+          onClick={() => updateSlide && updateSlide({ 
+            backgroundImage: '/images/themes/theme5.jpg',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          })}
+        >
+          <img 
+            src="/images/themes/theme5.jpg" 
+            alt="Theme 5" 
+            className="theme-image"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+          <div className="theme-fallback" style={{ display: 'none' }}>
+            <FiImage style={{ fontSize: '2.5rem', color: '#9ca3af' }} />
+          </div>
+        </div>
+        <div 
+          className="theme-image-placeholder"
+          onClick={() => updateSlide && updateSlide({ 
+            backgroundImage: '/images/themes/theme6.jpg',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          })}
+        >
+          <img 
+            src="/images/themes/theme6.jpg" 
+            alt="Theme 6" 
+            className="theme-image"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+          <div className="theme-fallback" style={{ display: 'none' }}>
+            <FiImage style={{ fontSize: '2.5rem', color: '#9ca3af' }} />
           </div>
         </div>
       </div>
 
-      <div className="section-title">Colors</div>
-      <div className="option-group">
-        <div className="color-palette">
-          <div 
-            className="color-swatch" 
-            style={{ backgroundColor: '#0ea5e9' }}
-            onClick={() => updateSlide && updateSlide({ backgroundColor: '#0ea5e9' })}
-            title="Apply Sky Blue"
-          ></div>
-          <div 
-            className="color-swatch" 
-            style={{ backgroundColor: '#8b5cf6' }}
-            onClick={() => updateSlide && updateSlide({ backgroundColor: '#8b5cf6' })}
-            title="Apply Purple"
-          ></div>
-          <div 
-            className="color-swatch" 
-            style={{ backgroundColor: '#10b981' }}
-            onClick={() => updateSlide && updateSlide({ backgroundColor: '#10b981' })}
-            title="Apply Emerald"
-          ></div>
-          <div 
-            className="color-swatch" 
-            style={{ backgroundColor: '#f59e0b' }}
-            onClick={() => updateSlide && updateSlide({ backgroundColor: '#f59e0b' })}
-            title="Apply Amber"
-          ></div>
-          <div 
-            className="color-swatch" 
-            style={{ backgroundColor: '#f43f5e' }}
-            onClick={() => updateSlide && updateSlide({ backgroundColor: '#f43f5e' })}
-            title="Apply Rose"
-          ></div>
-        </div>
-      </div>
 
       <div className="section-title">
         <FiDroplet style={{ marginRight: 8 }} />
-        Slide Background
+        Background
       </div>
-      <div className="option-group" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <input
-          type="color"
-          value={currentSlide?.backgroundColor || '#ffffff'}
-          onChange={(e) => {
-            updateSlide && updateSlide({ backgroundColor: e.target.value });
-          }}
-          className="color-input"
-        />
-        <button
-          className="action-button danger"
-          onClick={() => {
-            updateSlide && updateSlide({ backgroundColor: undefined });
-          }}
-        >
-          Remove
-        </button>
-      </div>
-
-      <div className="section-title">
-        <FiUpload style={{ marginRight: 8 }} />
-        Background image
-      </div>
-      <div className="option-group" style={{ display: 'flex', gap: 8 }}>
-        <button
-          className="quick-button"
-          onClick={() => {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.onchange = (e) => {
-              const file = e.target.files && e.target.files[0];
-              if (!file) return;
-              const reader = new FileReader();
-              reader.onload = (ev) => {
-                updateSlide && updateSlide({ backgroundImage: ev.target.result });
-              };
-              reader.readAsDataURL(file);
-            };
-            input.click();
-          }}
-        >
-          Upload Image
-        </button>
-        {currentSlide?.backgroundImage && (
-          <button
-            className="action-button danger"
-            onClick={() => updateSlide && updateSlide({ backgroundImage: null })}
-          >
-            Remove
-          </button>
-        )}
+      <div className="background-container">
+        <div className="background-controls">
+          <div className="background-column">
+            <div className="background-row">
+              <input
+                type="color"
+                value={currentSlide?.backgroundColor || '#ffffff'}
+                onChange={(e) => {
+                  updateSlide && updateSlide({ 
+                    backgroundColor: e.target.value,
+                    backgroundImage: null,
+                    backgroundSize: null,
+                    backgroundPosition: null,
+                    backgroundRepeat: null
+                  });
+                }}
+                className="color-input-square"
+              />
+              <button
+                className="background-action-button"
+                onClick={() => {
+                  updateSlide && updateSlide({ 
+                    backgroundColor: undefined,
+                    backgroundImage: null,
+                    backgroundSize: null,
+                    backgroundPosition: null,
+                    backgroundRepeat: null
+                  });
+                }}
+                title="Remove background color"
+              >
+                <FiTrash2 />
+              </button>
+            </div>
+          </div>
+          <div className="background-separator"></div>
+          <div className="background-column">
+            <div className="background-row">
+              <button
+                className="background-action-button"
+                onClick={() => {
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.accept = 'image/*';
+                  input.onchange = (e) => {
+                    const file = e.target.files && e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                      updateSlide && updateSlide({ backgroundImage: ev.target.result });
+                    };
+                    reader.readAsDataURL(file);
+                  };
+                  input.click();
+                }}
+                title="Upload background image"
+              >
+                <FiImage />
+              </button>
+              {currentSlide?.backgroundImage && (
+                <button
+                  className="background-action-button"
+                  onClick={() => updateSlide && updateSlide({ backgroundImage: null })}
+                  title="Remove background image"
+                >
+                  <FiTrash2 />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
 
