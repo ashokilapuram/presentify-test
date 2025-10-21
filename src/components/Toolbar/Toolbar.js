@@ -3,7 +3,8 @@ import { createPortal } from 'react-dom';
 import {
   FiBold, FiItalic, FiUnderline, FiAlignLeft, FiAlignCenter,
   FiAlignRight, FiAlignJustify, FiRotateCcw, FiRotateCw,
-  FiDownload, FiUser, FiMaximize2, FiPlay, FiType, FiArrowLeft
+  FiMaximize2, FiPlay, FiType, FiArrowLeft,
+  FiChevronDown
 } from 'react-icons/fi';
 import './Toolbar.css';
 
@@ -21,7 +22,6 @@ const Toolbar = ({
   canRedo,
   slides,
   onBackToLanding,
-  onShowProfile,
   setShowDragMessage
 }) => {
   const [viewMode, setViewMode] = useState('normal');
@@ -62,23 +62,72 @@ const Toolbar = ({
   };
 
   const applyFormat = (property, value) => {
-    restoreSelection();
-    const editor = window.__PRESENTIFY_SELECTION__?.element;
-    if (!editor) return;
-
-    if (selectedElement) {
-      updateSlideElement(selectedElement.id, {
-        [property]: value,
-        content: editor.innerHTML
-      });
+    if (selectedElement && selectedElement.type === 'text') {
+      // Check if there's a text selection in the contentEditable element
+      const textElement = document.querySelector(`[data-element-id="${selectedElement.id}"]`);
+      if (textElement) {
+        const selection = window.getSelection();
+        const hasSelection = selection && selection.rangeCount > 0 && !selection.getRangeAt(0).collapsed;
+        
+        if (hasSelection && selection.anchorNode && textElement.contains(selection.anchorNode)) {
+          // Apply formatting to selected text
+          const range = selection.getRangeAt(0);
+          const span = document.createElement('span');
+          
+          switch (property) {
+            case 'color':
+              span.style.color = value;
+              break;
+            case 'fontSize':
+              span.style.fontSize = `${value}px`;
+              break;
+            case 'fontFamily':
+              span.style.fontFamily = value;
+              break;
+            case 'fontWeight':
+              span.style.fontWeight = value;
+              break;
+            case 'fontStyle':
+              span.style.fontStyle = value;
+              break;
+            case 'textDecoration':
+              span.style.textDecoration = value;
+              break;
+            default:
+              break;
+          }
+          
+          const frag = range.extractContents();
+          span.appendChild(frag);
+          range.insertNode(span);
+          
+          // Update the element content
+          updateSlideElement(selectedElement.id, {
+            content: textElement.innerHTML,
+            [property]: value
+          });
+        } else {
+          // No text selection, update element properties directly
+          updateSlideElement(selectedElement.id, {
+            [property]: value
+          });
+        }
+      } else {
+        // Fallback: update element properties directly
+        updateSlideElement(selectedElement.id, {
+          [property]: value
+        });
+      }
     }
 
+    // Update the formatting state
     const newFormat = { ...textFormatting, [property]: value };
     setTextFormatting(newFormat);
   };
 
   const toggleStyle = (property) => {
-    const current = textFormatting[property];
+    // Get current value from selected element or formatting state
+    const current = selectedElement?.[property] || textFormatting[property];
     let newValue;
     switch (property) {
       case 'fontWeight': newValue = current === 'bold' ? 'normal' : 'bold'; break;
@@ -86,35 +135,93 @@ const Toolbar = ({
       case 'textDecoration': newValue = current === 'underline' ? 'none' : 'underline'; break;
       default: newValue = current;
     }
-    applyFormat(property, newValue);
+    
+    // For toggle styles, we need to handle text selection differently
+    if (selectedElement && selectedElement.type === 'text') {
+      const textElement = document.querySelector(`[data-element-id="${selectedElement.id}"]`);
+      if (textElement) {
+        const selection = window.getSelection();
+        const hasSelection = selection && selection.rangeCount > 0 && !selection.getRangeAt(0).collapsed;
+        
+        if (hasSelection && selection.anchorNode && textElement.contains(selection.anchorNode)) {
+          // Apply formatting to selected text using execCommand for toggle styles
+          textElement.focus();
+          switch (property) {
+            case 'fontWeight':
+              document.execCommand('bold');
+              break;
+            case 'fontStyle':
+              document.execCommand('italic');
+              break;
+            case 'textDecoration':
+              document.execCommand('underline');
+              break;
+            default:
+              break;
+          }
+          
+          // Update the element content
+          updateSlideElement(selectedElement.id, {
+            content: textElement.innerHTML,
+            [property]: newValue
+          });
+        } else {
+          // No text selection, update element properties directly
+          updateSlideElement(selectedElement.id, {
+            [property]: newValue
+          });
+        }
+      } else {
+        // Fallback: update element properties directly
+        updateSlideElement(selectedElement.id, {
+          [property]: newValue
+        });
+      }
+    }
+
+    // Update the formatting state
+    const newFormat = { ...textFormatting, [property]: newValue };
+    setTextFormatting(newFormat);
   };
 
   const fontSizes = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60];
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
+  const [activeDropdown, setActiveDropdown] = useState(null);
 
-  const handleDownload = () => {
-    const presentationData = {
-      name: "My Presentation",
-      description: "Presentation created with Presentify",
-      version: "1.0.0",
-      createdAt: new Date().toISOString(),
-      slides: slides
+  const openDropdown = (e, type) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setDropdownPos({
+      top: rect.bottom + window.scrollY + 4,
+      left: rect.left + window.scrollX,
+      width: rect.width
+    });
+    setActiveDropdown(type);
+  };
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.dropdown-menu') && !event.target.closest('.dropdown-trigger')) {
+        setActiveDropdown(null);
+      }
     };
 
-    const dataStr = JSON.stringify(presentationData, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
-    const exportFileDefaultName = `presentation-${new Date().toISOString().split('T')[0]}.json`;
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-  };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
 
   return (
     <div className="toolbar">
       <div className="toolbar-top">
-        <div className="toolbar-logo">
+        <div 
+          className="toolbar-logo"
+          onClick={onBackToLanding}
+          style={{ cursor: 'pointer' }}
+          title="Back to Landing Page"
+        >
           <div className="logo-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/>
@@ -123,18 +230,128 @@ const Toolbar = ({
           </div>
           Presentify
         </div>
-        
-        {onBackToLanding && (
-          <button 
-            className="toolbar-button"
-            onClick={onBackToLanding}
-            title="Back to Landing Page"
-          >
-            <FiArrowLeft size={16} />
-          </button>
-        )}
 
         <div className="toolbar-actions">
+          {/* Font Family Dropdown */}
+          <div className="custom-dropdown">
+            <button
+              className="toolbar-button dropdown-trigger"
+              onClick={(e) => { e.stopPropagation(); openDropdown(e, "family"); }}
+              style={{
+                fontFamily: selectedElement?.fontFamily || textFormatting.fontFamily || 'Inter',
+                minWidth: "100px",
+              }}
+            >
+              {selectedElement?.fontFamily || textFormatting.fontFamily || "Inter"}
+              <FiChevronDown size={14} />
+            </button>
+          </div>
+
+          {/* Font Size Dropdown */}
+          <div className="custom-dropdown">
+            <button
+              className="toolbar-button dropdown-trigger"
+              onClick={(e) => { e.stopPropagation(); openDropdown(e, "size"); }}
+              style={{
+                minWidth: "50px",
+              }}
+            >
+              {selectedElement?.fontSize || textFormatting.fontSize || 16}
+              <FiChevronDown size={14} />
+            </button>
+          </div>
+
+          {/* Separator */}
+          <div className="formatting-separator">|</div>
+
+          {/* Font Style */}
+          <button className={`toolbar-button ${(selectedElement?.fontWeight || textFormatting.fontWeight) === 'bold' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); toggleStyle('fontWeight'); }}>
+            <FiBold size={14} />
+          </button>
+          <button className={`toolbar-button ${(selectedElement?.fontStyle || textFormatting.fontStyle) === 'italic' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); toggleStyle('fontStyle'); }}>
+            <FiItalic size={14} />
+          </button>
+          <button className={`toolbar-button ${(selectedElement?.textDecoration || textFormatting.textDecoration) === 'underline' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); toggleStyle('textDecoration'); }}>
+            <FiUnderline size={14} />
+          </button>
+
+          {/* Separator */}
+          <div className="formatting-separator">|</div>
+
+          {/* Text Alignment */}
+          <button className={`toolbar-button ${(selectedElement?.textAlign || textFormatting.textAlign) === 'left' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); applyFormat('textAlign', 'left'); }}>
+            <FiAlignLeft size={14} />
+          </button>
+          <button className={`toolbar-button ${(selectedElement?.textAlign || textFormatting.textAlign) === 'center' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); applyFormat('textAlign', 'center'); }}>
+            <FiAlignCenter size={14} />
+          </button>
+          <button className={`toolbar-button ${(selectedElement?.textAlign || textFormatting.textAlign) === 'right' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); applyFormat('textAlign', 'right'); }}>
+            <FiAlignRight size={14} />
+          </button>
+          <button className={`toolbar-button ${(selectedElement?.textAlign || textFormatting.textAlign) === 'justify' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); applyFormat('textAlign', 'justify'); }}>
+            <FiAlignJustify size={14} />
+          </button>
+
+          {/* Separator */}
+          <div className="formatting-separator">|</div>
+
+          {/* Font Color */}
+          <div className="color-button-container">
+            <button 
+              className="toolbar-button" 
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                e.preventDefault();
+                
+                // Store current selection before opening color picker
+                if (selectedElement && selectedElement.type === 'text') {
+                  const textElement = document.querySelector(`[data-element-id="${selectedElement.id}"]`);
+                  if (textElement) {
+                    const selection = window.getSelection();
+                    if (selection && selection.rangeCount > 0 && !selection.getRangeAt(0).collapsed) {
+                      // Store the selection
+                      window.__PRESENTIFY_SELECTION__ = {
+                        element: textElement,
+                        range: selection.getRangeAt(0).cloneRange()
+                      };
+                    }
+                  }
+                }
+                
+                const colorInput = e.currentTarget.parentElement.querySelector('.color-picker');
+                if (colorInput) {
+                  colorInput.click();
+                }
+              }}
+            >
+              <span style={{ 
+                fontWeight: 'bold', 
+                textDecoration: 'underline', 
+                color: '#dc2626',
+                fontSize: '12px'
+              }}>
+                A
+              </span>
+            </button>
+            <input 
+              type="color" 
+              value={selectedElement?.color || textFormatting.color || '#000000'} 
+              onChange={(e) => { 
+                e.stopPropagation(); 
+                e.preventDefault();
+                
+                // Restore selection before applying format
+                restoreSelection();
+                applyFormat('color', e.target.value); 
+              }} 
+              onClick={(e) => e.stopPropagation()}
+              className="color-picker" 
+            />
+          </div>
+
+          {/* Separator */}
+          <div className="formatting-separator">|</div>
+
           <button 
             className={`toolbar-button ${!canUndo ? 'disabled' : ''}`}
             onClick={onUndo}
@@ -152,13 +369,6 @@ const Toolbar = ({
             <FiRotateCw size={16} />
           </button>
           <button 
-            className="toolbar-button"
-            onClick={handleDownload}
-            title="Download Presentation (Ctrl+S)"
-          >
-            <FiDownload size={16} />
-          </button>
-          <button 
             className="toolbar-button primary"
             onClick={onStartFullScreenSlideshow}
             title="Start Slideshow (F5)"
@@ -173,98 +383,46 @@ const Toolbar = ({
           >
             <FiMaximize2 size={16} />
           </button>
-          
-          
-          <div className="toolbar-user" onClick={onShowProfile} title="Profile Settings">
-            <FiUser size={20} />
-          </div>
         </div>
       </div>
-      
-      <div className="toolbar-bottom">
-        <div className="toolbar-formatting">
-          {/* Font Family */}
-          <select
-            className="formatting-select"
-            value={textFormatting.fontFamily || 'Inter'}
-            onChange={(e) => applyFormat('fontFamily', e.target.value)}
-          >
-            <option value="Inter">Inter</option>
-            <option value="Playfair Display">Playfair Display</option>
-            <option value="Arial">Arial</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Courier New">Courier New</option>
-          </select>
 
-          {/* Font Size */}
-          <select
-            className="formatting-select"
-            value={textFormatting.fontSize}
-            onChange={(e) => applyFormat('fontSize', parseInt(e.target.value))}
-          >
-            {fontSizes.map(size => (
-              <option key={size} value={size}>{size}</option>
-            ))}
-          </select>
-
-          {/* Separator */}
-          <div className="formatting-separator"></div>
-
-          {/* Font Style */}
-          <button className={`formatting-button ${textFormatting.fontWeight === 'bold' ? 'active' : ''}`} onClick={() => toggleStyle('fontWeight')}>
-            <FiBold />
-          </button>
-          <button className={`formatting-button ${textFormatting.fontStyle === 'italic' ? 'active' : ''}`} onClick={() => toggleStyle('fontStyle')}>
-            <FiItalic />
-          </button>
-          <button className={`formatting-button ${textFormatting.textDecoration === 'underline' ? 'active' : ''}`} onClick={() => toggleStyle('textDecoration')}>
-            <FiUnderline />
-          </button>
-
-          {/* Separator */}
-          <div className="formatting-separator"></div>
-
-          {/* Text Alignment */}
-          <button className={`formatting-button ${textFormatting.textAlign === 'left' ? 'active' : ''}`} onClick={() => applyFormat('textAlign', 'left')}>
-            <FiAlignLeft />
-          </button>
-          <button className={`formatting-button ${textFormatting.textAlign === 'center' ? 'active' : ''}`} onClick={() => applyFormat('textAlign', 'center')}>
-            <FiAlignCenter />
-          </button>
-          <button className={`formatting-button ${textFormatting.textAlign === 'right' ? 'active' : ''}`} onClick={() => applyFormat('textAlign', 'right')}>
-            <FiAlignRight />
-          </button>
-          <button className={`formatting-button ${textFormatting.textAlign === 'justify' ? 'active' : ''}`} onClick={() => applyFormat('textAlign', 'justify')}>
-            <FiAlignJustify />
-          </button>
-
-          {/* Separator */}
-          <div className="formatting-separator"></div>
-
-          {/* Font Color */}
-          <div className="color-button-container">
-            <button 
-              className="formatting-button color-button" 
-              onClick={() => document.querySelector('.color-picker').click()}
-              style={{ color: textFormatting.color }}
+      {/* Portal Dropdown */}
+      {activeDropdown && createPortal(
+        <div
+          className="dropdown-menu"
+          style={{
+            position: "absolute",
+            top: dropdownPos.top,
+            left: dropdownPos.left,
+            width: dropdownPos.width,
+            zIndex: 999999,
+          }}
+        >
+          {(activeDropdown === "family"
+            ? ["Inter", "Playfair Display", "Arial", "Times New Roman", "Courier New"]
+            : [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60]
+          ).map((item) => (
+            <div
+              key={item}
+              className="dropdown-item"
+              onClick={(e) => {
+                e.stopPropagation();
+                applyFormat(
+                  activeDropdown === "family" ? "fontFamily" : "fontSize",
+                  activeDropdown === "family" ? item : parseInt(item)
+                );
+                setActiveDropdown(null);
+              }}
+              style={{
+                fontFamily: activeDropdown === "family" ? item : "inherit",
+              }}
             >
-              <span style={{ 
-                fontWeight: 'bold', 
-                textDecoration: 'underline', 
-                color: '#dc2626' 
-              }}>
-                A
-              </span>
-            </button>
-            <input 
-              type="color" 
-              value={textFormatting.color} 
-              onChange={(e) => applyFormat('color', e.target.value)} 
-              className="color-picker" 
-            />
-          </div>
-        </div>
-      </div>
+              {item}
+            </div>
+          ))}
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
