@@ -2,13 +2,11 @@ import React, { useState, useCallback } from 'react';
 import './App.css';
 import Sidebar from './components/Sidebar/Sidebar';
 import Toolbar from './components/Toolbar/Toolbar';
-import Canvas from './components/Canvas/Canvas';
+import KonvaCanvas from './components/KonvaCanvas/KonvaCanvas';
 import Templates from './components/Templates/Templates';
 import RightToolbar from './components/RightToolbar/RightToolbar';
 import FullScreenSlideshow from './components/FullScreenSlideshow/FullScreenSlideshow';
 import LandingPage from './components/LandingPage/LandingPage';
-import ProfileModal from './components/ProfileModal/ProfileModal';
-import { BarChart, LineChart, PieChart } from './components/ChartBox/ChartBox';
 import { v4 as uuidv4 } from 'uuid';
 
 function App() {
@@ -24,9 +22,6 @@ function App() {
   const [selectedElement, setSelectedElement] = useState(null);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showFullScreenSlideshow, setShowFullScreenSlideshow] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [userName, setUserName] = useState('John Doe');
-  const [documentTitle, setDocumentTitle] = useState('My Presentation');
   const [textFormatting, setTextFormatting] = useState({
     fontSize: 16,
     fontWeight: 'normal',
@@ -149,38 +144,45 @@ function App() {
   }, [currentSlideIndex, slides, selectedElement]);
 
   const addTextBox = useCallback((textType = 'content') => {
-    // Set font size and weight based on text type
-    let fontSize, fontWeight, content;
-    
+    let fontSize, fontWeight, content, width, height;
+
     switch (textType) {
       case 'title':
         fontSize = 60;
         fontWeight = 'bold';
         content = 'Click to add title';
+        width = 600;
+        height = 80;
         break;
+
       case 'subtitle':
         fontSize = 36;
         fontWeight = 'bold';
         content = 'Click to add subtitle';
+        width = 450;
+        height = 50;
         break;
+
       case 'content':
       default:
         fontSize = 24;
         fontWeight = 'normal';
         content = 'Click to add content';
+        width = 300;
+        height = 40;
         break;
     }
 
     const newTextBox = {
       id: uuidv4(),
       type: 'text',
-      content: content,
+      content,
       x: 100,
       y: 100,
-      width: textType === 'title' ? 600 : textType === 'subtitle' ? 450 : 300,
-      height: textType === 'title' ? 80 : textType === 'subtitle' ? 50 : 40,
-      fontSize: fontSize,
-      fontWeight: fontWeight,
+      width,
+      height,
+      fontSize,
+      fontWeight,
       fontStyle: textFormatting.fontStyle,
       textDecoration: textFormatting.textDecoration,
       textAlign: textFormatting.textAlign,
@@ -272,17 +274,24 @@ function App() {
   }, [currentSlideIndex]);
 
   const addChart = useCallback((chartType) => {
+    const screenWidth = window.innerWidth;
+    const isSmallScreen = screenWidth >= 1024 && screenWidth <= 1150;
+
     const newChart = {
       id: uuidv4(),
       type: 'chart',
       chartType: chartType || 'bar',
       x: 160,
       y: 160,
-      width: 360,
-      height: 220,
+      width: isSmallScreen ? 192 : 360,
+      height: isSmallScreen ? 157 : 220,
       labels: ['A', 'B', 'C', 'D'],
       values: [12, 25, 9, 18],
-      color: '#0ea5e9'
+      color: '#0ea5e9',
+      backgroundColor: 'transparent',
+      barColors: (chartType === 'pie' || chartType === 'line')
+        ? ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b'] 
+        : ['#0ea5e9', '#0ea5e9', '#0ea5e9', '#0ea5e9']
     };
 
     setSlides(prev => prev.map((slide, index) => {
@@ -347,6 +356,41 @@ function App() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [selectedElement, addSlide, addTextBox, updateSlideElement, deleteElement, setTextFormatting]);
 
+  // Smart deselection handler
+  const handleSmartDeselection = useCallback((e) => {
+    // Check if click is on RightToolbar or ToolbarBottom
+    const rightToolbar = document.querySelector('.right-toolbar');
+    const toolbarBottom = document.querySelector('.toolbar-bottom');
+    const canvas = document.querySelector('.canvas');
+    
+    // If clicking on RightToolbar or ToolbarBottom, don't deselect
+    if (rightToolbar && rightToolbar.contains(e.target)) {
+      return; // Don't deselect
+    }
+    
+    if (toolbarBottom && toolbarBottom.contains(e.target)) {
+      return; // Don't deselect
+    }
+    
+    // If clicking outside canvas, deselect both selection and editing
+    if (canvas && !canvas.contains(e.target)) {
+      setSelectedElement(null);
+      // Also clear any text editing state by dispatching a custom event
+      // that the Canvas component can listen to
+      const clearEditingEvent = new CustomEvent('clearTextEditing');
+      document.dispatchEvent(clearEditingEvent);
+    }
+  }, []);
+
+  // Handle tab changes in RightToolbar
+  const handleTabChange = useCallback((tabName) => {
+    // Deselect element when switching tabs
+    setSelectedElement(null);
+    // Also clear text editing state
+    const clearEditingEvent = new CustomEvent('clearTextEditing');
+    document.dispatchEvent(clearEditingEvent);
+  }, []);
+
   // Apply/remove dark mode class on body
   React.useEffect(() => {
     const body = document.body;
@@ -356,6 +400,12 @@ function App() {
       body.classList.remove('dark');
     }
   }, [isDarkMode]);
+
+  // Add global click listener for smart deselection
+  React.useEffect(() => {
+    document.addEventListener('click', handleSmartDeselection);
+    return () => document.removeEventListener('click', handleSmartDeselection);
+  }, [handleSmartDeselection]);
 
   const handleToggleDarkMode = useCallback(() => {
     setIsDarkMode(prev => !prev);
@@ -375,29 +425,22 @@ function App() {
 
   const handleSlideshowSlideChange = useCallback((newSlideIndex) => {
     setCurrentSlideIndex(newSlideIndex);
+    // Deselect element when changing slides
+    setSelectedElement(null);
+    // Also clear text editing state
+    const clearEditingEvent = new CustomEvent('clearTextEditing');
+    document.dispatchEvent(clearEditingEvent);
   }, []);
 
   const handleLaunchPresentify = useCallback(() => {
     setShowLandingPage(false);
-    // Automatically enter fullscreen when launching from landing page
-    setTimeout(() => {
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen().catch(err => {
-          console.log('Fullscreen request failed:', err);
-        });
-      }
-    }, 100);
+    // Launch app in normal window mode (no automatic fullscreen)
   }, []);
 
   const handleBackToLanding = useCallback(() => {
     setShowLandingPage(true);
   }, []);
 
-  const handleProfileSave = useCallback((profileData) => {
-    setUserName(profileData.userName);
-    setDocumentTitle(profileData.documentTitle);
-    setShowProfileModal(false);
-  }, []);
 
   const undo = useCallback(() => {
     if (undoStack.length > 0) {
@@ -444,155 +487,169 @@ function App() {
 
   return (
     <div className="app">
-      <Toolbar 
-        textFormatting={textFormatting}
-        setTextFormatting={setTextFormatting}
-        selectedElement={selectedElement}
-        updateSlideElement={updateSlideElement}
-        addTextBox={addTextBox}
-        addShape={addShape}
-        addImage={addImage}
-        onShowTemplates={() => setShowTemplates(true)}
-        onStartFullScreenSlideshow={startFullScreenSlideshow}
-        onUndo={undo}
-        onRedo={redo}
-        canUndo={undoStack.length > 0}
-        canRedo={redoStack.length > 0}
-        isDarkMode={isDarkMode}
-        onToggleDarkMode={handleToggleDarkMode}
-        slides={slides}
-        onBackToLanding={handleBackToLanding}
-        onShowProfile={() => setShowProfileModal(true)}
-        setShowDragMessage={setShowDragMessage}
-      />
-      <div className="app-body">
-        <Sidebar 
-          slides={slides}
-          currentSlideIndex={currentSlideIndex}
-          setCurrentSlideIndex={setCurrentSlideIndex}
-          addSlide={addSlide}
-          deleteSlide={deleteSlide}
-          onShowTemplates={() => setShowTemplates(true)}
-          onReorderSlides={reorderSlides}
-        />
-        <Canvas 
-          slide={slides[currentSlideIndex]}
-          selectedElement={selectedElement}
-          setSelectedElement={setSelectedElement}
-          updateSlideElement={updateSlideElement}
-          deleteElement={deleteElement}
-          textFormatting={textFormatting}
-          isDarkMode={isDarkMode}
-          onToggleDarkMode={handleToggleDarkMode}
-        />
-        <RightToolbar 
-          selectedElement={selectedElement}
+        <Toolbar 
           textFormatting={textFormatting}
           setTextFormatting={setTextFormatting}
+          selectedElement={selectedElement}
           updateSlideElement={updateSlideElement}
-          updateSlide={updateSlide}
-          currentSlide={slides[currentSlideIndex]}
           addTextBox={addTextBox}
           addShape={addShape}
           addImage={addImage}
-          addChart={addChart}
-        />
-      </div>
-      {showTemplates && (
-        <Templates 
-          onSelectTemplate={handleTemplateSelect}
-          onClose={() => setShowTemplates(false)}
-        />
-      )}
-
-      {showProfileModal && (
-        <ProfileModal 
-          onClose={() => setShowProfileModal(false)}
-          userName={userName}
-          documentTitle={documentTitle}
-          onSave={handleProfileSave}
-        />
-      )}
-
-      {isSlideshowOpen && (
-        <div
-          style={{
-            position: 'fixed', inset: 0, background: '#000', color: '#fff',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div style={{ position: 'absolute', top: 16, right: 16 }}>
-            <button onClick={stopSlideshow} style={{ padding: '8px 12px', borderRadius: 6, border: 'none', cursor: 'pointer' }}>Close</button>
-          </div>
-          <div style={{ width: '90vw', height: '80vh', background: '#111', borderRadius: 12, overflow: 'hidden', position: 'relative' }}>
-            {/* Render current slide content in read-only mode */}
-            <div style={{ width: '100%', height: '100%', position: 'relative', backgroundColor: slides[currentSlideIndex]?.backgroundColor || '#fff', backgroundImage: slides[currentSlideIndex]?.backgroundImage ? `url(${slides[currentSlideIndex].backgroundImage})` : 'none', backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
-              {(slides[currentSlideIndex]?.elements || []).map((el) => {
-                if (el.type === 'text') {
-                  return (
-                    <div key={el.id} style={{ position: 'absolute', left: el.x, top: el.y, width: el.width, height: el.height, color: el.color, fontSize: el.fontSize, fontWeight: el.fontWeight, fontStyle: el.fontStyle, textDecoration: el.textDecoration, textAlign: el.textAlign, background: el.backgroundColor || 'transparent', padding: 8, overflow: 'hidden' }} dangerouslySetInnerHTML={{ __html: el.content }} />
-                  );
-                }
-                if (el.type === 'shape') {
-                  return (
-                    <div key={el.id} style={{ position: 'absolute', left: el.x, top: el.y, width: el.width, height: el.height, backgroundColor: el.fillColor, border: `${el.borderWidth}px solid ${el.borderColor}`, borderRadius: el.shapeType === 'circle' ? '50%' : 0 }} />
-                  );
-                }
-                if (el.type === 'image') {
-                  return (
-                    <img key={el.id} src={el.src} alt="" style={{ position: 'absolute', left: el.x, top: el.y, width: el.width, height: el.height, objectFit: 'contain' }} />
-                  );
-                }
-                if (el.type === 'chart') {
-                  const props = { width: el.width, height: el.height, labels: el.labels, values: el.values, color: el.color };
-                  if (el.chartType === 'line') return <div key={el.id} style={{ position: 'absolute', left: el.x, top: el.y }}><LineChart {...props} /></div>;
-                  if (el.chartType === 'pie') return <div key={el.id} style={{ position: 'absolute', left: el.x, top: el.y }}><PieChart {...props} /></div>;
-                  return <div key={el.id} style={{ position: 'absolute', left: el.x, top: el.y }}><BarChart {...props} /></div>;
-                }
-                return null;
-              })}
-            </div>
-            {/* Navigation overlay */}
-            <div style={{ position: 'absolute', top: '50%', left: 16, transform: 'translateY(-50%)' }}>
-              <button
-                onClick={() => setCurrentSlideIndex((i) => Math.max(0, i - 1))}
-                style={{ padding: '10px 14px', borderRadius: '9999px', border: 'none', cursor: 'pointer' }}
-              >
-                ◀
-              </button>
-            </div>
-            <div style={{ position: 'absolute', top: '50%', right: 16, transform: 'translateY(-50%)' }}>
-              <button
-                onClick={() => setCurrentSlideIndex((i) => Math.min(slides.length - 1, i + 1))}
-                style={{ padding: '10px 14px', borderRadius: '9999px', border: 'none', cursor: 'pointer' }}
-              >
-                ▶
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {showFullScreenSlideshow && (
-        <FullScreenSlideshow
+          onShowTemplates={() => setShowTemplates(true)}
+          onStartFullScreenSlideshow={startFullScreenSlideshow}
+          onUndo={undo}
+          onRedo={redo}
+          canUndo={undoStack.length > 0}
+          canRedo={redoStack.length > 0}
+          isDarkMode={isDarkMode}
+          onToggleDarkMode={handleToggleDarkMode}
           slides={slides}
-          currentSlideIndex={currentSlideIndex}
-          onClose={closeFullScreenSlideshow}
-          onSlideChange={handleSlideshowSlideChange}
+          onBackToLanding={handleBackToLanding}
+          setShowDragMessage={setShowDragMessage}
         />
-      )}
-      
-      
-      {/* Simple Drag Message */}
-      {showDragMessage && (
-        <div className="drag-message-overlay">
-          <div className="drag-message">
-            Drag and adjust the position of canvas
-          </div>
+        <div className="app-body">
+          <Sidebar 
+            slides={slides}
+            currentSlideIndex={currentSlideIndex}
+            setCurrentSlideIndex={setCurrentSlideIndex}
+            addSlide={addSlide}
+            deleteSlide={deleteSlide}
+            onShowTemplates={() => setShowTemplates(true)}
+            onReorderSlides={reorderSlides}
+          />
+          <KonvaCanvas 
+            slide={slides[currentSlideIndex]}
+            selectedElement={selectedElement}
+            setSelectedElement={setSelectedElement}
+            updateSlideElement={updateSlideElement}
+            deleteElement={deleteElement}
+            textFormatting={textFormatting}
+            isDarkMode={isDarkMode}
+            onToggleDarkMode={handleToggleDarkMode}
+            onThumbnailUpdate={(img) => {
+              setSlides((prev) =>
+                prev.map((s, i) =>
+                  i === currentSlideIndex ? { ...s, thumbnail: img } : s
+                )
+              );
+            }}
+          />
+          <RightToolbar 
+            selectedElement={selectedElement}
+            textFormatting={textFormatting}
+            setTextFormatting={setTextFormatting}
+            updateSlideElement={updateSlideElement}
+            updateSlide={updateSlide}
+            currentSlide={slides[currentSlideIndex]}
+            addTextBox={addTextBox}
+            addShape={addShape}
+            addImage={addImage}
+            addChart={addChart}
+            onTabChange={handleTabChange}
+          />
         </div>
-      )}
-    </div>
+        {showTemplates && (
+          <Templates 
+            onSelectTemplate={handleTemplateSelect}
+            onClose={() => setShowTemplates(false)}
+          />
+        )}
+
+
+        {isSlideshowOpen && (
+          <div
+            style={{
+              position: 'fixed', inset: 0, background: '#000', color: '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ position: 'absolute', top: 16, right: 16 }}>
+              <button onClick={stopSlideshow} style={{ padding: '8px 12px', borderRadius: 6, border: 'none', cursor: 'pointer' }}>Close</button>
+            </div>
+            <div style={{ width: '90vw', height: '80vh', background: '#111', borderRadius: 12, overflow: 'hidden', position: 'relative' }}>
+              {/* Render current slide content in read-only mode */}
+              <div style={{ width: '100%', height: '100%', position: 'relative', backgroundColor: slides[currentSlideIndex]?.backgroundColor || '#fff', backgroundImage: slides[currentSlideIndex]?.backgroundImage ? `url(${slides[currentSlideIndex].backgroundImage})` : 'none', backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
+                {(slides[currentSlideIndex]?.elements || []).map((el) => {
+                  if (el.type === 'text') {
+                    return (
+                      <div key={el.id} style={{ position: 'absolute', left: el.x, top: el.y, width: el.width, height: el.height, color: el.color, fontSize: el.fontSize, fontWeight: el.fontWeight, fontStyle: el.fontStyle, textDecoration: el.textDecoration, textAlign: el.textAlign, background: el.backgroundColor || 'transparent', padding: 8, overflow: 'hidden' }} dangerouslySetInnerHTML={{ __html: el.content }} />
+                    );
+                  }
+                  if (el.type === 'shape') {
+                    return (
+                      <div key={el.id} style={{ position: 'absolute', left: el.x, top: el.y, width: el.width, height: el.height, backgroundColor: el.fillColor, border: `${el.borderWidth}px solid ${el.borderColor}`, borderRadius: el.shapeType === 'circle' ? '50%' : 0 }} />
+                    );
+                  }
+                  if (el.type === 'image') {
+                    return (
+                      <img key={el.id} src={el.src} alt="" style={{ position: 'absolute', left: el.x, top: el.y, width: el.width, height: el.height, objectFit: 'contain' }} />
+                    );
+                  }
+                  if (el.type === 'chart') {
+                    return (
+                      <div key={el.id} style={{ 
+                        position: 'absolute', 
+                        left: el.x, 
+                        top: el.y, 
+                        width: el.width, 
+                        height: el.height,
+                        backgroundColor: '#f3f4f6',
+                        border: '2px dashed #9ca3af',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#6b7280',
+                        fontSize: '14px',
+                        fontWeight: '500'
+                      }}>
+                        Chart: {el.chartType || 'bar'} ({el.labels?.length || 0} items)
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+              {/* Navigation overlay */}
+              <div style={{ position: 'absolute', top: '50%', left: 16, transform: 'translateY(-50%)' }}>
+                <button
+                  onClick={() => setCurrentSlideIndex((i) => Math.max(0, i - 1))}
+                  style={{ padding: '10px 14px', borderRadius: '9999px', border: 'none', cursor: 'pointer' }}
+                >
+                  ◀
+                </button>
+              </div>
+              <div style={{ position: 'absolute', top: '50%', right: 16, transform: 'translateY(-50%)' }}>
+                <button
+                  onClick={() => setCurrentSlideIndex((i) => Math.min(slides.length - 1, i + 1))}
+                  style={{ padding: '10px 14px', borderRadius: '9999px', border: 'none', cursor: 'pointer' }}
+                >
+                  ▶
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {showFullScreenSlideshow && (
+          <FullScreenSlideshow
+            slides={slides}
+            currentSlideIndex={currentSlideIndex}
+            onClose={closeFullScreenSlideshow}
+            onSlideChange={handleSlideshowSlideChange}
+          />
+        )}
+        
+        
+        {/* Simple Drag Message */}
+        {showDragMessage && (
+          <div className="drag-message-overlay">
+            <div className="drag-message">
+              Drag and adjust the position of canvas
+            </div>
+          </div>
+        )}
+      </div>
   );
 }
 

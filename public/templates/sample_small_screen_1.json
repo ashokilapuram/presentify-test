@@ -1,0 +1,87 @@
+{
+  "name": "My Presentation",
+  "description": "Presentation created with Presentify",
+  "version": "1.0.0",
+  "createdAt": "2025-10-17T09:13:51.245Z",
+  "slides": [
+    {
+      "id": "4e28b3a3-bb48-41bf-bd66-1a4eeb61cc94",
+      "elements": [
+        {
+          "id": "90aa02fa-d95f-4540-99a6-6fbd382d23a9",
+          "type": "text",
+          "content": "welcome",
+          "x": 188.0000457763672,
+          "y": 124,
+          "width": 185,
+          "height": 80,
+          "fontSize": 36,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "textDecoration": "none",
+          "textAlign": "left",
+          "color": "#000000",
+          "backgroundColor": "#f4f0f0",
+          "borderColor": "#26820d",
+          "borderWidth": 3
+        }
+      ],
+      "backgroundColor": "#5b435b"
+    },
+    {
+      "id": "6aec991f-b1b6-4072-9c6f-fea7d21c4a10",
+      "elements": [
+        {
+          "id": "8a5eddca-53dc-41fa-b1ed-c117c11b28c7",
+          "type": "text",
+          "content": "Click to add title",
+          "x": 128,
+          "y": 10,
+          "width": 400,
+          "height": 80,
+          "fontSize": 36,
+          "fontWeight": "bold",
+          "fontStyle": "normal",
+          "textDecoration": "none",
+          "textAlign": "left",
+          "color": "#000000"
+        },
+        {
+          "id": "617f2fe3-dc7c-4353-9172-b9835ac62829",
+          "type": "text",
+          "content": "Click to add content<div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div>",
+          "x": 44.99998474121094,
+          "y": 110,
+          "width": 233,
+          "height": 281,
+          "fontSize": 18,
+          "fontWeight": "normal",
+          "fontStyle": "normal",
+          "textDecoration": "none",
+          "textAlign": "left",
+          "color": "#000000"
+        },
+        {
+          "id": "c90b5359-c916-4edd-9cf8-99a75e4c644f",
+          "type": "text",
+          "content": "Click to add content<div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div><div><br></div>",
+          "x": 318.9999542236328,
+          "y": 108,
+          "width": 233,
+          "height": 281,
+          "fontSize": 18,
+          "fontWeight": "normal",
+          "fontStyle": "normal",
+          "textDecoration": "none",
+          "textAlign": "left",
+          "color": "#000000"
+        }
+      ],
+      "backgroundColor": "#10b981"
+    },
+    {
+      "id": "41fb155c-bdd5-4c85-85c8-e912720ba933",
+      "elements": []
+    }
+  ]
+}

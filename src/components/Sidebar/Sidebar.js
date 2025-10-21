@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
 import { FiPlus, FiLayout } from 'react-icons/fi';
-import { BarChart, LineChart, PieChart } from '../ChartBox/ChartBox';
-import TextBox from '../TextBox/TextBox';
-import ShapeBox from '../ShapeBox/ShapeBox';
-import ImageBox from '../ImageBox/ImageBox';
-import ChartBox from '../ChartBox/ChartBox';
 import './Sidebar.css';
 
 const Sidebar = ({ 
@@ -91,6 +86,14 @@ const Sidebar = ({
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, index)}
+                onMouseEnter={(e) => {
+                  const deleteBtn = e.currentTarget.querySelector('.slide-delete');
+                  if (deleteBtn) deleteBtn.style.opacity = '1';
+                }}
+                onMouseLeave={(e) => {
+                  const deleteBtn = e.currentTarget.querySelector('.slide-delete');
+                  if (deleteBtn) deleteBtn.style.opacity = '0';
+                }}
               >
                 <div className="slide-number">{index + 1}</div>
                 <div 
@@ -99,89 +102,198 @@ const Sidebar = ({
                     backgroundColor: slide.backgroundColor || '#ffffff',
                     backgroundImage: slide.backgroundImage ? `url(${slide.backgroundImage})` : 'none',
                     backgroundSize: 'cover',
-                    backgroundPosition: 'center'
+                    backgroundPosition: 'center',
+                    position: 'relative',
+                    borderRadius: '8px',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                 >
-                  <div className="slide-thumbnail-content" style={{ transform: 'scale(0.15)', transformOrigin: 'top left', width: '666.67%', height: '666.67%' }}>
-                    {slide.elements.map((element) => {
-                      // Scale down the element properties for the preview
-                      const scaledElement = {
-                        ...element,
-                        x: element.x,
-                        y: element.y,
-                        width: element.width,
-                        height: element.height,
-                        fontSize: element.fontSize,
-                        borderWidth: element.borderWidth,
-                        borderRadius: element.borderRadius
-                      };
-
-                      if (element.type === 'text') {
-                        return (
-                          <TextBox
-                            key={element.id}
-                            element={scaledElement}
-                            isSelected={false}
-                            isEditing={false}
-                            onSelect={() => {}}
-                            onEdit={() => {}}
-                            onUpdate={() => {}}
-                            onDelete={() => {}}
-                            onMouseDown={() => {}}
-                            textFormatting={{}}
-                            hoverPreview={null}
-                          />
-                        );
-                      }
-
-                      if (element.type === 'shape') {
-                        return (
-                          <ShapeBox
-                            key={element.id}
-                            element={scaledElement}
-                            isSelected={false}
-                            onSelect={() => {}}
-                            onUpdate={() => {}}
-                            onDelete={() => {}}
-                          />
-                        );
-                      }
-
-                      if (element.type === 'image') {
-                        return (
-                          <ImageBox
-                            key={element.id}
-                            element={scaledElement}
-                            isSelected={false}
-                            onSelect={() => {}}
-                            onUpdate={() => {}}
-                            onDelete={() => {}}
-                          />
-                        );
-                      }
-
-                      if (element.type === 'chart') {
-                        return (
-                          <ChartBox
-                            key={element.id}
-                            element={scaledElement}
-                            isSelected={false}
-                            onSelect={() => {}}
-                            onUpdate={() => {}}
-                            onDelete={() => {}}
-                          />
-                        );
-                      }
-
-                      return null;
-                    })}
-                  </div>
+                  {slide.thumbnail ? (
+                    <img
+                      src={slide.thumbnail}
+                      alt={`Slide ${index + 1}`}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        zIndex: 1,
+                      }}
+                    />
+                  ) : (
+                    <div style={{ 
+                      position: 'absolute', 
+                      top: 0, 
+                      left: 0, 
+                      width: '100%', 
+                      height: '100%', 
+                      zIndex: 2,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '4px',
+                      boxSizing: 'border-box',
+                      overflow: 'hidden'
+                    }}>
+                      {/* Preview of slide elements */}
+                      {slide.elements && slide.elements.length > 0 ? (
+                        slide.elements.slice(0, 3).map((element, elIndex) => {
+                          const scale = 0.12; // Scale down for thumbnail (adjusted for 16:9 ratio)
+                          const scaledX = (element.x || 0) * scale;
+                          const scaledY = (element.y || 0) * scale;
+                          const scaledWidth = (element.width || 100) * scale;
+                          const scaledHeight = (element.height || 20) * scale;
+                          
+                          if (element.type === 'text') {
+                            return (
+                              <div
+                                key={elIndex}
+                                style={{
+                                  position: 'absolute',
+                                  left: scaledX,
+                                  top: scaledY,
+                                  width: scaledWidth,
+                                  height: scaledHeight,
+                                  fontSize: Math.max(8, (element.fontSize || 16) * scale),
+                                  fontWeight: element.fontWeight || 'normal',
+                                  fontStyle: element.fontStyle || 'normal',
+                                  color: element.color || '#000',
+                                  textAlign: element.textAlign || 'left',
+                                  backgroundColor: element.backgroundColor || 'transparent',
+                                  border: element.borderWidth > 0 ? `${Math.max(1, (element.borderWidth || 0) * scale)}px solid ${element.borderColor || '#000'}` : 'none',
+                                  overflow: 'hidden',
+                                  whiteSpace: 'nowrap',
+                                  textOverflow: 'ellipsis',
+                                  lineHeight: 1,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: element.textAlign === 'center' ? 'center' : element.textAlign === 'right' ? 'flex-end' : 'flex-start'
+                                }}
+                                title={element.content || 'Text'}
+                              >
+                                {(element.content || 'Text').substring(0, 20)}
+                              </div>
+                            );
+                          }
+                          
+                          if (element.type === 'shape') {
+                            return (
+                              <div
+                                key={elIndex}
+                                style={{
+                                  position: 'absolute',
+                                  left: scaledX,
+                                  top: scaledY,
+                                  width: scaledWidth,
+                                  height: scaledHeight,
+                                  backgroundColor: element.fillColor || '#2d9cdb',
+                                  border: `${Math.max(1, (element.borderWidth || 0) * scale)}px solid ${element.borderColor || '#1e7bb8'}`,
+                                  borderRadius: element.shapeType === 'circle' ? '50%' : 0,
+                                }}
+                              />
+                            );
+                          }
+                          
+                          if (element.type === 'image') {
+                            return (
+                              <div
+                                key={elIndex}
+                                style={{
+                                  position: 'absolute',
+                                  left: scaledX,
+                                  top: scaledY,
+                                  width: scaledWidth,
+                                  height: scaledHeight,
+                                  backgroundColor: '#f0f0f0',
+                                  border: '1px solid #ddd',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '6px',
+                                  color: '#666'
+                                }}
+                              >
+                                📷
+                              </div>
+                            );
+                          }
+                          
+                          if (element.type === 'chart') {
+                            return (
+                              <div
+                                key={elIndex}
+                                style={{
+                                  position: 'absolute',
+                                  left: scaledX,
+                                  top: scaledY,
+                                  width: scaledWidth,
+                                  height: scaledHeight,
+                                  backgroundColor: '#fff',
+                                  border: '1px solid #ddd',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '6px',
+                                  color: '#666'
+                                }}
+                              >
+                                📊
+                              </div>
+                            );
+                          }
+                          
+                          return null;
+                        })
+                      ) : (
+                        <div style={{ 
+                          fontSize: '8px', 
+                          color: '#999', 
+                          textAlign: 'center',
+                          opacity: 0.7
+                        }}>
+                          Empty Slide
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 {slides.length > 1 && (
                   <button
                     className="slide-delete"
                     onClick={(e) => handleDeleteSlide(e, index)}
                     title="Delete slide"
+                    style={{
+                      position: 'absolute',
+                      top: '4px',
+                      right: '4px',
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '50%',
+                      background: 'rgba(0, 0, 0, 0.7)',
+                      color: 'white',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      zIndex: 10,
+                      opacity: 0,
+                      transition: 'opacity 0.2s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.opacity = '1';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.opacity = '0';
+                    }}
                   >
                     ×
                   </button>

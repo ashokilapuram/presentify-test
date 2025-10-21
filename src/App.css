@@ -253,7 +253,7 @@ body.dark .toolbar-bottom {
 
 .toolbar-bottom {
   position: fixed;
-  top: 60px; /* Same good gap as 1024px screens */
+  top: 58px; /* Move closer to toolbar-top */
   left: 224px;
   right: 316px;
   height: 50px;
@@ -705,6 +705,12 @@ body.dark .toolbar-bottom {
     padding: 0.4rem 0.6rem;
     font-size: 12px;
   }
+  
+  /* Move canvas higher for larger screens */
+  .canvas-container {
+    top: 135px !important; /* move canvas a little higher */
+    bottom: 8px !important; /* decrease height by adding bottom margin */
+  }
 }
 
 @media (max-width: 900px) {
@@ -968,8 +974,8 @@ body.dark .toolbar-bottom {
 }
 
 .slide-thumbnail {
-  width: 80px;
-  height: 60px;
+  width: 120px;
+  height: 67.5px; /* 16:9 aspect ratio (120 * 9/16 = 67.5) */
   background: var(--bg-quaternary);
   border: 2px solid var(--border-subtle);
   border-radius: var(--radius-md);
@@ -1992,6 +1998,7 @@ body.dark .toolbar-bottom {
   }
 }
 
+
 /* Responsive Design - Canvas size remains fixed */
 @media (max-width: 1400px) {
   .sidebar {
@@ -1999,13 +2006,13 @@ body.dark .toolbar-bottom {
   }
   
   .canvas-container {
-    left: 192px; /* 180px + 8px gap + 4px margin */
-    right: 324px;
+    left: 200px; /* 180px + 20px gap */
+    right: 340px; /* 324px + 16px gap */
   }
   
   .toolbar-bottom {
-    left: 192px; /* 180px + 8px gap + 4px margin */
-    right: 324px;
+    left: 200px; /* 180px + 20px gap */
+    right: 340px; /* 324px + 16px gap */
   }
   
   /* Canvas adapts to container */
@@ -2019,8 +2026,8 @@ body.dark .toolbar-bottom {
   
   /* Adjust slide thumbnails for smaller sidebar */
   .slide-thumbnail {
-    width: 70px;
-    height: 52px;
+    width: 105px;
+    height: 59px; /* 16:9 aspect ratio */
   }
 }
 
@@ -2043,14 +2050,14 @@ body.dark .toolbar-bottom {
   }
   
   .toolbar-bottom {
-    left: 172px; /* 160px + 8px gap + 4px margin */
-    right: 284px; /* 260px + 8px gap + 4px margin */
+    left: 180px; /* 160px + 20px gap */
+    right: 300px; /* 280px + 20px gap */
     top: 60px; /* Same good gap as 1024px screens */
   }
   
   .canvas-container {
-    left: 172px; /* 160px + 8px gap + 4px margin */
-    right: 284px; /* 260px + 8px gap + 4px margin */
+    left: 180px; /* 160px + 20px gap */
+    right: 300px; /* 280px + 20px gap */
     top: 150px;
   }
   
@@ -2069,8 +2076,8 @@ body.dark .toolbar-bottom {
   
   /* Adjust slide thumbnails for smaller sidebar */
   .slide-thumbnail {
-    width: 60px;
-    height: 45px;
+    width: 90px;
+    height: 51px; /* 16:9 aspect ratio */
   }
   
   .slide-item {
@@ -2102,14 +2109,14 @@ body.dark .toolbar-bottom {
   }
   
   .toolbar-bottom {
-    left: 152px; /* 140px + 8px gap + 4px margin */
-    right: 264px; /* 240px + 8px gap + 4px margin */
+    left: 160px; /* 140px + 20px gap */
+    right: 280px; /* 260px + 20px gap */
     top: 60px; /* Align with sidebar and right toolbar */
   }
   
   .canvas-container {
-    left: 152px; /* 140px + 8px gap + 4px margin */
-    right: 264px; /* 240px + 8px gap + 4px margin */
+    left: 160px; /* 140px + 20px gap */
+    right: 275px; /* 260px + 15px gap - very small adjustment towards right toolbar */
   }
   
   /* Canvas adapts to container */
@@ -2123,8 +2130,8 @@ body.dark .toolbar-bottom {
   
   /* Further reduce slide thumbnails */
   .slide-thumbnail {
-    width: 50px;
-    height: 37px;
+    width: 75px;
+    height: 42px; /* 16:9 aspect ratio */
   }
   
   .slide-number {
@@ -2183,8 +2190,8 @@ body.dark .toolbar-bottom {
   
   /* Minimal slide thumbnails */
   .slide-thumbnail {
-    width: 40px;
-    height: 30px;
+    width: 60px;
+    height: 34px; /* 16:9 aspect ratio */
   }
   
   .slide-item {
@@ -2238,8 +2245,8 @@ body.dark .toolbar-bottom {
   
   /* Very compact slide thumbnails */
   .slide-thumbnail {
-    width: 35px;
-    height: 26px;
+    width: 50px;
+    height: 28px; /* 16:9 aspect ratio */
   }
   
   .slide-item {
@@ -2279,8 +2286,8 @@ body.dark .toolbar-bottom {
   
   /* Ultra compact slide thumbnails */
   .slide-thumbnail {
-    width: 30px;
-    height: 22px;
+    width: 40px;
+    height: 22px; /* 16:9 aspect ratio */
   }
   
   .slide-item {
@@ -2291,5 +2298,36 @@ body.dark .toolbar-bottom {
   .slide-number {
     font-size: 0.45rem;
     min-width: 10px;
+  }
+}
+
+/* Fix vertical gaps between toolbar-top and other containers for 1024–1150px */
+@media (min-width: 1024px) and (max-width: 1150px) {
+  /* Move sidebar up, directly under toolbar-top */
+  .sidebar {
+    top: 64px !important; /* previously 80px or more */
+    margin-top: 0 !important;
+    height: calc(100vh - 72px) !important; /* extend almost full height */
+  }
+
+  /* Align toolbar-bottom immediately under toolbar-top */
+  .toolbar-bottom {
+    top: 50px !important; /* move closer to toolbar-top */
+    margin-top: 0 !important;
+    height: 44px !important; /* slightly smaller, tight layout */
+  }
+
+  /* Move canvas-container upward and stretch fully */
+  .canvas-container {
+    top: 95px !important; /* move canvas higher */
+    bottom: 8px !important;
+    margin-top: 0 !important;
+  }
+
+  /* If you have a right-toolbar component */
+  .right-toolbar {
+    top: 64px !important;
+    height: calc(100vh - 72px) !important;
+    margin-top: 0 !important;
   }
 }

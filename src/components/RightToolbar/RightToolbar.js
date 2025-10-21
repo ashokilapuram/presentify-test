@@ -14,6 +14,8 @@ import {
   FiRotateCcw,
   FiCopy,
   FiTrash2,
+  FiLayers,
+  FiTrash,
   FiSquare,
   FiCircle,
   FiTriangle,
@@ -47,7 +49,9 @@ const RightToolbar = ({
   addTextBox,
   addShape,
   addImage,
-  addChart
+  addChart,
+  deselectElement,
+  onTabChange
 }) => {
   const [activeTab, setActiveTab] = useState('Insert');
   
@@ -77,6 +81,10 @@ const RightToolbar = ({
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+    // Call the parent tab change handler to deselect element
+    if (onTabChange) {
+      onTabChange(tab);
+    }
   };
   
   const handleFormatChange = (property, value) => {
@@ -268,62 +276,61 @@ const RightToolbar = ({
   const renderInsertOptions = () => (
     <div className="right-toolbar-section">
       <div className="section-title">Text elements</div>
-      <div className="option-group">
-        <button className="insert-button" onClick={() => addTextBox('title')}>
+      <div className="text-elements-row">
+        <button className="text-element-button" onClick={() => addTextBox('title')}>
           <FiType />
           <span>Title</span>
         </button>
-        <button className="insert-button" onClick={() => addTextBox('subtitle')}>
+        <button className="text-element-button" onClick={() => addTextBox('subtitle')}>
           <FiType />
           <span>Subtitle</span>
         </button>
-        <button className="insert-button" onClick={() => addTextBox('content')}>
+        <button className="text-element-button" onClick={() => addTextBox('content')}>
           <FiType />
           <span>Content</span>
         </button>
       </div>
 
       <div className="section-title">Shapes</div>
-      <div className="option-group">
-        <div className="shape-grid">
-          <button className="shape-button" onClick={() => addShape('rectangle')}>
-            <FiSquare />
-          </button>
-          <button className="shape-button" onClick={() => addShape('circle')}>
-            <FiCircle />
-          </button>
-          <button className="shape-button" onClick={() => addShape('triangle')}>
-            <FiTriangle />
-          </button>
-          <button className="shape-button" onClick={() => addShape('star')}>
-            <FiStar />
-          </button>
-        </div>
+      <div className="shapes-row">
+        <button className="shape-icon-button" onClick={() => addShape('rectangle')}>
+          <FiSquare />
+        </button>
+        <button className="shape-icon-button" onClick={() => addShape('circle')}>
+          <FiCircle />
+        </button>
+        <button className="shape-icon-button" onClick={() => addShape('triangle')}>
+          <FiTriangle />
+        </button>
+        <button className="shape-icon-button" onClick={() => addShape('star')}>
+          <FiStar />
+        </button>
+      </div>
+
+      <div className="section-title">Charts</div>
+      <div className="charts-row">
+        <button className="chart-element-button" onClick={() => addChart('bar')}>
+          <FiBarChart2 />
+          <span>Bar</span>
+        </button>
+        <button className="chart-element-button" onClick={() => addChart('line')}>
+          <FiTrendingUp />
+          <span>Line</span>
+        </button>
+        <button className="chart-element-button" onClick={() => addChart('pie')}>
+          <FiPieChart />
+          <span>Pie</span>
+        </button>
       </div>
 
       <div className="section-title">Media</div>
-      <div className="option-group">
-        <button className="insert-button" onClick={addImage}>
+      <div className="media-row">
+        <button className="media-element-button" onClick={addImage}>
           <FiImage />
           <span>Image</span>
         </button>
       </div>
 
-      <div className="section-title">Charts</div>
-      <div className="option-group">
-        <button className="insert-button" onClick={() => addChart('bar')}>
-          <FiBarChart2 />
-          <span>Bar Chart</span>
-        </button>
-        <button className="insert-button" onClick={() => addChart('pie')}>
-          <FiPieChart />
-          <span>Pie Chart</span>
-        </button>
-        <button className="insert-button" onClick={() => addChart('line')}>
-          <FiTrendingUp />
-          <span>Line Chart</span>
-        </button>
-      </div>
 
     </div>
   );
@@ -379,7 +386,7 @@ const RightToolbar = ({
                 </div>
 
                 <div className="section-title" style={{ marginTop: 10 }}>Chart color</div>
-                <div className="option-group">
+                <div className="option-group" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <input
                     type="color"
                     value={selectedElement.color || '#0ea5e9'}
@@ -438,7 +445,8 @@ const RightToolbar = ({
                           }}
                         />
                         <button
-                          onClick={() => {
+                          onClick={(e) => {
+                e.stopPropagation();
                             const newLabels = [...(selectedElement.labels || [])];
                             const newValues = [...(selectedElement.values || [])];
                             newLabels.splice(index, 1);
@@ -447,18 +455,18 @@ const RightToolbar = ({
                           }}
                           title="Remove"
                           style={{
-                            height: 28,
-                            width: 28,
+                            height: 24,
+                            width: 24,
                             borderRadius: 4,
                             border: '1px solid #ef4444',
                             background: '#fff5f5',
                             color: '#ef4444',
                             cursor: 'pointer',
-                            fontSize: '12px',
+                            fontSize: '10px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            minWidth: 28
+                            minWidth: 24
                           }}
                         >
                           −
@@ -468,7 +476,8 @@ const RightToolbar = ({
                   })}
 
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                e.stopPropagation();
                       const newLabels = [...(selectedElement.labels || []), `Item ${(selectedElement.labels?.length || 0) + 1}`];
                       const newValues = [...(selectedElement.values || []), 0];
                       updateSlideElement(selectedElement.id, { labels: newLabels, values: newValues });
@@ -511,13 +520,16 @@ const RightToolbar = ({
                 type="color"
                 value={selectedElement.backgroundColor || '#ffffff'}
                 onChange={(e) => {
+                  e.stopPropagation();
                   updateSlideElement(selectedElement.id, { backgroundColor: e.target.value });
                 }}
                 className="color-input"
+                onClick={(e) => e.stopPropagation()}
               />
               <button
                 className="action-button danger"
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   updateSlideElement(selectedElement.id, { backgroundColor: undefined });
                 }}
               >
@@ -533,31 +545,31 @@ const RightToolbar = ({
               <div 
                 className="color-swatch" 
                 style={{ backgroundColor: '#ffffff' }}
-                onClick={() => updateSlideElement(selectedElement.id, { backgroundColor: '#ffffff' })}
+                onClick={(e) => { e.stopPropagation(); updateSlideElement(selectedElement.id, { backgroundColor: '#ffffff' }); }}
                 title="White"
               ></div>
               <div 
                 className="color-swatch" 
                 style={{ backgroundColor: '#f8f9fa' }}
-                onClick={() => updateSlideElement(selectedElement.id, { backgroundColor: '#f8f9fa' })}
+                onClick={(e) => { e.stopPropagation(); updateSlideElement(selectedElement.id, { backgroundColor: '#f8f9fa' }); }}
                 title="Light Gray"
               ></div>
               <div 
                 className="color-swatch" 
                 style={{ backgroundColor: '#0ea5e9' }}
-                onClick={() => updateSlideElement(selectedElement.id, { backgroundColor: '#0ea5e9' })}
+                onClick={(e) => { e.stopPropagation(); updateSlideElement(selectedElement.id, { backgroundColor: '#0ea5e9' }); }}
                 title="Sky Blue"
               ></div>
               <div 
                 className="color-swatch" 
                 style={{ backgroundColor: '#8b5cf6' }}
-                onClick={() => updateSlideElement(selectedElement.id, { backgroundColor: '#8b5cf6' })}
+                onClick={(e) => { e.stopPropagation(); updateSlideElement(selectedElement.id, { backgroundColor: '#8b5cf6' }); }}
                 title="Purple"
               ></div>
               <div 
                 className="color-swatch" 
                 style={{ backgroundColor: '#10b981' }}
-                onClick={() => updateSlideElement(selectedElement.id, { backgroundColor: '#10b981' })}
+                onClick={(e) => { e.stopPropagation(); updateSlideElement(selectedElement.id, { backgroundColor: '#10b981' }); }}
                 title="Emerald"
               >              </div>
             </div>
@@ -572,13 +584,16 @@ const RightToolbar = ({
               type="color"
               value={selectedElement.borderColor || '#e5e7eb'}
               onChange={(e) => {
+                e.stopPropagation();
                 updateSlideElement(selectedElement.id, { borderColor: e.target.value });
               }}
               className="color-input"
+              onClick={(e) => e.stopPropagation()}
             />
             <button
               className="action-button danger"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 updateSlideElement(selectedElement.id, { borderColor: undefined });
               }}
             >
@@ -590,10 +605,11 @@ const RightToolbar = ({
           <div className="option-group">
             <input
               type="range"
+              onClick={(e) => e.stopPropagation()}
               min="0"
               max="10"
               value={selectedElement.borderWidth || 0}
-              onChange={(e) => updateSlideElement(selectedElement.id, { borderWidth: parseInt(e.target.value) })}
+              onChange={(e) => { e.stopPropagation(); updateSlideElement(selectedElement.id, { borderWidth: parseInt(e.target.value) }); }}
               style={{ width: '100%' }}
             />
             <div style={{ textAlign: 'center', marginTop: 4, fontSize: '12px', color: '#6b7280' }}>
@@ -602,10 +618,11 @@ const RightToolbar = ({
           </div>
 
           <div className="section-title">Element Actions</div>
-          <div className="option-group">
+          <div className="option-group" style={{ display: 'flex', flexDirection: 'row', gap: 6 }}>
             <button 
               className="action-button"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 if (selectedElement) {
                   const newElement = {
                     ...selectedElement,
@@ -617,13 +634,24 @@ const RightToolbar = ({
                   updateSlide && updateSlide({ elements: updatedElements });
                 }
               }}
+              style={{ 
+                flex: 1, 
+                padding: '8px 12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                fontSize: '12px',
+                fontWeight: '500'
+              }}
             >
-              <FiCopy />
+              <FiLayers />
               Duplicate
             </button>
             <button 
               className="action-button danger"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 if (selectedElement) {
                   const updatedElements = (currentSlide?.elements || []).filter(
                     element => element.id !== selectedElement.id
@@ -631,8 +659,18 @@ const RightToolbar = ({
                   updateSlide && updateSlide({ elements: updatedElements });
                 }
               }}
+              style={{ 
+                flex: 1, 
+                padding: '8px 12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                fontSize: '12px',
+                fontWeight: '500'
+              }}
             >
-              <FiTrash2 />
+              <FiTrash />
               Delete
             </button>
           </div>
@@ -685,10 +723,11 @@ const RightToolbar = ({
           <div className="option-group">
             <input
               type="range"
+              onClick={(e) => e.stopPropagation()}
               min="0"
               max="10"
               value={selectedElement.borderWidth || 0}
-              onChange={(e) => updateSlideElement(selectedElement.id, { borderWidth: parseInt(e.target.value) })}
+              onChange={(e) => { e.stopPropagation(); updateSlideElement(selectedElement.id, { borderWidth: parseInt(e.target.value) }); }}
               style={{ width: '100%' }}
             />
             <div style={{ textAlign: 'center', marginTop: 4, fontSize: '12px', color: '#6b7280' }}>
@@ -697,10 +736,11 @@ const RightToolbar = ({
           </div>
 
           <div className="section-title">Element Actions</div>
-          <div className="option-group">
+          <div className="option-group" style={{ display: 'flex', flexDirection: 'row', gap: 6 }}>
             <button 
               className="action-button"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 if (selectedElement) {
                   const newElement = {
                     ...selectedElement,
@@ -712,13 +752,24 @@ const RightToolbar = ({
                   updateSlide && updateSlide({ elements: updatedElements });
                 }
               }}
+              style={{ 
+                flex: 1, 
+                padding: '8px 12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                fontSize: '12px',
+                fontWeight: '500'
+              }}
             >
-              <FiCopy />
+              <FiLayers />
               Duplicate
             </button>
             <button 
               className="action-button danger"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 if (selectedElement) {
                   const updatedElements = (currentSlide?.elements || []).filter(
                     element => element.id !== selectedElement.id
@@ -726,8 +777,18 @@ const RightToolbar = ({
                   updateSlide && updateSlide({ elements: updatedElements });
                 }
               }}
+              style={{ 
+                flex: 1, 
+                padding: '8px 12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                fontSize: '12px',
+                fontWeight: '500'
+              }}
             >
-              <FiTrash2 />
+              <FiTrash />
               Delete
             </button>
           </div>
@@ -738,80 +799,38 @@ const RightToolbar = ({
     if (selectedElement && selectedElement.type === 'chart') {
       return (
         <div className="right-toolbar-section">
-          {(selectedElement.chartType === 'bar' || selectedElement.chartType === 'pie') && (
-            <>
-              <div className="section-title">
-                {selectedElement.chartType === 'bar' ? 'Bar Colors' : 'Slice Colors'}
-              </div>
-              <div className="option-group" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {(selectedElement.labels || []).map((label, index) => {
-                  const sliceColor = (selectedElement.sliceColors && selectedElement.sliceColors[index]) || 
-                                   (selectedElement.barColors && selectedElement.barColors[index]) || 
-                                   selectedElement.color || '#0ea5e9';
-                  return (
-                    <div key={index} style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      gap: 8,
-                      padding: '6px 8px',
-                      backgroundColor: '#f8f9fa',
-                      borderRadius: '6px',
-                      border: '1px solid #e9ecef'
-                    }}>
-                      <span style={{ 
-                        fontSize: '12px', 
-                        color: '#374151', 
-                        minWidth: '60px',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        fontWeight: '500'
-                      }}>
-                        {label}
-                      </span>
-                      <input
-                        type="color"
-                        value={sliceColor}
-                        onChange={(e) => {
-                          if (selectedElement.chartType === 'pie') {
-                            const newSliceColors = [...(selectedElement.sliceColors || [])];
-                            newSliceColors[index] = e.target.value;
-                            updateSlideElement(selectedElement.id, { sliceColors: newSliceColors });
-                          } else {
-                            const newBarColors = [...(selectedElement.barColors || [])];
-                            newBarColors[index] = e.target.value;
-                            updateSlideElement(selectedElement.id, { barColors: newBarColors });
-                          }
-                        }}
-                        style={{
-                          width: '28px',
-                          height: '28px',
-                          border: '2px solid #ffffff',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                        }}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
-
-          {selectedElement.chartType === 'line' && (
-            <>
-              <div className="section-title">Chart color</div>
-              <div className="option-group">
-                <input
-                  type="color"
-                  value={selectedElement.color || '#0ea5e9'}
-                  onChange={(e) => updateSlideElement(selectedElement.id, { color: e.target.value })}
-                  className="color-input"
-                />
-              </div>
-            </>
-          )}
+          <div style={{ display: 'flex', gap: 8, marginBottom: '16px', alignItems: 'center' }}>
+            <input
+              type="text"
+              placeholder="Chart name here"
+              value={selectedElement.chartName || ''}
+              onChange={(e) => updateSlideElement(selectedElement.id, { chartName: e.target.value })}
+              style={{
+                flex: 1,
+                padding: '6px 10px',
+                border: '2px solid #9ca3af',
+                borderRadius: '6px',
+                fontSize: '13px',
+                outline: 'none',
+                transition: 'border-color 0.2s',
+                height: '32px'
+              }}
+            />
+            <input
+              type="color"
+              value={selectedElement.chartNameColor || '#111827'}
+              onChange={(e) => updateSlideElement(selectedElement.id, { chartNameColor: e.target.value })}
+              style={{
+                width: '32px',
+                height: '32px',
+                border: '2px solid #ffffff',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+              }}
+              title="Chart name color"
+            />
+          </div>
 
           <div className="section-title">Data points</div>
           <div className="option-group" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -820,8 +839,8 @@ const RightToolbar = ({
               return (
                 <div key={index} style={{ 
                   display: 'grid', 
-                  gridTemplateColumns: 'minmax(0, 1fr) minmax(60px, 80px) minmax(28px, 32px)', 
-                  gap: 6, 
+                  gridTemplateColumns: 'minmax(0, 1fr) minmax(50px, 60px) 28px 28px', 
+                  gap: 4, 
                   alignItems: 'center',
                   width: '100%',
                   minWidth: 0
@@ -847,10 +866,15 @@ const RightToolbar = ({
                   <input
                     type="number"
                     value={value}
+                    min={selectedElement.chartType === 'bar' ? undefined : "0"}
                     onChange={(e) => {
                       const num = Number(e.target.value);
+                      // For pie and line charts, ensure values are not negative
+                      const finalValue = (selectedElement.chartType === 'pie' || selectedElement.chartType === 'line') ? 
+                        Math.max(0, isNaN(num) ? 0 : num) : 
+                        (isNaN(num) ? 0 : num);
                       const newValues = [...(selectedElement.values || [])];
-                      newValues[index] = isNaN(num) ? 0 : num;
+                      newValues[index] = finalValue;
                       updateSlideElement(selectedElement.id, { values: newValues });
                     }}
                     placeholder="Value"
@@ -862,8 +886,42 @@ const RightToolbar = ({
                       width: '100%'
                     }}
                   />
+                  <input
+                    type="color"
+                    value={(() => {
+                      // Use the same default colors for bar, pie, and line charts
+                      const defaultColors = ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#f43f5e', '#06b6d4', '#84cc16', '#f97316'];
+                      return (selectedElement.barColors && selectedElement.barColors[index]) || 
+                             defaultColors[index % defaultColors.length];
+                    })()}
+                    onChange={(e) => {
+                      // Always use barColors for bar, pie, and line charts
+                      const newBarColors = [...(selectedElement.barColors || [])];
+                      // Ensure the array is the right size using the same logic as ChartBox
+                      while (newBarColors.length < (selectedElement.labels || []).length) {
+                        // For pie and line charts, use diverse colors; for bar charts, use single default color
+                        if (selectedElement.chartType === 'pie' || selectedElement.chartType === 'line') {
+                          const defaultColors = ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#f43f5e', '#06b6d4', '#84cc16', '#f97316'];
+                          newBarColors.push(defaultColors[newBarColors.length % defaultColors.length]);
+                        } else {
+                          newBarColors.push(selectedElement.color || '#0ea5e9');
+                        }
+                      }
+                      newBarColors[index] = e.target.value;
+                      updateSlideElement(selectedElement.id, { barColors: newBarColors });
+                    }}
+                    style={{
+                      height: 28,
+                      width: 28,
+                      borderRadius: 4,
+                      border: '1px solid #e5e7eb',
+                      cursor: 'pointer',
+                      padding: 0
+                    }}
+                  />
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                e.stopPropagation();
                       const newLabels = [...(selectedElement.labels || [])];
                       const newValues = [...(selectedElement.values || [])];
                       newLabels.splice(index, 1);
@@ -872,18 +930,18 @@ const RightToolbar = ({
                     }}
                     title="Remove"
                     style={{
-                      height: 28,
-                      width: 28,
+                      height: 24,
+                      width: 24,
                       borderRadius: 4,
                       border: '1px solid #ef4444',
                       background: '#fff5f5',
                       color: '#ef4444',
                       cursor: 'pointer',
-                      fontSize: '12px',
+                      fontSize: '10px',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      minWidth: 28
+                      minWidth: 24
                     }}
                   >
                     −
@@ -893,7 +951,8 @@ const RightToolbar = ({
             })}
 
             <button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 const newLabels = [...(selectedElement.labels || []), `Item ${(selectedElement.labels?.length || 0) + 1}`];
                 const newValues = [...(selectedElement.values || []), 0];
                 updateSlideElement(selectedElement.id, { labels: newLabels, values: newValues });
@@ -911,11 +970,130 @@ const RightToolbar = ({
             </button>
           </div>
 
+
+          <div className="section-title">Chart Options</div>
+          <div className="option-group" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {/* First Row: Labels and Background */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {/* Labels Color */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: '#1f2937' }}>Labels</label>
+                <input
+                  type="color"
+                  value={selectedElement.labelsColor || '#374151'}
+                  onChange={(e) => updateSlideElement(selectedElement.id, { labelsColor: e.target.value })}
+                  style={{
+                    width: '32px',
+                    height: '24px',
+                    border: '2px solid #ffffff',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
+                    transition: 'transform 0.1s ease',
+                    padding: 0
+                  }}
+                  onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
+                  onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                />
+              </div>
+
+              {/* Chart Background */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <label style={{ fontSize: '13px', fontWeight: '600', color: '#1f2937' }}>Background</label>
+                <input
+                  type="color"
+                  value={selectedElement.backgroundColor || '#ffffff'}
+                  onChange={(e) => updateSlideElement(selectedElement.id, { backgroundColor: e.target.value })}
+                  style={{
+                    width: '32px',
+                    height: '24px',
+                    border: '2px solid #ffffff',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
+                    transition: 'transform 0.1s ease',
+                    padding: 0
+                  }}
+                  onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
+                  onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                />
+              </div>
+            </div>
+
+            {/* Second Row: Y-Axis and Axis Lines (only for bar/line charts) */}
+            {(selectedElement.chartType === 'bar' || selectedElement.chartType === 'line') && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                {/* Y-Axis Values Color */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <label style={{ fontSize: '13px', fontWeight: '600', color: '#1f2937' }}>Y-Axis</label>
+                  <input
+                    type="color"
+                    value={selectedElement.yAxisColor || '#6b7280'}
+                    onChange={(e) => updateSlideElement(selectedElement.id, { yAxisColor: e.target.value })}
+                    style={{
+                      width: '32px',
+                      height: '24px',
+                      border: '2px solid #ffffff',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.2)',
+                      transition: 'transform 0.1s ease',
+                      padding: 0
+                    }}
+                    onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
+                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                  />
+                </div>
+
+                {/* Axis Lines */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <label style={{ fontSize: '13px', fontWeight: '600', color: '#1f2937' }}>Lines</label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '12px', fontWeight: '500', color: '#374151' }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedElement.showXAxis || false}
+                        onChange={(e) => updateSlideElement(selectedElement.id, { showXAxis: e.target.checked })}
+                        style={{ margin: 0, width: '14px', height: '14px', accentColor: '#3b82f6' }}
+                      />
+                      X
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '12px', fontWeight: '500', color: '#374151' }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedElement.showYAxis || false}
+                        onChange={(e) => updateSlideElement(selectedElement.id, { showYAxis: e.target.checked })}
+                        style={{ margin: 0, width: '14px', height: '14px', accentColor: '#3b82f6' }}
+                      />
+                      Y
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+
+          {selectedElement.chartType === 'line' && (
+            <>
+              <div className="section-title">Chart color</div>
+              <div className="option-group" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <input
+                  type="color"
+                  value={selectedElement.color || '#0ea5e9'}
+                  onChange={(e) => updateSlideElement(selectedElement.id, { color: e.target.value })}
+                  className="color-input"
+                />
+              </div>
+            </>
+          )}
+
           <div className="section-title">Element Actions</div>
-          <div className="option-group">
+          <div className="option-group" style={{ display: 'flex', flexDirection: 'row', gap: 6 }}>
             <button 
               className="action-button"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 if (selectedElement) {
                   const newElement = {
                     ...selectedElement,
@@ -927,13 +1105,24 @@ const RightToolbar = ({
                   updateSlide && updateSlide({ elements: updatedElements });
                 }
               }}
+              style={{ 
+                flex: 1, 
+                padding: '8px 12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                fontSize: '12px',
+                fontWeight: '500'
+              }}
             >
-              <FiCopy />
+              <FiLayers />
               Duplicate
             </button>
             <button 
               className="action-button danger"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 if (selectedElement) {
                   const updatedElements = (currentSlide?.elements || []).filter(
                     element => element.id !== selectedElement.id
@@ -941,8 +1130,18 @@ const RightToolbar = ({
                   updateSlide && updateSlide({ elements: updatedElements });
                 }
               }}
+              style={{ 
+                flex: 1, 
+                padding: '8px 12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                fontSize: '12px',
+                fontWeight: '500'
+              }}
             >
-              <FiTrash2 />
+              <FiTrash />
               Delete
             </button>
           </div>

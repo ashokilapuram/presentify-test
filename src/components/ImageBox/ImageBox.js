@@ -1,91 +1,87 @@
-import React, { useRef } from 'react';
-import { Rnd } from 'react-rnd';
+import React, { useRef, useEffect, useState } from "react";
+import { Image, Transformer } from "react-konva";
 
-const ImageBox = ({
-  element,
-  isSelected,
-  onSelect,
-  onUpdate,
-  onDelete
-}) => {
-  const rndRef = useRef(null);
+const ImageBox = ({ element, isSelected, onSelect, onChange, readOnly = false }) => {
+  const imageRef = useRef();
+  const trRef = useRef();
+  const [imgObj, setImgObj] = useState(null);
 
-  const handleDragStop = (e, d) => {
-    onUpdate(element.id, { x: d.x, y: d.y });
-  };
+  // Load image
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = element.src;
+    img.onload = () => setImgObj(img);
+  }, [element.src]);
 
-  const handleResizeStop = (e, direction, ref, delta, position) => {
-    onUpdate(element.id, {
-      width: parseInt(ref.style.width),
-      height: parseInt(ref.style.height),
-      x: position.x,
-      y: position.y,
+  // Handle selection transformer
+  useEffect(() => {
+    if (isSelected && trRef.current && imageRef.current) {
+      trRef.current.nodes([imageRef.current]);
+      trRef.current.getLayer().batchDraw();
+    }
+  }, [isSelected]);
+
+  const handleTransformEnd = () => {
+    const node = imageRef.current;
+    const scaleX = node.scaleX();
+    const scaleY = node.scaleY();
+    node.scaleX(1);
+    node.scaleY(1);
+
+    onChange({
+      ...element,
+      x: node.x(),
+      y: node.y(),
+      width: Math.max(40, node.width() * scaleX),
+      height: Math.max(40, node.height() * scaleY),
+      rotation: node.rotation(),
     });
   };
 
-  const handleClick = (e) => {
-    e.stopPropagation();
-    onSelect(element);
-  };
-
-  const handleDelete = (e) => {
-    e.stopPropagation();
-    onDelete(element.id);
-  };
+  if (!imgObj) return null;
 
   return (
-    <Rnd
-      ref={rndRef}
-      size={{ width: element.width, height: element.height }}
-      position={{ x: element.x, y: element.y }}
-      onDragStop={handleDragStop}
-      onResizeStop={handleResizeStop}
-      bounds="parent"
-      onClick={handleClick}
-      enableDragging={true}
-      enableResizing={true}
-      dragHandleClassName="drag-handle"
-      style={{
-        position: "absolute",
-        cursor: isSelected ? "move" : "pointer",
-      }}
-    >
-      <div
-        className="drag-handle"
-        style={{
-          width: "100%",
-          height: "100%",
-          position: "relative",
-          transform: `rotate(${element.rotation || 0}deg)`,
-          transformOrigin: "center",
+    <>
+      <Image
+        ref={imageRef}
+        image={imgObj}
+        x={element.x}
+        y={element.y}
+        width={element.width}
+        height={element.height}
+        rotation={element.rotation || 0}
+        draggable={!readOnly}
+        onClick={(e) => {
+          e.cancelBubble = true;
+          onSelect();
         }}
-      >
-        {/* Image */}
-        <div
-          style={{
-            width: "100%",
-            height: "100%",
-            position: "relative",
-            overflow: "hidden",
-            border: isSelected 
-              ? "2px dashed #2563eb" 
-              : `${element.borderWidth || 0}px solid ${element.borderColor || "transparent"}`,
+        onTap={(e) => {
+          e.cancelBubble = true;
+          onSelect();
+        }}
+        onDragEnd={(e) =>
+          onChange({ ...element, x: e.target.x(), y: e.target.y() })
+        }
+        onTransformEnd={handleTransformEnd}
+        shadowBlur={2}
+      />
+      {isSelected && !readOnly && (
+        <Transformer
+          ref={trRef}
+          rotateEnabled
+          enabledAnchors={[
+            "top-left",
+            "top-right",
+            "bottom-left",
+            "bottom-right",
+          ]}
+          boundBoxFunc={(oldBox, newBox) => {
+            if (newBox.width < 40 || newBox.height < 40) return oldBox;
+            return newBox;
           }}
-        >
-          <img
-            src={element.src}
-            alt="Slide element"
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "contain",
-              display: "block"
-            }}
-          />
-        </div>
-
-      </div>
-    </Rnd>
+        />
+      )}
+    </>
   );
 };
 

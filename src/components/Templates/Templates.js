@@ -15,7 +15,10 @@ const Templates = ({ onSelectTemplate, onClose }) => {
     try {
       const response = await fetch('/templates/index.json');
       const data = await response.json();
-      setTemplates(data.templates);
+      // Keep only the two requested templates
+      const allowedFiles = new Set(["colorful-presentation.json", "bigdata.json"]);
+      const filtered = (data.templates || []).filter(t => allowedFiles.has(t.file));
+      setTemplates(filtered);
       setLoading(false);
     } catch (error) {
       console.error('Error loading templates:', error);
@@ -44,10 +47,9 @@ const Templates = ({ onSelectTemplate, onClose }) => {
     }
   };
 
-  const categories = ['All', ...new Set(templates.map(t => t.category))];
-  const filteredTemplates = selectedCategory === 'All' 
-    ? templates 
-    : templates.filter(t => t.category === selectedCategory);
+  // Only an 'All' tab, and show only the two filtered templates
+  const categories = ['All'];
+  const filteredTemplates = templates;
 
   const modalContent = (
     <div className="templates-modal-overlay" onClick={onClose}>
@@ -70,15 +72,12 @@ const Templates = ({ onSelectTemplate, onClose }) => {
             </div>
             
             <div className="templates-categories">
-              {categories.map(category => (
-                <button
-                  key={category}
-                  className={`category-button ${selectedCategory === category ? 'active' : ''}`}
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  {category}
-                </button>
-              ))}
+              <button
+                className={`category-button active`}
+                onClick={() => setSelectedCategory('All')}
+              >
+                All
+              </button>
             </div>
 
             <div className="templates-grid">
