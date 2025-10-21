@@ -13,7 +13,7 @@ const fonts = [
   "Inter",
 ];
 
-const sizes = [10, 12, 14, 16, 18, 20, 24, 28, 32, 40, 48, 60];
+const sizes = [10, 12, 14, 16, 18, 20, 24, 28, 32, 40, 48, 60, 80, 120, 200];
 
 const FontSelector = ({ onFontChange, onSizeChange, currentFont, currentSize }) => {
   const savedRangeRef = useRef(null);

@@ -7,9 +7,11 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
   const backgroundRef = useRef();
   const trRef = useRef();
   const textareaRef = useRef();
+  const editingLockRef = useRef(false);
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(element.content || "");
   const [isTransforming, setIsTransforming] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState(null);
 
   // Attach transformer when selected
   useEffect(() => {
@@ -28,7 +30,10 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
 
   // Keep value synced with slide element, but NOT while editing
   useEffect(() => {
-    if (!isEditing) {
+    // Prevent overwriting user's typing
+    if (editingLockRef.current) return;
+
+    if (!isEditing && value !== element.content) {
       setValue(element.content || "");
     }
   }, [element.content, isEditing]);
@@ -47,15 +52,28 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
       const ta = textareaRef.current;
       // Grab focus immediately
       ta.focus({ preventScroll: true });
-      // Defer selection to next frame so browser finishes focusing first
-      requestAnimationFrame(() => {
-        const len = ta.value.length;
-        try {
-          ta.setSelectionRange(len, len);
-        } catch {}
-      });
+      
+      // Only set cursor to end for new textboxes, preserve position for existing text
+      if (element.content === 'Click to edit text') {
+        // Defer selection to next frame so browser finishes focusing first
+        requestAnimationFrame(() => {
+          const len = ta.value.length;
+          try {
+            ta.setSelectionRange(len, len);
+          } catch {}
+        });
+      } else {
+        // For existing text, restore cursor position if we have one
+        if (cursorPosition !== null) {
+          requestAnimationFrame(() => {
+            try {
+              ta.setSelectionRange(cursorPosition, cursorPosition);
+            } catch {}
+          });
+        }
+      }
     }
-  }, [isEditing]);
+  }, [isEditing, element.content, cursorPosition]);
 
   // Simple auto-resize textarea based on content
   const autoResize = useCallback(() => {
@@ -87,11 +105,18 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
     }
   }, [element.fontSize, element.fontWeight, element.fontStyle, element.fontFamily, value, element.width, onChange, isEditing, isTransforming]);
 
-  const handleDblClick = () => {
+  const handleDblClick = (e) => {
+    // Capture cursor position before entering edit mode
+    if (textareaRef.current) {
+      const ta = textareaRef.current;
+      const pos = ta.selectionStart || 0;
+      setCursorPosition(pos);
+    }
     setIsEditing(true);
   };
 
   const handleBlur = () => {
+    editingLockRef.current = false;
     setIsEditing(false);
     onChange({ ...element, content: value });
   };
@@ -411,15 +436,17 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
               top: element.y,
               left: element.x,
               width: element.width,
-              minHeight: Math.ceil(textRef.current?.height?.() || element.height),
+              minHeight: Math.max(100, Math.ceil(textRef.current?.height?.() || element.height)),
               fontSize: element.fontSize,
               fontFamily: element.fontFamily || "Arial",
               color: element.color,
-              fontWeight: element.fontWeight || 'normal',
-              fontStyle: element.fontStyle || 'normal',
-              textDecoration: element.textDecoration || 'none',
+              fontWeight: element.fontWeight || "normal",
+              fontStyle: element.fontStyle || "normal",
+              textDecoration: element.textDecoration || "none",
               textAlign: element.textAlign,
-              border: element.borderWidth > 0 ? `${element.borderWidth}px solid ${element.borderColor || '#000000'}` : "none",
+              border: element.borderWidth > 0
+                ? `${element.borderWidth}px solid ${element.borderColor || "#000000"}`
+                : "none",
               background: element.backgroundColor || "transparent",
               outline: "none",
               resize: "none",
@@ -427,22 +454,33 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
               whiteSpace: "pre-wrap",
               lineHeight: 1.05,
               padding: "0px",
+              margin: "0px",
               boxSizing: "border-box",
               transform: `rotate(${element.rotation || 0}deg)`,
               transformOrigin: "top left",
             }}
-            value={value}
-            onChange={(e) => {
-              setValue(e.target.value);
+            defaultValue={value} // 🧠 key difference
+            onInput={(e) => {
+              // Auto-resize textarea to fit content
+              e.target.style.height = 'auto';
+              e.target.style.height = e.target.scrollHeight + 'px';
             }}
             onFocus={(e) => {
-              const len = e.target.value.length;
-              try {
-                e.target.setSelectionRange(len, len);
-              } catch {}
+              // Auto-resize on focus to ensure full text is visible
+              e.target.style.height = 'auto';
+              e.target.style.height = e.target.scrollHeight + 'px';
             }}
-            onBlur={handleBlur}
-            onKeyDown={handleKeyDown}
+            onBlur={(e) => {
+              onChange({ ...element, content: e.target.value });
+              setIsEditing(false);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                onChange({ ...element, content: e.target.value });
+                setIsEditing(false);
+              }
+            }}
             autoFocus
           />
         </Html>

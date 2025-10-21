@@ -426,7 +426,7 @@ const Toolbar = ({
         >
           {(activeDropdown === "family"
             ? ["Inter", "Playfair Display", "Arial", "Times New Roman", "Courier New"]
-            : [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60]
+            : [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60, 80, 120, 200]
           ).map((item) => (
             <div
               key={item}
