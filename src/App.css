@@ -1082,7 +1082,7 @@ body.dark .toolbar-bottom {
 /* Canvas Styles */
 .canvas-container {
   position: fixed;
-  top: 154px;
+  top: 80px !important;
   left: 232px;
   right: 324px;
   bottom: 0px;
