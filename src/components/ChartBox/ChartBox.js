@@ -376,6 +376,7 @@ const ChartBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
         ref={groupRef}
         x={element.x}
         y={element.y}
+        rotation={element.rotation || 0}
         draggable={!readOnly}
         onClick={(e) => {
           e.cancelBubble = true;
