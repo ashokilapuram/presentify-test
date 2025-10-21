@@ -36,7 +36,9 @@ import {
   FiZap,
   FiSun,
   FiMoon,
-  FiFeather
+  FiFeather,
+  FiDownload,
+  FiFolderOpen
 } from 'react-icons/fi';
 
 const RightToolbar = ({ 
@@ -51,7 +53,10 @@ const RightToolbar = ({
   addImage,
   addChart,
   deselectElement,
-  onTabChange
+  onTabChange,
+  slides,
+  onDownloadPresentation,
+  onLoadPresentation
 }) => {
   const [activeTab, setActiveTab] = useState('Insert');
   
@@ -359,7 +364,7 @@ const RightToolbar = ({
 
       <div className="section-title">Shapes</div>
       <div className="shapes-row">
-        <button className="shape-icon-button" onClick={() => addShape('rectangle')}>
+        <button className="shape-icon-button" onClick={() => addShape('square')} title="Square (resizable)">
           <FiSquare />
         </button>
         <button className="shape-icon-button" onClick={() => addShape('circle')}>
@@ -397,6 +402,24 @@ const RightToolbar = ({
         </button>
       </div>
 
+      <div className="section-title">File Operations</div>
+      <div className="file-operations-row">
+        <button 
+          className="file-operation-button" 
+          onClick={onDownloadPresentation}
+          title="Download presentation as JSON"
+        >
+          Download
+        </button>
+        <button 
+          className="file-operation-button" 
+          onClick={onLoadPresentation}
+          title="Load presentation from JSON file"
+        >
+          Load
+        </button>
+      </div>
+
 
     </div>
   );
@@ -410,7 +433,7 @@ const RightToolbar = ({
           <FiType />
           <span>Add Text</span>
         </button>
-        <button className="quick-button" onClick={() => addShape('rectangle')}>
+        <button className="quick-button" onClick={() => addShape('square')}>
           <FiSquare />
           <span>Add Shape</span>
         </button>

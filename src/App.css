@@ -903,14 +903,60 @@ body.dark .toolbar-bottom {
   margin-bottom: var(--space-8);
 }
 
+.slides-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+  gap: var(--space-3);
+}
+
 .slides-title {
   font-size: 0.75rem;
   font-weight: 700;
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  margin-bottom: var(--space-4);
-  font-family: var(--font-sans);
+  margin: 0;
+}
+
+.duplicate-slide-button {
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.duplicate-slide-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive design for duplicate button */
+@media (max-width: 1200px) {
+  .duplicate-slide-button {
+    padding: 6px 8px !important;
+    font-size: 0.7rem !important;
+  }
+  
+  .duplicate-text {
+    display: none;
+  }
+  
+  .duplicate-slide-button {
+    min-width: 32px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .slides-header {
+    gap: var(--space-2);
+  }
+  
+  .duplicate-slide-button {
+    padding: 4px 6px !important;
+    font-size: 0.65rem !important;
+    min-width: 28px;
+  }
 }
 
 .slides-list {
@@ -973,6 +1019,7 @@ body.dark .toolbar-bottom {
   color: var(--text-primary);
 }
 
+
 .slide-thumbnail {
   width: 120px;
   height: 67.5px; /* 16:9 aspect ratio (120 * 9/16 = 67.5) */
@@ -1014,15 +1061,20 @@ body.dark .toolbar-bottom {
 
 /* Drag and Drop Styles */
 .slide-item {
-  cursor: grab;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
+.slide-item:hover {
+  cursor: pointer;
+}
+
 .slide-item:active {
-  cursor: grabbing;
+  cursor: pointer;
 }
 
 .slide-item.dragging {
+  cursor: pointer;
   opacity: 0.5;
   transform: rotate(5deg);
   z-index: 1000;

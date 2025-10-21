@@ -61,7 +61,83 @@ function App() {
       elements: []
     };
     setSlides(prev => [...prev, newSlide]);
+    // Automatically switch to the new slide
+    setCurrentSlideIndex(prev => prev + 1);
   }, []);
+
+  const duplicateSlide = useCallback((slideIndex) => {
+    const slideToDuplicate = slides[slideIndex];
+    const duplicatedSlide = {
+      ...slideToDuplicate,
+      id: uuidv4(),
+      elements: slideToDuplicate.elements.map(element => ({
+        ...element,
+        id: uuidv4()
+      }))
+    };
+    
+    // Insert the duplicated slide after the current slide
+    setSlides(prev => {
+      const newSlides = [...prev];
+      newSlides.splice(slideIndex + 1, 0, duplicatedSlide);
+      return newSlides;
+    });
+    
+    // Switch to the duplicated slide
+    setCurrentSlideIndex(slideIndex + 1);
+  }, [slides]);
+
+  const downloadPresentation = useCallback(() => {
+    const presentationData = {
+      slides: slides,
+      currentSlideIndex: currentSlideIndex,
+      metadata: {
+        version: '1.0',
+        created: new Date().toISOString(),
+        title: 'Presentation'
+      }
+    };
+    
+    const dataStr = JSON.stringify(presentationData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `presentation-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [slides, currentSlideIndex]);
+
+  const loadPresentation = useCallback(() => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const presentationData = JSON.parse(event.target.result);
+            if (presentationData.slides && Array.isArray(presentationData.slides)) {
+              setSlides(presentationData.slides);
+              setCurrentSlideIndex(presentationData.currentSlideIndex || 0);
+            } else {
+              alert('Invalid presentation file format');
+            }
+          } catch (error) {
+            alert('Error loading presentation file: ' + error.message);
+          }
+        };
+        reader.readAsText(file);
+      }
+    };
+    input.click();
+  }, []);
+
 
   const addSlideFromTemplate = useCallback((template) => {
     // Template has slides array, replace ALL existing slides with template slides
@@ -521,6 +597,8 @@ function App() {
             deleteSlide={deleteSlide}
             onShowTemplates={() => setShowTemplates(true)}
             onReorderSlides={reorderSlides}
+            onDuplicateSlide={duplicateSlide}
+            setSlides={setSlides}
           />
           <KonvaCanvas 
             slide={slides[currentSlideIndex]}
@@ -551,6 +629,9 @@ function App() {
             addImage={addImage}
             addChart={addChart}
             onTabChange={handleTabChange}
+            slides={slides}
+            onDownloadPresentation={downloadPresentation}
+            onLoadPresentation={loadPresentation}
           />
         </div>
         {showTemplates && (

@@ -75,7 +75,9 @@ const KonvaShape = ({ element, isSelected, onSelect, onChange, readOnly = false 
             outerRadius={Math.min(element.width, element.height) / 2}
           />
         );
-      default: // rectangle or square
+      case "square":
+        return <Rect {...shapeProps} cornerRadius={4} />;
+      default: // rectangle
         return <Rect {...shapeProps} cornerRadius={4} />;
     }
   };
@@ -87,16 +89,36 @@ const KonvaShape = ({ element, isSelected, onSelect, onChange, readOnly = false 
         <Transformer
           ref={trRef}
           rotateEnabled
-          enabledAnchors={[
-            "top-left",
-            "top-right",
-            "bottom-left",
-            "bottom-right",
-          ]}
+          enabledAnchors={
+            element.shapeType === "square" 
+              ? [
+                  "top-left",
+                  "top-right", 
+                  "bottom-left",
+                  "bottom-right",
+                  "top-center",
+                  "bottom-center",
+                  "middle-left",
+                  "middle-right"
+                ]
+              : [
+                  "top-left",
+                  "top-right",
+                  "bottom-left", 
+                  "bottom-right"
+                ]
+          }
           boundBoxFunc={(oldBox, newBox) => {
             if (newBox.width < 30 || newBox.height < 30) return oldBox;
             return newBox;
           }}
+          anchorSize={element.shapeType === "square" ? 8 : 6}
+          anchorStroke="#0ea5e9"
+          anchorFill="#ffffff"
+          anchorStrokeWidth={2}
+          borderStroke="#0ea5e9"
+          borderStrokeWidth={2}
+          borderDash={[5, 5]}
         />
       )}
     </>
