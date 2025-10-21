@@ -2331,3 +2331,31 @@ body.dark .toolbar-bottom {
     margin-top: 0 !important;
   }
 }
+
+/* Canvas alignment for 1200px to 1399px - expand to full available width */
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .canvas-container {
+    left: 200px !important; /* 180px sidebar + 20px gap */
+    right: 320px !important; /* 300px toolbar + 20px gap */
+    width: calc(100vw - 520px) !important; /* 180px sidebar + 20px left gap + 300px toolbar + 20px right gap = 520px */
+  }
+  
+  .toolbar-bottom {
+    left: 200px !important; /* 180px sidebar + 20px gap */
+    right: 320px !important; /* 300px toolbar + 20px gap */
+  }
+}
+
+/* Canvas alignment for 1400px and above - full width */
+@media (min-width: 1400px) {
+  .canvas-container {
+    left: 220px !important; /* 200px sidebar + 20px gap */
+    right: 320px !important; /* 300px toolbar + 20px gap */
+    width: auto !important; /* ensure it expands to fill space */
+  }
+  
+  .toolbar-bottom {
+    left: 220px !important; /* 200px sidebar + 20px gap */
+    right: 320px !important; /* 300px toolbar + 20px gap */
+  }
+}
