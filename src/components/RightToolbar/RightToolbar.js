@@ -55,8 +55,6 @@ const RightToolbar = ({
   deselectElement,
   onTabChange,
   slides,
-  onDownloadPresentation,
-  onLoadPresentation
 }) => {
   const [activeTab, setActiveTab] = useState('Insert');
   
@@ -402,23 +400,6 @@ const RightToolbar = ({
         </button>
       </div>
 
-      <div className="section-title">File Operations</div>
-      <div className="file-operations-row">
-        <button 
-          className="file-operation-button" 
-          onClick={onDownloadPresentation}
-          title="Download presentation as JSON"
-        >
-          Download
-        </button>
-        <button 
-          className="file-operation-button" 
-          onClick={onLoadPresentation}
-          title="Load presentation from JSON file"
-        >
-          Load
-        </button>
-      </div>
 
 
     </div>
