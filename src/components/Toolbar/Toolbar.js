@@ -188,6 +188,11 @@ const Toolbar = ({
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
   const [activeDropdown, setActiveDropdown] = useState(null);
 
+  // Check if text formatting options should be shown
+  const shouldShowTextFormatting = () => {
+    return selectedElement && selectedElement.type === 'text';
+  };
+
   const openDropdown = (e, type) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setDropdownPos({
@@ -232,126 +237,147 @@ const Toolbar = ({
         </div>
 
         <div className="toolbar-actions">
-          {/* Font Family Dropdown */}
-          <div className="custom-dropdown">
-            <button
-              className="toolbar-button dropdown-trigger"
-              onClick={(e) => { e.stopPropagation(); openDropdown(e, "family"); }}
-              style={{
-                fontFamily: selectedElement?.fontFamily || textFormatting.fontFamily || 'Inter',
-                minWidth: "100px",
-              }}
-            >
-              {selectedElement?.fontFamily || textFormatting.fontFamily || "Inter"}
-              <FiChevronDown size={14} />
-            </button>
-          </div>
+          {/* Text Formatting Options - Only show when text is selected */}
+          {shouldShowTextFormatting() && (
+            <>
+              {/* Font Family Dropdown */}
+              <div className="custom-dropdown">
+                <button
+                  className="toolbar-button dropdown-trigger"
+                  onClick={(e) => { e.stopPropagation(); openDropdown(e, "family"); }}
+                  style={{
+                    fontFamily: selectedElement?.fontFamily || textFormatting.fontFamily || 'Inter',
+                    minWidth: "100px",
+                  }}
+                >
+                  {selectedElement?.fontFamily || textFormatting.fontFamily || "Inter"}
+                  <FiChevronDown size={14} />
+                </button>
+              </div>
 
-          {/* Font Size Dropdown */}
-          <div className="custom-dropdown">
-            <button
-              className="toolbar-button dropdown-trigger"
-              onClick={(e) => { e.stopPropagation(); openDropdown(e, "size"); }}
-              style={{
-                minWidth: "50px",
-              }}
-            >
-              {selectedElement?.fontSize || textFormatting.fontSize || 16}
-              <FiChevronDown size={14} />
-            </button>
-          </div>
+              {/* Font Size Dropdown */}
+              <div className="custom-dropdown">
+                <button
+                  className="toolbar-button dropdown-trigger"
+                  onClick={(e) => { e.stopPropagation(); openDropdown(e, "size"); }}
+                  style={{
+                    minWidth: "50px",
+                  }}
+                >
+                  {selectedElement?.fontSize || textFormatting.fontSize || 16}
+                  <FiChevronDown size={14} />
+                </button>
+              </div>
+            </>
+          )}
 
-          {/* Separator */}
-          <div className="formatting-separator">|</div>
+          {/* Text Formatting Separator and Font Style - Only show when text is selected */}
+          {shouldShowTextFormatting() && (
+            <>
+              {/* Separator */}
+              <div className="formatting-separator">|</div>
 
-          {/* Font Style */}
-          <button className={`toolbar-button ${(selectedElement?.fontWeight || textFormatting.fontWeight) === 'bold' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); toggleStyle('fontWeight'); }}>
-            <FiBold size={14} />
-          </button>
-          <button className={`toolbar-button ${(selectedElement?.fontStyle || textFormatting.fontStyle) === 'italic' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); toggleStyle('fontStyle'); }}>
-            <FiItalic size={14} />
-          </button>
-          <button className={`toolbar-button ${(selectedElement?.textDecoration || textFormatting.textDecoration) === 'underline' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); toggleStyle('textDecoration'); }}>
-            <FiUnderline size={14} />
-          </button>
+              {/* Font Style */}
+              <button className={`toolbar-button ${(selectedElement?.fontWeight || textFormatting.fontWeight) === 'bold' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); toggleStyle('fontWeight'); }}>
+                <FiBold size={14} />
+              </button>
+              <button className={`toolbar-button ${(selectedElement?.fontStyle || textFormatting.fontStyle) === 'italic' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); toggleStyle('fontStyle'); }}>
+                <FiItalic size={14} />
+              </button>
+              <button className={`toolbar-button ${(selectedElement?.textDecoration || textFormatting.textDecoration) === 'underline' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); toggleStyle('textDecoration'); }}>
+                <FiUnderline size={14} />
+              </button>
+            </>
+          )}
 
-          {/* Separator */}
-          <div className="formatting-separator">|</div>
+          {/* Text Alignment - Only show when text is selected */}
+          {shouldShowTextFormatting() && (
+            <>
+              {/* Separator */}
+              <div className="formatting-separator">|</div>
 
-          {/* Text Alignment */}
-          <button className={`toolbar-button ${(selectedElement?.textAlign || textFormatting.textAlign) === 'left' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); applyFormat('textAlign', 'left'); }}>
-            <FiAlignLeft size={14} />
-          </button>
-          <button className={`toolbar-button ${(selectedElement?.textAlign || textFormatting.textAlign) === 'center' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); applyFormat('textAlign', 'center'); }}>
-            <FiAlignCenter size={14} />
-          </button>
-          <button className={`toolbar-button ${(selectedElement?.textAlign || textFormatting.textAlign) === 'right' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); applyFormat('textAlign', 'right'); }}>
-            <FiAlignRight size={14} />
-          </button>
-          <button className={`toolbar-button ${(selectedElement?.textAlign || textFormatting.textAlign) === 'justify' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); applyFormat('textAlign', 'justify'); }}>
-            <FiAlignJustify size={14} />
-          </button>
+              {/* Text Alignment */}
+              <button className={`toolbar-button ${(selectedElement?.textAlign || textFormatting.textAlign) === 'left' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); applyFormat('textAlign', 'left'); }}>
+                <FiAlignLeft size={14} />
+              </button>
+              <button className={`toolbar-button ${(selectedElement?.textAlign || textFormatting.textAlign) === 'center' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); applyFormat('textAlign', 'center'); }}>
+                <FiAlignCenter size={14} />
+              </button>
+              <button className={`toolbar-button ${(selectedElement?.textAlign || textFormatting.textAlign) === 'right' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); applyFormat('textAlign', 'right'); }}>
+                <FiAlignRight size={14} />
+              </button>
+              <button className={`toolbar-button ${(selectedElement?.textAlign || textFormatting.textAlign) === 'justify' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); applyFormat('textAlign', 'justify'); }}>
+                <FiAlignJustify size={14} />
+              </button>
+            </>
+          )}
 
-          {/* Separator */}
-          <div className="formatting-separator">|</div>
+          {/* Font Color - Only show when text is selected */}
+          {shouldShowTextFormatting() && (
+            <>
+              {/* Separator */}
+              <div className="formatting-separator">|</div>
 
-          {/* Font Color */}
-          <div className="color-button-container">
-            <button 
-              className="toolbar-button" 
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                e.preventDefault();
-                
-                // Store current selection before opening color picker
-                if (selectedElement && selectedElement.type === 'text') {
-                  const textElement = document.querySelector(`[data-element-id="${selectedElement.id}"]`);
-                  if (textElement) {
-                    const selection = window.getSelection();
-                    if (selection && selection.rangeCount > 0 && !selection.getRangeAt(0).collapsed) {
-                      // Store the selection
-                      window.__PRESENTIFY_SELECTION__ = {
-                        element: textElement,
-                        range: selection.getRangeAt(0).cloneRange()
-                      };
+              {/* Font Color */}
+              <div className="color-button-container">
+                <button 
+                  className="toolbar-button" 
+                  onClick={(e) => { 
+                    e.stopPropagation(); 
+                    e.preventDefault();
+                    
+                    // Store current selection before opening color picker
+                    if (selectedElement && selectedElement.type === 'text') {
+                      const textElement = document.querySelector(`[data-element-id="${selectedElement.id}"]`);
+                      if (textElement) {
+                        const selection = window.getSelection();
+                        if (selection && selection.rangeCount > 0 && !selection.getRangeAt(0).collapsed) {
+                          // Store the selection
+                          window.__PRESENTIFY_SELECTION__ = {
+                            element: textElement,
+                            range: selection.getRangeAt(0).cloneRange()
+                          };
+                        }
+                      }
                     }
-                  }
-                }
-                
-                const colorInput = e.currentTarget.parentElement.querySelector('.color-picker');
-                if (colorInput) {
-                  colorInput.click();
-                }
-              }}
-            >
-              <span style={{ 
-                fontWeight: 'bold', 
-                textDecoration: 'underline', 
-                color: '#dc2626',
-                fontSize: '12px'
-              }}>
-                A
-              </span>
-            </button>
-            <input 
-              type="color" 
-              value={selectedElement?.color || textFormatting.color || '#000000'} 
-              onChange={(e) => { 
-                e.stopPropagation(); 
-                e.preventDefault();
-                
-                // Restore selection before applying format
-                restoreSelection();
-                applyFormat('color', e.target.value); 
-              }} 
-              onClick={(e) => e.stopPropagation()}
-              className="color-picker" 
-            />
-          </div>
+                    
+                    const colorInput = e.currentTarget.parentElement.querySelector('.color-picker');
+                    if (colorInput) {
+                      colorInput.click();
+                    }
+                  }}
+                >
+                  <span style={{ 
+                    fontWeight: 'bold', 
+                    textDecoration: 'underline', 
+                    color: '#dc2626',
+                    fontSize: '12px'
+                  }}>
+                    A
+                  </span>
+                </button>
+                <input 
+                  type="color" 
+                  value={selectedElement?.color || textFormatting.color || '#000000'} 
+                  onChange={(e) => { 
+                    e.stopPropagation(); 
+                    e.preventDefault();
+                    
+                    // Restore selection before applying format
+                    restoreSelection();
+                    applyFormat('color', e.target.value); 
+                  }} 
+                  onClick={(e) => e.stopPropagation()}
+                  className="color-picker" 
+                />
+              </div>
+            </>
+          )}
 
-          {/* Separator */}
+          {/* Separator for general actions */}
           <div className="formatting-separator">|</div>
 
+          {/* General Actions - Always visible */}
           <button 
             className={`toolbar-button ${!canUndo ? 'disabled' : ''}`}
             onClick={onUndo}

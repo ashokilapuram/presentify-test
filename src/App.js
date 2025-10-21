@@ -358,17 +358,22 @@ function App() {
 
   // Smart deselection handler
   const handleSmartDeselection = useCallback((e) => {
-    // Check if click is on RightToolbar or ToolbarBottom
+    // Check if click is on RightToolbar, ToolbarBottom, or ToolbarTop
     const rightToolbar = document.querySelector('.right-toolbar');
     const toolbarBottom = document.querySelector('.toolbar-bottom');
+    const toolbarTop = document.querySelector('.toolbar-top');
     const canvas = document.querySelector('.canvas');
     
-    // If clicking on RightToolbar or ToolbarBottom, don't deselect
+    // If clicking on RightToolbar, ToolbarBottom, or ToolbarTop, don't deselect
     if (rightToolbar && rightToolbar.contains(e.target)) {
       return; // Don't deselect
     }
     
     if (toolbarBottom && toolbarBottom.contains(e.target)) {
+      return; // Don't deselect
+    }
+    
+    if (toolbarTop && toolbarTop.contains(e.target)) {
       return; // Don't deselect
     }
     

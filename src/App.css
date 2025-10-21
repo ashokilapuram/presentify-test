@@ -1082,7 +1082,7 @@ body.dark .toolbar-bottom {
 /* Canvas Styles */
 .canvas-container {
   position: fixed;
-  top: 80px !important;
+  top: 60px !important;
   left: 232px;
   right: 324px;
   bottom: 0px;
@@ -2031,6 +2031,21 @@ body.dark .toolbar-bottom {
   }
 }
 
+/* Move sidebar and right toolbar down for larger screens (1400px+) */
+@media (min-width: 1400px) {
+  .sidebar {
+    top: 64px !important; /* Add 4px gap below toolbar-top */
+  }
+  
+  .right-toolbar {
+    top: 64px !important; /* Add 4px gap below toolbar-top */
+  }
+  
+  .canvas-container {
+    top: 64px !important; /* Move canvas down to match sidebar and right toolbar */
+  }
+}
+
 @media (max-width: 1200px) {
   .sidebar {
     width: 160px;
@@ -2319,8 +2334,8 @@ body.dark .toolbar-bottom {
 
   /* Move canvas-container upward and stretch fully */
   .canvas-container {
-    top: 95px !important; /* move canvas higher */
-    bottom: 8px !important;
+    top: 60px !important; /* start immediately after toolbar-top */
+    bottom: 0px !important;
     margin-top: 0 !important;
   }
 
