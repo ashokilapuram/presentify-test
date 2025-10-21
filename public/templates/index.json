@@ -55,9 +55,30 @@
       "category": "Minimal",
       "thumbnail": "/templates/thumbnails/minimal.png",
       "file": "minimal-design.json"
+    },
+    {
+      "id": "sample_1",
+      "name": "Sample Template 1",
+      "description": "Professional business presentation template",
+      "category": "Business",
+      "thumbnail": "/images/templates/sample_1.png",
+      "file": "sample_1.json"
+    },
+    {
+      "id": "sample_2",
+      "name": "Sample Template 2", 
+      "description": "Creative portfolio showcase template",
+      "category": "Creative",
+      "thumbnail": "/images/templates/sample_2.png",
+      "file": "sample_2.json"
+    },
+    {
+      "id": "sample_3",
+      "name": "Sample Template 3",
+      "description": "Modern tech presentation template", 
+      "category": "Technology",
+      "thumbnail": "/images/templates/sample_3.png",
+      "file": "sample_3.json"
     }
   ]
 }
-
-
-

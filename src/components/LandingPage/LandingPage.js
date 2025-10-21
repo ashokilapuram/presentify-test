@@ -1,12 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './LandingPage.css';
+import TemplateSelectionModal from '../TemplateSelectionModal/TemplateSelectionModal';
 
 const LandingPage = ({ onLaunchPresentify }) => {
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  const handleLaunchClick = () => {
+    setShowTemplateModal(true);
+  };
+
+  const handleTemplateSelect = (template) => {
+    onLaunchPresentify(template);
+  };
+
+  const handleCloseModal = () => {
+    setShowTemplateModal(false);
   };
   return (
     <div className="landing-page">
@@ -36,7 +50,7 @@ const LandingPage = ({ onLaunchPresentify }) => {
               </p>
               
               <div className="hero-buttons">
-                <button className="btn-primary" onClick={onLaunchPresentify}>
+                <button className="btn-primary" onClick={handleLaunchClick}>
                   Launch Presentify
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                     <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -128,6 +142,12 @@ const LandingPage = ({ onLaunchPresentify }) => {
         </div>
       </section>
 
+      {/* Template Selection Modal */}
+      <TemplateSelectionModal
+        isOpen={showTemplateModal}
+        onClose={handleCloseModal}
+        onSelectTemplate={handleTemplateSelect}
+      />
     </div>
   );
 };

@@ -513,10 +513,33 @@ function App() {
     document.dispatchEvent(clearEditingEvent);
   }, []);
 
-  const handleLaunchPresentify = useCallback(() => {
-    setShowLandingPage(false);
-    // Launch app in normal window mode (no automatic fullscreen)
+  const loadTemplate = useCallback(async (template) => {
+    try {
+      // If template has a jsonFile property, fetch it
+      if (template.jsonFile) {
+        const response = await fetch(template.jsonFile);
+        const templateData = await response.json();
+        
+        // Load the template data into slides
+        if (templateData.slides) {
+          setSlides(templateData.slides);
+          setCurrentSlideIndex(0);
+          setSelectedElement(null);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading template:', error);
+    }
   }, []);
+
+  const handleLaunchPresentify = useCallback((template) => {
+    setShowLandingPage(false);
+    
+    // If a template is provided, load it
+    if (template) {
+      loadTemplate(template);
+    }
+  }, [loadTemplate]);
 
   const handleBackToLanding = useCallback(() => {
     setShowLandingPage(true);
