@@ -39,6 +39,24 @@ function App() {
   // Simple undo/redo state
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
+  const [lastSaveTime, setLastSaveTime] = useState(0);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Helper function to save undo state with debouncing
+  const saveUndoState = useCallback(() => {
+    const now = Date.now();
+    // Mark that there are unsaved changes immediately
+    setHasUnsavedChanges(true);
+    
+    // Only save if at least 300ms have passed since last save
+    if (now - lastSaveTime > 300) {
+      setUndoStack(prev => {
+        const newStack = [...prev, { slides, selectedElement }];
+        return newStack.length > 20 ? newStack.slice(-20) : newStack;
+      });
+      setLastSaveTime(now);
+    }
+  }, [slides, selectedElement, lastSaveTime]);
 
   // Sync toolbar formatting with the currently selected text element
   React.useEffect(() => {
@@ -138,9 +156,17 @@ function App() {
   }, [currentSlideIndex]);
 
   const updateSlideElement = useCallback((elementId, updates) => {
-    // Save current state to undo stack
-    setUndoStack(prev => [...prev, { slides, selectedElement }]);
+    // Save current state to undo stack with debouncing
+    saveUndoState();
     setRedoStack([]); // Clear redo stack when new action is performed
+    
+    // Force save undo state after a delay to ensure it's available
+    setTimeout(() => {
+      setUndoStack(prev => {
+        const newStack = [...prev, { slides, selectedElement }];
+        return newStack.length > 20 ? newStack.slice(-20) : newStack;
+      });
+    }, 350);
     
     setSlides(prev => prev.map((slide, index) => {
       if (index === currentSlideIndex) {
@@ -154,12 +180,20 @@ function App() {
       return slide;
     }));
     setSelectedElement(prev => (prev && prev.id === elementId) ? { ...prev, ...updates } : prev);
-  }, [currentSlideIndex, slides, selectedElement]);
+  }, [currentSlideIndex, slides, selectedElement, saveUndoState]);
 
   const updateSlide = useCallback((updates) => {
-    // Save current state to undo stack
-    setUndoStack(prev => [...prev, { slides, selectedElement }]);
+    // Save current state to undo stack with debouncing
+    saveUndoState();
     setRedoStack([]); // Clear redo stack when new action is performed
+    
+    // Force save undo state after a delay to ensure it's available
+    setTimeout(() => {
+      setUndoStack(prev => {
+        const newStack = [...prev, { slides, selectedElement }];
+        return newStack.length > 20 ? newStack.slice(-20) : newStack;
+      });
+    }, 350);
     
     setSlides(prev => prev.map((slide, index) => {
       if (index === currentSlideIndex) {
@@ -167,7 +201,7 @@ function App() {
       }
       return slide;
     }));
-  }, [currentSlideIndex, slides, selectedElement]);
+  }, [currentSlideIndex, slides, selectedElement, saveUndoState]);
 
   const addTextBox = useCallback((textType = 'content') => {
     let fontSize, fontWeight, content, width, height;
@@ -497,14 +531,24 @@ function App() {
 
 
   const undo = useCallback(() => {
+    // Always save current state to redo stack before undoing
+    setRedoStack(prev => [...prev, { slides, selectedElement }]);
+    
     if (undoStack.length > 0) {
+      // Get the most recent state from undo stack
       const lastState = undoStack[undoStack.length - 1];
-      setRedoStack(prev => [...prev, { slides, selectedElement }]);
+      
+      // Restore the state
       setSlides(lastState.slides);
       setSelectedElement(lastState.selectedElement);
+      
+      // Remove the used state from undo stack
       setUndoStack(prev => prev.slice(0, -1));
     }
-  }, [undoStack, slides, selectedElement]);
+    
+    // Reset unsaved changes flag
+    setHasUnsavedChanges(false);
+  }, [undoStack, slides, selectedElement, hasUnsavedChanges]);
 
   const redo = useCallback(() => {
     if (redoStack.length > 0) {
@@ -553,7 +597,7 @@ function App() {
           onStartFullScreenSlideshow={startFullScreenSlideshow}
           onUndo={undo}
           onRedo={redo}
-          canUndo={undoStack.length > 0}
+          canUndo={true}
           canRedo={redoStack.length > 0}
           isDarkMode={isDarkMode}
           onToggleDarkMode={handleToggleDarkMode}
