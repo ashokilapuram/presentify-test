@@ -81,7 +81,7 @@ const usePresentationStore = create((set, get) => ({
       fontStyle: state.textFormatting.fontStyle,
       textDecoration: state.textFormatting.textDecoration,
       textAlign: state.textFormatting.textAlign,
-      color: state.textFormatting.color,
+      color: '#000000', // Always black for new textboxes
       fontFamily: state.textFormatting.fontFamily
     };
 

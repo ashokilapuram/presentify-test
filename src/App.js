@@ -251,7 +251,7 @@ function App() {
       fontStyle: textFormatting.fontStyle,
       textDecoration: textFormatting.textDecoration,
       textAlign: textFormatting.textAlign,
-      color: textFormatting.color
+      color: '#000000' // Always black for new textboxes
     };
 
     setSlides(prev => prev.map((slide, index) => {
