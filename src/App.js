@@ -78,10 +78,15 @@ function App() {
       id: uuidv4(),
       elements: []
     };
-    setSlides(prev => [...prev, newSlide]);
+    // Insert the new slide after the current slide
+    setSlides(prev => {
+      const newSlides = [...prev];
+      newSlides.splice(currentSlideIndex + 1, 0, newSlide);
+      return newSlides;
+    });
     // Automatically switch to the new slide
     setCurrentSlideIndex(prev => prev + 1);
-  }, []);
+  }, [currentSlideIndex]);
 
   const duplicateSlide = useCallback((slideIndex) => {
     const slideToDuplicate = slides[slideIndex];
