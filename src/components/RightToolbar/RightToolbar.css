@@ -273,13 +273,10 @@
 .option-group {
   margin-bottom: var(--space-4, 1rem);
   padding: var(--space-4, 1rem);
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: #e5e7eb;
+  border: 1px solid #d1d5db;
   border-radius: var(--radius-lg, 0.75rem);
-  backdrop-filter: blur(14px);
-  box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Button Styles */
@@ -553,13 +550,10 @@
 .background-container {
   margin-bottom: var(--space-4, 1rem);
   padding: var(--space-4, 1rem);
-  background: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  background: #e5e7eb;
+  border: 1px solid #d1d5db;
   border-radius: var(--radius-lg, 0.75rem);
-  backdrop-filter: blur(14px);
-  box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .background-controls {
@@ -662,23 +656,69 @@
 }
 
 .color-swatch {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-md, 0.5rem);
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 6px;
   border: 2px solid white;
-  box-shadow: var(--shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05));
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   cursor: pointer;
-  transition: all var(--transition-normal, 250ms ease);
+  transition: all 0.2s ease;
 }
 
 .color-swatch:hover {
-  transform: scale(1.1);
-  box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border-width: 2px;
 }
 
 .color-swatch:active {
   transform: scale(0.95);
-  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Small color swatches for compact grid */
+.color-swatch-small {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1.5px solid white;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.color-swatch-small:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.color-swatch-small:active {
+  transform: scale(0.9);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Quick Colors Grid - Responsive */
+.quick-colors-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 20px);
+  gap: 4px;
+  justify-content: space-between;
+}
+
+/* Hide extra colors on smaller screens */
+.quick-colors-grid .quick-color-extra {
+  display: none;
+}
+
+/* Show 6 colors per row on larger screens (1366px+) */
+@media (min-width: 1366px) {
+  .quick-colors-grid {
+    grid-template-columns: repeat(6, 20px);
+  }
+  
+  .quick-colors-grid .quick-color-extra {
+    display: block;
+  }
 }
 
 /* Input Styles */
@@ -919,11 +959,15 @@ body.dark .right-toolbar-header {
 }
 
 body.dark .option-group {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .background-container {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 body.dark .option-button {

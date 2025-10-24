@@ -230,32 +230,66 @@ const ChartBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
 
   const renderLine = () => {
     const points = data.map((d, i) => [xScale(labels[i]) + xScale.bandwidth() / 2, yScale(d)]);
-    const interpolated = d3.line().curve(d3.curveMonotoneX)(points);
-    // Animate line reveal
-    const visibleLength = animationProgress * interpolated.length;
+    const outerRadius = 6;
+    
     return (
       <>
-        <Line
-          points={points.flat()}
-          stroke={defaultColor}
-          strokeWidth={2.5}
-          lineCap="round"
-          lineJoin="round"
-          tension={0.4}
-          opacity={animationProgress}
-        />
+        {/* Render line segments between points, stopping at ring edges */}
+        {points.map(([x1, y1], i) => {
+          if (i === points.length - 1) return null;
+          const [x2, y2] = points[i + 1];
+          
+          // Calculate angle and distance between points
+          const dx = x2 - x1;
+          const dy = y2 - y1;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          // Calculate offset to stop at ring edge
+          const offsetX = (dx / distance) * outerRadius;
+          const offsetY = (dy / distance) * outerRadius;
+          
+          // Start and end points adjusted to stop at ring edges
+          const startX = x1 + offsetX;
+          const startY = y1 + offsetY;
+          const endX = x2 - offsetX;
+          const endY = y2 - offsetY;
+          
+          return (
+            <Line
+              key={i}
+              points={[startX, startY, endX, endY]}
+              stroke={defaultColor}
+              strokeWidth={2.5}
+              lineCap="round"
+              opacity={animationProgress}
+            />
+          );
+        })}
+        {/* Render outer rings and inner points */}
         {points.map(([x, y], i) => {
           // Get individual point color if available, otherwise use default color
           const pointColor = (element.barColors && element.barColors[i]) || defaultColor;
           return (
-            <Circle
-              key={i}
-              x={x}
-              y={y}
-              radius={4}
-              fill={pointColor}
-              opacity={animationProgress}
-            />
+            <React.Fragment key={i}>
+              {/* Outer ring */}
+              <Circle
+                x={x}
+                y={y}
+                radius={outerRadius}
+                stroke={pointColor}
+                strokeWidth={2}
+                fill="transparent"
+                opacity={animationProgress}
+              />
+              {/* Inner point */}
+              <Circle
+                x={x}
+                y={y}
+                radius={3.5}
+                fill={pointColor}
+                opacity={animationProgress}
+              />
+            </React.Fragment>
           );
         })}
       </>

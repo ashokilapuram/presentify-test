@@ -1,5 +1,106 @@
 /* Toolbar component styles colocated; core rules still in global CSS to avoid UI changes */
 
+/* Format Container Styling */
+.format-container {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  background: #e5e7eb;
+  border-radius: 6px;
+  height: fit-content;
+  flex-shrink: 0;
+}
+
+/* Reduce button sizes inside format-container */
+.format-container .toolbar-button {
+  min-width: 24px;
+  height: 24px;
+  padding: 0.15rem 0.2rem;
+  font-size: 0.75rem;
+}
+
+.format-container .toolbar-button svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Reduce dropdown sizes inside format-container */
+.format-container .dropdown-trigger {
+  padding: 0.25rem 0.45rem;
+  font-size: 0.75rem;
+  min-width: 75px;
+  height: 24px;
+}
+
+/* Reduce separator size inside format-container */
+.format-container .formatting-separator {
+  font-size: 0.7rem;
+  margin: 0 0.2rem;
+}
+
+/* Reduce color button size inside format-container */
+.format-container .color-button-container .toolbar-button {
+  height: 24px;
+  min-width: 24px;
+  padding: 0.15rem 0.2rem;
+}
+
+.format-container .color-button-container .toolbar-button span {
+  font-size: 9px;
+}
+
+/* Font Size Controls */
+.font-size-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.font-size-btn {
+  min-width: 22px !important;
+  height: 24px !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.font-size-display {
+  min-width: 28px;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #374151;
+  padding: 0 0.2rem;
+}
+
+/* Increase icon visibility for Bold, Italic, Underline, and Alignment buttons */
+.format-container .toolbar-button svg {
+  stroke-width: 2.5;
+  font-weight: bold;
+}
+
+.format-container .toolbar-button:hover svg {
+  stroke-width: 3;
+}
+
+.format-container .toolbar-button.active svg {
+  stroke-width: 3;
+}
+
+/* Ensure format-container fits properly without affecting toolbar-top */
+.toolbar-actions {
+  align-items: center;
+}
+
+.toolbar-top {
+  overflow: visible;
+}
+
 /* Toolbar Bottom Improvements */
 .toolbar-formatting {
   display: flex;
@@ -67,18 +168,18 @@
   font-weight: 700;
 }
 
-/* Bold, Italic, Underline specific styling */
+/* Bold, Italic, Underline specific styling - Make them sharp and consistent */
 .formatting-button:has(.fi-bold),
 .formatting-button:has(.fi-italic),
 .formatting-button:has(.fi-underline) {
-  font-weight: 800;
-  color: #111827;
+  font-weight: 600;
+  color: #374151;
 }
 
 .formatting-button:has(.fi-bold):hover,
 .formatting-button:has(.fi-italic):hover,
 .formatting-button:has(.fi-underline):hover {
-  color: #000000;
+  color: #1f2937;
 }
 
 .formatting-button:has(.fi-bold).active,
@@ -87,18 +188,21 @@
   color: #ffffff;
 }
 
-/* Make B, I, U icons specifically darker */
-.formatting-button svg {
-  color: #111827;
-  font-weight: 800;
+/* Make all formatting icons sharp and consistent with RightToolbar */
+.toolbar-button svg {
+  color: #6b7280;
+  font-weight: 900;
+  stroke-width: 2;
 }
 
-.formatting-button:hover svg {
-  color: #000000;
+.toolbar-button:hover svg {
+  color: #374151;
+  stroke-width: 2.5;
 }
 
-.formatting-button.active svg {
+.toolbar-button.active svg {
   color: #ffffff;
+  stroke-width: 2.5;
 }
 
 .color-picker {
@@ -118,6 +222,59 @@
 
 .color-button-container .toolbar-button span {
   font-size: 12px;
+}
+
+/* Responsive format-container for medium screens (1024px - 1365px) */
+@media (min-width: 1024px) and (max-width: 1365px) {
+  .format-container {
+    gap: 0.3rem;
+    padding: 0.2rem 0.45rem;
+  }
+  
+  .format-container .toolbar-button {
+    min-width: 22px;
+    height: 22px;
+    padding: 0.1rem 0.15rem;
+    font-size: 0.7rem;
+  }
+  
+  .format-container .toolbar-button svg {
+    width: 13px;
+    height: 13px;
+  }
+  
+  .format-container .dropdown-trigger {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.7rem;
+    min-width: 70px;
+    height: 22px;
+  }
+  
+  .format-container .formatting-separator {
+    font-size: 0.65rem;
+    margin: 0 0.2rem;
+  }
+  
+  .format-container .color-button-container .toolbar-button {
+    height: 22px;
+    min-width: 22px;
+    padding: 0.1rem 0.15rem;
+  }
+  
+  .format-container .color-button-container .toolbar-button span {
+    font-size: 8px;
+  }
+  
+  .font-size-btn {
+    min-width: 20px !important;
+    height: 22px !important;
+    font-size: 0.9rem;
+  }
+  
+  .font-size-display {
+    min-width: 24px;
+    font-size: 0.7rem;
+  }
 }
 
 /* Keep small size for medium screens (1024px - 1365px) */
@@ -211,6 +368,46 @@
 
 /* Large screen spacing improvements */
 @media (min-width: 1366px) {
+  .format-container {
+    gap: 0.4rem;
+    padding: 0.3rem 0.6rem;
+  }
+  
+  .format-container .toolbar-button {
+    min-width: 26px;
+    height: 26px;
+    padding: 0.2rem 0.25rem;
+    font-size: 0.8rem;
+  }
+  
+  .format-container .toolbar-button svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .format-container .dropdown-trigger {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.8rem;
+    min-width: 85px;
+    height: 26px;
+  }
+  
+  .format-container .formatting-separator {
+    font-size: 0.75rem;
+    margin: 0 0.25rem;
+  }
+  
+  .font-size-btn {
+    min-width: 24px !important;
+    height: 26px !important;
+    font-size: 1.1rem;
+  }
+  
+  .font-size-display {
+    min-width: 30px;
+    font-size: 0.8rem;
+  }
+  
   .toolbar-formatting {
     gap: 1rem;
     padding: 1rem 2rem;
@@ -287,6 +484,56 @@
 
 /* Tablet and medium screens: keep toolbar-top on one line and avoid collapse */
 @media (max-width: 1023px) {
+  .format-container {
+    gap: 0.25rem;
+    padding: 0.2rem 0.35rem;
+  }
+  
+  .format-container .toolbar-button {
+    min-width: 20px;
+    height: 20px;
+    padding: 0.1rem 0.15rem;
+    font-size: 0.65rem;
+  }
+  
+  .format-container .toolbar-button svg {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .format-container .dropdown-trigger {
+    padding: 0.15rem 0.3rem;
+    font-size: 0.65rem;
+    min-width: 60px;
+    height: 20px;
+  }
+  
+  .format-container .formatting-separator {
+    font-size: 0.6rem;
+    margin: 0 0.15rem;
+  }
+  
+  .format-container .color-button-container .toolbar-button {
+    height: 20px;
+    min-width: 20px;
+    padding: 0.1rem 0.15rem;
+  }
+  
+  .format-container .color-button-container .toolbar-button span {
+    font-size: 7px;
+  }
+  
+  .font-size-btn {
+    min-width: 18px !important;
+    height: 20px !important;
+    font-size: 0.8rem;
+  }
+  
+  .font-size-display {
+    min-width: 22px;
+    font-size: 0.65rem;
+  }
+  
   .toolbar-top {
     flex-wrap: nowrap;
     align-items: center;

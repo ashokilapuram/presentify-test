@@ -184,9 +184,29 @@ const Toolbar = ({
     setTextFormatting(newFormat);
   };
 
-  const fontSizes = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60];
+  const fontSizes = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60, 80, 120, 200];
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
   const [activeDropdown, setActiveDropdown] = useState(null);
+
+  // Increase font size
+  const increaseFontSize = () => {
+    const currentSize = selectedElement?.fontSize || textFormatting.fontSize || 16;
+    const currentIndex = fontSizes.indexOf(currentSize);
+    const nextSize = currentIndex >= 0 && currentIndex < fontSizes.length - 1 
+      ? fontSizes[currentIndex + 1] 
+      : currentSize + 2;
+    applyFormat('fontSize', nextSize);
+  };
+
+  // Decrease font size
+  const decreaseFontSize = () => {
+    const currentSize = selectedElement?.fontSize || textFormatting.fontSize || 16;
+    const currentIndex = fontSizes.indexOf(currentSize);
+    const prevSize = currentIndex > 0 
+      ? fontSizes[currentIndex - 1] 
+      : Math.max(8, currentSize - 2);
+    applyFormat('fontSize', prevSize);
+  };
 
   // Check if text formatting options should be shown
   const shouldShowTextFormatting = () => {
@@ -239,7 +259,7 @@ const Toolbar = ({
         <div className="toolbar-actions">
           {/* Text Formatting Options - Only show when text is selected */}
           {shouldShowTextFormatting() && (
-            <>
+            <div className="format-container">
               {/* Font Family Dropdown */}
               <div className="custom-dropdown">
                 <button
@@ -255,25 +275,27 @@ const Toolbar = ({
                 </button>
               </div>
 
-              {/* Font Size Dropdown */}
-              <div className="custom-dropdown">
+              {/* Font Size Controls */}
+              <div className="font-size-controls">
                 <button
-                  className="toolbar-button dropdown-trigger"
-                  onClick={(e) => { e.stopPropagation(); openDropdown(e, "size"); }}
-                  style={{
-                    minWidth: "50px",
-                  }}
+                  className="toolbar-button font-size-btn"
+                  onClick={(e) => { e.stopPropagation(); decreaseFontSize(); }}
+                  title="Decrease font size"
                 >
+                  -
+                </button>
+                <span className="font-size-display">
                   {selectedElement?.fontSize || textFormatting.fontSize || 16}
-                  <FiChevronDown size={14} />
+                </span>
+                <button
+                  className="toolbar-button font-size-btn"
+                  onClick={(e) => { e.stopPropagation(); increaseFontSize(); }}
+                  title="Increase font size"
+                >
+                  +
                 </button>
               </div>
-            </>
-          )}
 
-          {/* Text Formatting Separator and Font Style - Only show when text is selected */}
-          {shouldShowTextFormatting() && (
-            <>
               {/* Separator */}
               <div className="formatting-separator">|</div>
 
@@ -287,12 +309,7 @@ const Toolbar = ({
               <button className={`toolbar-button ${(selectedElement?.textDecoration || textFormatting.textDecoration) === 'underline' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); toggleStyle('textDecoration'); }}>
                 <FiUnderline size={14} />
               </button>
-            </>
-          )}
 
-          {/* Text Alignment - Only show when text is selected */}
-          {shouldShowTextFormatting() && (
-            <>
               {/* Separator */}
               <div className="formatting-separator">|</div>
 
@@ -309,12 +326,7 @@ const Toolbar = ({
               <button className={`toolbar-button ${(selectedElement?.textAlign || textFormatting.textAlign) === 'justify' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); applyFormat('textAlign', 'justify'); }}>
                 <FiAlignJustify size={14} />
               </button>
-            </>
-          )}
 
-          {/* Font Color - Only show when text is selected */}
-          {shouldShowTextFormatting() && (
-            <>
               {/* Separator */}
               <div className="formatting-separator">|</div>
 
@@ -371,7 +383,7 @@ const Toolbar = ({
                   className="color-picker" 
                 />
               </div>
-            </>
+            </div>
           )}
 
           {/* Separator for general actions */}

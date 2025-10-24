@@ -36,6 +36,9 @@ function App() {
   
   const [showDragMessage, setShowDragMessage] = useState(false);
   
+  // State to control RightToolbar tab
+  const [forceRightToolbarTab, setForceRightToolbarTab] = useState(null);
+  
   // Simple undo/redo state
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
@@ -86,6 +89,10 @@ function App() {
     });
     // Automatically switch to the new slide
     setCurrentSlideIndex(prev => prev + 1);
+    // Deselect any selected element
+    setSelectedElement(null);
+    // Force RightToolbar to show Insert tab
+    setForceRightToolbarTab('Insert');
   }, [currentSlideIndex]);
 
   const duplicateSlide = useCallback((slideIndex) => {
@@ -652,6 +659,8 @@ function App() {
             addChart={addChart}
             onTabChange={handleTabChange}
             slides={slides}
+            forceTab={forceRightToolbarTab}
+            onTabForced={() => setForceRightToolbarTab(null)}
           />
         </div>
         {showTemplates && (
