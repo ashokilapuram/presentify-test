@@ -101,7 +101,7 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
     const newHeight = Math.ceil(textRef.current.height());
 
     if (Math.abs(newHeight - element.height) > 2) {
-      onChange({ ...element, height: newHeight });
+      onChange({ height: newHeight, __internal: 'autoHeight' });
     }
   }, [element.fontSize, element.fontWeight, element.fontStyle, element.fontFamily, value, element.width, onChange, isEditing, isTransforming]);
 
@@ -431,6 +431,7 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
         <Html>
           <textarea
             ref={textareaRef}
+            className="editable-textbox-textarea"
             style={{
               position: "absolute",
               top: element.y,
@@ -446,7 +447,10 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
               textAlign: element.textAlign,
               border: element.borderWidth > 0
                 ? `${element.borderWidth}px solid ${element.borderColor || "#000000"}`
-                : "none",
+                : "none !important",
+              borderWidth: element.borderWidth > 0 ? `${element.borderWidth}px` : "0px !important",
+              borderStyle: element.borderWidth > 0 ? "solid" : "none !important",
+              borderColor: element.borderWidth > 0 ? (element.borderColor || "#000000") : "transparent !important",
               background: element.backgroundColor || "transparent",
               outline: "none",
               resize: "none",

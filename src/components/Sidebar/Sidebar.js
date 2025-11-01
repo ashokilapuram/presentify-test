@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FiPlus, FiLayout, FiCopy } from 'react-icons/fi';
+import { Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import './Sidebar.css';
 
@@ -12,13 +13,22 @@ const Sidebar = ({
   onShowTemplates,
   onReorderSlides,
   onDuplicateSlide,
-  setSlides
+  setSlides,
+  onSlideClick
 }) => {
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
 
-  const handleSlideClick = (index) => {
-    setCurrentSlideIndex(index);
+  const handleSlideClick = (slideId) => {
+    // Derive the index from the id at this moment to avoid stale index issues
+    const idx = slides.findIndex(s => s.id === slideId);
+    if (idx !== -1) {
+      setCurrentSlideIndex(idx);
+      // Call the parent handler to deselect element and switch to Insert tab
+      if (onSlideClick) {
+        onSlideClick();
+      }
+    }
   };
 
   const handleDeleteSlide = (e, index) => {
@@ -35,10 +45,6 @@ const Sidebar = ({
       // If multiple slides, delete the slide normally
       deleteSlide(index);
     }
-  };
-
-  const handleDuplicateCurrentSlide = () => {
-    onDuplicateSlide(currentSlideIndex);
   };
 
   const handleDragStart = (e, index) => {
@@ -58,6 +64,22 @@ const Sidebar = ({
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     setDragOverIndex(index);
+
+    // Auto-scroll behavior
+    const sidebarContent = e.currentTarget.closest('.sidebar-content');
+    if (sidebarContent) {
+      const rect = sidebarContent.getBoundingClientRect();
+      const scrollSpeed = 8; // adjust speed if needed
+
+      // Scroll up if cursor near top
+      if (e.clientY < rect.top + 50) {
+        sidebarContent.scrollTop -= scrollSpeed;
+      }
+      // Scroll down if cursor near bottom
+      else if (e.clientY > rect.bottom - 50) {
+        sidebarContent.scrollTop += scrollSpeed;
+      }
+    }
   };
 
   const handleDragLeave = (e) => {
@@ -91,48 +113,12 @@ const Sidebar = ({
       
       <div className="sidebar-content">
         <div className="slides-section">
-          <div className="slides-header">
-            <div className="slides-title">SLIDES</div>
-            <button
-              className="duplicate-slide-button"
-              onClick={handleDuplicateCurrentSlide}
-              title="Duplicate current slide"
-              style={{
-                background: 'var(--bg-quaternary)',
-                color: 'var(--text-secondary)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: 'var(--radius-md)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 'var(--space-1) var(--space-2)',
-                fontSize: '0.75rem',
-                fontWeight: '600',
-                transition: 'all 0.2s ease',
-                gap: '4px'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = 'var(--bg-tertiary)';
-                e.target.style.borderColor = 'var(--border-medium)';
-                e.target.style.color = 'var(--text-primary)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = 'var(--bg-quaternary)';
-                e.target.style.borderColor = 'var(--border-subtle)';
-                e.target.style.color = 'var(--text-secondary)';
-              }}
-            >
-              <FiCopy size={12} />
-              <span className="duplicate-text">Duplicate</span>
-            </button>
-          </div>
           <div className="slides-list">
             {slides.map((slide, index) => (
               <div
                 key={slide.id}
                 className={`slide-item ${index === currentSlideIndex ? 'active' : ''} ${draggedIndex === index ? 'dragging' : ''} ${dragOverIndex === index ? 'drag-over' : ''}`}
-                onClick={() => handleSlideClick(index)}
+                onClick={() => handleSlideClick(slide.id)}
                 draggable
                 onDragStart={(e) => handleDragStart(e, index)}
                 onDragEnd={handleDragEnd}
@@ -141,11 +127,15 @@ const Sidebar = ({
                 onDrop={(e) => handleDrop(e, index)}
                 onMouseEnter={(e) => {
                   const deleteBtn = e.currentTarget.querySelector('.slide-delete');
+                  const duplicateBtn = e.currentTarget.querySelector('.slide-duplicate-btn');
                   if (deleteBtn) deleteBtn.style.opacity = '1';
+                  if (duplicateBtn) duplicateBtn.style.opacity = '1';
                 }}
                 onMouseLeave={(e) => {
                   const deleteBtn = e.currentTarget.querySelector('.slide-delete');
+                  const duplicateBtn = e.currentTarget.querySelector('.slide-duplicate-btn');
                   if (deleteBtn) deleteBtn.style.opacity = '0';
+                  if (duplicateBtn) duplicateBtn.style.opacity = '0';
                 }}
               >
                 <div className="slide-number">{index + 1}</div>
@@ -328,17 +318,20 @@ const Sidebar = ({
                   )}
                 </div>
                 <button
-                  className="slide-delete"
+                  className="slide-duplicate-btn"
                   draggable="false"
-                  onClick={(e) => handleDeleteSlide(e, index)}
-                  title={slides.length === 1 ? "Reset slide" : "Delete slide"}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDuplicateSlide(index);
+                  }}
+                  title="Duplicate slide"
                   style={{
                     position: 'absolute',
-                    top: '4px',
-                    right: '4px',
+                    bottom: '4px',
+                    left: '4px',
                     width: '20px',
                     height: '20px',
-                    borderRadius: '50%',
+                    borderRadius: '4px',
                     background: 'rgba(0, 0, 0, 0.7)',
                     color: 'white',
                     border: 'none',
@@ -352,14 +345,36 @@ const Sidebar = ({
                     opacity: 0,
                     transition: 'opacity 0.2s ease',
                   }}
-                  onMouseEnter={(e) => {
-                    e.target.style.opacity = '1';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.opacity = '0';
+                >
+                  <FiCopy size={12} />
+                </button>
+                <button
+                  className="slide-delete"
+                  draggable="false"
+                  onClick={(e) => handleDeleteSlide(e, index)}
+                  title={slides.length === 1 ? "Reset slide" : "Delete slide"}
+                  style={{
+                    position: 'absolute',
+                    top: '4px',
+                    left: '4px',
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '4px',
+                    background: 'rgba(0, 0, 0, 0.7)',
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    zIndex: 10,
+                    opacity: 0,
+                    transition: 'opacity 0.2s ease',
                   }}
                 >
-                  ×
+                  <Trash2 size={12} />
                 </button>
               </div>
             ))}

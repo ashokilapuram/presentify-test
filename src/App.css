@@ -226,6 +226,13 @@ body.dark .toolbar-bottom {
   box-shadow: 0 0 15px var(--accent-white-glow) !important;
 }
 
+/* Editable textbox textarea - ensure no default borders */
+.editable-textbox-textarea {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* Text element styling */
 .text-element {
   color: var(--text-primary) !important;

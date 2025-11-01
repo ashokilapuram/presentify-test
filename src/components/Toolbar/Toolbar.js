@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
   FiBold, FiItalic, FiUnderline, FiAlignLeft, FiAlignCenter,
-  FiAlignRight, FiAlignJustify, FiRotateCcw, FiRotateCw,
-  FiMaximize2, FiPlay, FiType, FiArrowLeft,
-  FiChevronDown
+  FiAlignRight, FiAlignJustify, FiMaximize2, FiPlay, FiType, FiArrowLeft,
+  FiChevronDown, FiDownload
 } from 'react-icons/fi';
+import { Undo, Redo, RotateCw } from 'lucide-react';
 import './Toolbar.css';
 
 const Toolbar = ({
@@ -16,13 +16,15 @@ const Toolbar = ({
   onShowTemplates,
   onActiveTabChange,
   onStartFullScreenSlideshow,
+  onDownloadPresentation,
   onUndo,
   onRedo,
   canUndo,
   canRedo,
   slides,
   onBackToLanding,
-  setShowDragMessage
+  setShowDragMessage,
+  onReset
 }) => {
   const [viewMode, setViewMode] = useState('normal');
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -396,7 +398,7 @@ const Toolbar = ({
             disabled={!canUndo}
             title="Undo (Ctrl+Z)"
           >
-            <FiRotateCcw size={16} />
+            <Undo size={16} />
           </button>
           <button 
             className={`toolbar-button ${!canRedo ? 'disabled' : ''}`}
@@ -404,7 +406,7 @@ const Toolbar = ({
             disabled={!canRedo}
             title="Redo (Ctrl+Y)"
           >
-            <FiRotateCw size={16} />
+            <Redo size={16} />
           </button>
           <button 
             className="toolbar-button primary"
@@ -415,11 +417,25 @@ const Toolbar = ({
             Slideshow
           </button>
           <button 
+            className="toolbar-button"
+            onClick={onDownloadPresentation}
+            title="Download PowerPoint"
+          >
+            <FiDownload size={16} />
+          </button>
+          <button 
             className={`toolbar-button ${isFullscreen ? 'active' : ''}`}
             onClick={toggleFullscreen}
             title={isFullscreen ? "Exit Fullscreen (F11)" : "Enter Fullscreen (F11)"}
           >
             <FiMaximize2 size={16} />
+          </button>
+          <button 
+            className="toolbar-button"
+            onClick={onReset}
+            title="Reset App (New Slide)"
+          >
+            <RotateCw size={16} />
           </button>
         </div>
       </div>

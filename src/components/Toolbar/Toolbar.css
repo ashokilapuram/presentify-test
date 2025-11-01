@@ -5,11 +5,12 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.25rem 0.5rem;
+  padding: var(--space-2) 0.5rem;
   background: #e5e7eb;
   border-radius: 6px;
   height: fit-content;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 /* Reduce button sizes inside format-container */
@@ -228,7 +229,7 @@
 @media (min-width: 1024px) and (max-width: 1365px) {
   .format-container {
     gap: 0.3rem;
-    padding: 0.2rem 0.45rem;
+    padding: var(--space-2) 0.45rem;
   }
   
   .format-container .toolbar-button {
@@ -322,6 +323,10 @@
     font-size: 0.7rem;
     margin: 0 0.3rem;
   }
+
+  .format-container {
+    padding: var(--space-1) 0.5rem;
+  }
 }
 
 /* Control button sizes for screens 1250px - 1400px */
@@ -338,6 +343,10 @@
   .formatting-separator {
     font-size: 0.75rem;
     margin: 0 0.4rem;
+  }
+
+  .format-container {
+    padding: var(--space-2) 0.5rem;
   }
   
   .color-button {
@@ -370,7 +379,7 @@
 @media (min-width: 1366px) {
   .format-container {
     gap: 0.4rem;
-    padding: 0.3rem 0.6rem;
+    padding: var(--space-2) 0.6rem;
   }
   
   .format-container .toolbar-button {
@@ -584,6 +593,10 @@
   .toolbar-actions .toolbar-button {
     padding: 0.25rem 0.5rem;
     font-size: 0.8rem;
+  }
+
+  .format-container {
+    padding: 0.25rem 0.35rem;
   }
 }
 
@@ -1158,6 +1171,62 @@ body.dark .toolbar-button.active {
   .toolbar-actions .toolbar-button {
     padding: 0.25rem 0.5rem;
     font-size: 0.8rem;
+  }
+
+  /* Reduce format-container width and spacing for 1024px-1150px */
+  .format-container {
+    gap: 0.2rem;
+    padding: 0.25rem 0.3rem;
+  }
+  
+  .format-container .toolbar-button {
+    min-width: 20px;
+    height: 20px;
+    padding: 0.08rem 0.12rem;
+    font-size: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .format-container .toolbar-button svg {
+    width: 11px;
+    height: 11px;
+  }
+  
+  .format-container .dropdown-trigger {
+    padding: 0.15rem 0.3rem;
+    font-size: 0.65rem;
+    min-width: 65px;
+    height: 20px;
+  }
+  
+  .format-container .formatting-separator {
+    font-size: 0.6rem;
+    margin: 0 0.1rem;
+  }
+  
+  .format-container .color-button-container .toolbar-button {
+    height: 20px;
+    min-width: 20px;
+    padding: 0.08rem 0.12rem;
+    border-radius: 2px;
+  }
+  
+  .format-container .color-button-container .toolbar-button span {
+    font-size: 7px;
+  }
+  
+  .format-container .font-size-btn {
+    min-width: 18px !important;
+    height: 20px !important;
+    font-size: 0.8rem;
+  }
+  
+  .format-container .font-size-display {
+    min-width: 20px;
+    font-size: 0.65rem;
+    padding: 0 0.15rem;
   }
 }
 

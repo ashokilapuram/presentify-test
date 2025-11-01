@@ -43,7 +43,8 @@ const KonvaCanvas = ({
         mimeType: 'image/png',
         quality: 1
       });
-      onThumbnailUpdate(dataURL);
+      // Pass slide.id along with the thumbnail data to avoid stale index issues
+      onThumbnailUpdate(slide.id, dataURL);
     }
   }, [slide, scale, onThumbnailUpdate]);
 
