@@ -51,6 +51,8 @@ const ImageBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
         height={element.height}
         rotation={element.rotation || 0}
         draggable={!readOnly}
+        stroke={element.borderColor}
+        strokeWidth={element.borderWidth || 0}
         onClick={(e) => {
           e.cancelBubble = true;
           onSelect();

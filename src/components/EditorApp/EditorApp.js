@@ -245,10 +245,22 @@ function EditorApp() {
             selectedElement={slidesHook.selectedElement}
             setSelectedElement={slidesHook.setSelectedElement}
             updateSlideElement={updateSlideElementWithHistory}
+            updateSlide={updateSlideWithHistory}
             deleteElement={deleteElementWithHistory}
             textFormatting={textFormatting}
             isDarkMode={uiStateHook.isDarkMode}
             onToggleDarkMode={uiStateHook.handleToggleDarkMode}
+            onOpenDesignTab={() => {
+              uiStateHook.setForceRightToolbarTab('Design');
+              slidesHook.setSelectedElement(null);
+              // Wait for DOM to update, then trigger color picker
+              setTimeout(() => {
+                const colorInput = document.querySelector('[data-design-section-color-picker="true"]');
+                if (colorInput) {
+                  colorInput.click();
+                }
+              }, 100);
+            }}
             onThumbnailUpdate={(slideId, img) => {
               slidesHook.setSlides((prev) =>
                 prev.map((s) =>
@@ -312,7 +324,20 @@ function EditorApp() {
                   }
                   if (el.type === 'image') {
                     return (
-                      <img key={el.id} src={el.src} alt="" style={{ position: 'absolute', left: el.x, top: el.y, width: el.width, height: el.height, objectFit: 'contain' }} />
+                      <img 
+                        key={el.id} 
+                        src={el.src} 
+                        alt="" 
+                        style={{ 
+                          position: 'absolute', 
+                          left: el.x, 
+                          top: el.y, 
+                          width: el.width, 
+                          height: el.height, 
+                          objectFit: 'contain',
+                          border: el.borderWidth > 0 ? `${el.borderWidth}px solid ${el.borderColor || '#000000'}` : 'none'
+                        }} 
+                      />
                     );
                   }
                   if (el.type === 'chart') {

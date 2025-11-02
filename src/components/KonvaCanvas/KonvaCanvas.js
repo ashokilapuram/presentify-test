@@ -5,6 +5,7 @@ import EditableTextBox from '../EditableTextBox/EditableTextBox';
 import KonvaShape from '../KonvaShape/KonvaShape';
 import ImageBox from '../ImageBox/ImageBox';
 import ChartBox from '../ChartBox/ChartBox';
+import ContextMenu from '../ContextMenu/ContextMenu';
 
 const KonvaCanvas = ({
   slide,
@@ -12,13 +13,16 @@ const KonvaCanvas = ({
   setSelectedElement,
   selectedElement,
   deleteElement,
+  updateSlide,
   onThumbnailUpdate,   // ✅ new prop
+  onOpenDesignTab,
   readOnly = false,
 }) => {
   const stageRef = useRef(null);
   const [scale, setScale] = useState(1);
   const [stageSize, setStageSize] = useState({ width: 800, height: 450 }); // 16:9
   const [backgroundImage, setBackgroundImage] = useState(null);
+  const [contextMenu, setContextMenu] = useState({ visible: false, position: null });
 
   // Responsive scaling logic
   useEffect(() => {
@@ -47,6 +51,16 @@ const KonvaCanvas = ({
       onThumbnailUpdate(slide.id, dataURL);
     }
   }, [slide, scale, onThumbnailUpdate]);
+
+  // Close context menu
+  const closeContextMenu = () => {
+    setContextMenu({ visible: false, position: null });
+  };
+
+  // Close context menu when slide changes
+  useEffect(() => {
+    closeContextMenu();
+  }, [slide?.id]);
 
   // Load background image when slide backgroundImage changes
   useEffect(() => {
@@ -78,6 +92,56 @@ const KonvaCanvas = ({
       y: e.target.y()
     });
   };
+
+  // Attach native contextmenu listener directly to the Konva canvas (Chrome + Edge compatible)
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+
+    // Get the container div that wraps the canvas
+    const container = stage.container ? stage.container() : null;
+    if (!container) return;
+
+    // Get the actual canvas element or the content wrapper
+    const content = container.querySelector('.konvajs-content') || container.querySelector('canvas') || container;
+    if (!content) return;
+
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.stopImmediatePropagation) {
+        e.stopImmediatePropagation();
+      }
+
+      const rect = container.getBoundingClientRect();
+      const x = e.clientX;
+      const y = e.clientY;
+
+      // Calculate relative position for Konva intersection check
+      const stageScale = stage.scaleX();
+      const relativeX = (x - rect.left) / stageScale;
+      const relativeY = (y - rect.top) / stageScale;
+
+      // Only open context menu when clicking on empty stage
+      const shape = stage.getIntersection({ x: relativeX, y: relativeY });
+      if (!shape) {
+        // Prevent duplicate menus
+        setContextMenu((prev) => {
+          if (prev.visible) return prev;
+          return { visible: true, position: { x, y } };
+        });
+      } else {
+        // Clicked on element → close
+        setContextMenu({ visible: false, position: null });
+      }
+    };
+
+    content.addEventListener('contextmenu', handleContextMenu, { capture: true, passive: false });
+
+    return () => {
+      content.removeEventListener('contextmenu', handleContextMenu, { capture: true });
+    };
+  }, [slide, scale]); // Re-attach when slide or scale changes
 
 
   // Render slide elements
@@ -157,6 +221,7 @@ const KonvaCanvas = ({
           // Deselect if clicking on empty canvas area
           if (e.target === e.target.getStage()) {
             setSelectedElement(null);
+            closeContextMenu();
           }
         }}
       >
@@ -197,6 +262,14 @@ const KonvaCanvas = ({
           {renderElements()}
         </Layer>
       </Stage>
+      <ContextMenu
+        visible={contextMenu.visible}
+        position={contextMenu.position}
+        onClose={closeContextMenu}
+        currentSlide={slide}
+        updateSlide={updateSlide}
+        onOpenDesignTab={onOpenDesignTab}
+      />
     </div>
   );
 };

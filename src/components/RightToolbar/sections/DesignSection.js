@@ -130,6 +130,7 @@ const DesignSection = ({ updateSlide, currentSlide }) => {
                   applyBackgroundColor(e.target.value);
                 }}
                 onClick={(e) => e.stopPropagation()}
+                data-design-section-color-picker="true"
                 style={{
                   position: 'absolute',
                   top: 0,

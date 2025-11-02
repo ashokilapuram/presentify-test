@@ -5,6 +5,7 @@ import InsertSection from './sections/InsertSection';
 import DefaultSection from './sections/DefaultSection';
 import TextOptions from './sections/TextOptions';
 import ShapeOptions from './sections/ShapeOptions';
+import ImageOptions from './sections/ImageOptions';
 import ChartOptions from './sections/ChartOptions';
 
 const RightToolbar = ({ 
@@ -94,6 +95,21 @@ const RightToolbar = ({
     if (selectedElement && selectedElement.type === 'shape') {
       return (
         <ShapeOptions
+          selectedElement={selectedElement}
+          updateSlideElement={updateSlideElement}
+          bringForward={bringForward}
+          bringToFront={bringToFront}
+          sendBackward={sendBackward}
+          sendToBack={sendToBack}
+          updateSlide={updateSlide}
+          currentSlide={currentSlide}
+        />
+      );
+    }
+
+    if (selectedElement && selectedElement.type === 'image') {
+      return (
+        <ImageOptions
           selectedElement={selectedElement}
           updateSlideElement={updateSlideElement}
           bringForward={bringForward}
