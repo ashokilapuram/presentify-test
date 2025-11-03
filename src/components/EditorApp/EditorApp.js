@@ -40,7 +40,11 @@ function EditorApp() {
     fontStyle: 'normal',
     textDecoration: 'none',
     textAlign: 'left',
-    color: '#000000'
+    color: '#000000',
+    letterSpacing: 0,
+    lineHeight: 1.2,
+    textTransform: 'none',
+    listType: 'none'
   });
 
   // Sync toolbar formatting with the currently selected text element
@@ -54,6 +58,10 @@ function EditorApp() {
         textDecoration: slidesHook.selectedElement.textDecoration ?? prev.textDecoration,
         textAlign: slidesHook.selectedElement.textAlign ?? prev.textAlign,
         color: slidesHook.selectedElement.color ?? prev.color,
+        letterSpacing: slidesHook.selectedElement.letterSpacing ?? prev.letterSpacing,
+        lineHeight: slidesHook.selectedElement.lineHeight ?? prev.lineHeight,
+        textTransform: slidesHook.selectedElement.textTransform ?? prev.textTransform,
+        listType: slidesHook.selectedElement.listType ?? prev.listType,
       }));
     }
   }, [slidesHook.selectedElement, setTextFormatting]);

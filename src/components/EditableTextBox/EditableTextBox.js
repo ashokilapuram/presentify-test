@@ -2,12 +2,49 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import { Text, Transformer, Rect } from "react-konva";
 import { Html } from "react-konva-utils";
 
+// Utility function to normalize list text - removes all existing markers before applying new ones
+function normalizeListText(text, newType) {
+  // Remove any existing markers (bullet •, number 1., or any combination)
+  const cleaned = text
+    .split('\n')
+    .map(line => line.replace(/^(\s*[\u2022•]\s*|\s*\d+\.\s*)/, ''))
+    .join('\n');
+
+  if (newType === 'bullet') {
+    return cleaned
+      .split('\n')
+      .map(line => (line.trim() ? `• ${line}` : line))
+      .join('\n');
+  }
+  if (newType === 'number') {
+    return cleaned
+      .split('\n')
+      .map((line, idx) => {
+        if (line.trim()) {
+          return `${idx + 1}. ${line}`;
+        }
+        return line;
+      })
+      .join('\n');
+  }
+  return cleaned; // for 'none'
+}
+
 const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = false }) => {
   const textRef = useRef();
   const backgroundRef = useRef();
   const trRef = useRef();
   const textareaRef = useRef();
   const editingLockRef = useRef(false);
+
+  // Force Transformer to refresh after selection re-apply
+  const forceTransformerRefresh = useCallback(() => {
+    if (trRef.current && textRef.current) {
+      trRef.current.nodes([textRef.current]);
+      const layer = trRef.current.getLayer();
+      if (layer) layer.batchDraw();
+    }
+  }, []);
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(element.content || "");
   const [isTransforming, setIsTransforming] = useState(false);
@@ -264,7 +301,21 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
       
       <Text
         ref={textRef}
-        text={value || ""}
+        text={(() => {
+          let text = value || "";
+
+          // Apply case transform
+          const transform = element.textTransform || 'none';
+          if (transform === 'uppercase') text = text.toUpperCase();
+          else if (transform === 'lowercase') text = text.toLowerCase();
+
+          // Apply list prefixes using normalization (removes all old markers first)
+          if (element.listType === 'bullet' || element.listType === 'number' || element.listType === 'none') {
+            text = normalizeListText(text, element.listType || 'none');
+          }
+
+          return text;
+        })()}
         x={element.x}
         y={element.y}
         width={element.width}
@@ -273,12 +324,15 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
         fontFamily={element.fontFamily || "Arial"}
         fontStyle={`${element.fontStyle === 'italic' ? 'italic ' : ''}${element.fontWeight === 'bold' ? 'bold' : 'normal'}`.trim()}
         fill={element.color}
+        stroke={element.strokeColor}
+        strokeWidth={element.strokeWidth || 0}
         textDecoration={element.textDecoration || 'none'}
         align={element.textAlign}
         verticalAlign="top"
         wrap="word"
         ellipsis={false}
-        lineHeight={1.05}
+        letterSpacing={element.letterSpacing || 0}
+        lineHeight={element.lineHeight || 1.2}
         rotation={element.rotation || 0}
         draggable={!readOnly}
         onClick={onSelect}
@@ -456,7 +510,9 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
               resize: "none",
               overflow: "hidden",
               whiteSpace: "pre-wrap",
-              lineHeight: 1.05,
+              letterSpacing: element.letterSpacing ? `${element.letterSpacing}px` : 'normal',
+              lineHeight: element.lineHeight || 1.2,
+              textTransform: element.textTransform || 'none',
               padding: "0px",
               margin: "0px",
               boxSizing: "border-box",
@@ -475,14 +531,38 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
               e.target.style.height = e.target.scrollHeight + 'px';
             }}
             onBlur={(e) => {
-              onChange({ ...element, content: e.target.value });
+              let content = e.target.value;
+              // Normalize content using the utility function to remove all old markers first
+              content = normalizeListText(content, element.listType || 'none');
+
+              onChange({ ...element, content });
               setIsEditing(false);
+
+              // 🟢 When exited with mouse click, don't auto reselect
+              // 🟢 When exited with Enter, handles are already shown (handled above)
+              // So we only restore selection if user is still focused inside textbox
+              requestAnimationFrame(() => {
+                if (document.activeElement !== e.target && typeof onSelect === 'function') {
+                  onSelect();
+                  forceTransformerRefresh();
+                }
+              });
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                onChange({ ...element, content: e.target.value });
+                let content = e.target.value;
+                // Normalize content using the utility function to remove all old markers first
+                content = normalizeListText(content, element.listType || 'none');
+
+                onChange({ ...element, content });
                 setIsEditing(false);
+
+                // ✅ re-select & show handles
+                requestAnimationFrame(() => {
+                  if (typeof onSelect === 'function') onSelect();
+                  forceTransformerRefresh();
+                });
               }
             }}
             autoFocus

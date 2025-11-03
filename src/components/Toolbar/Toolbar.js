@@ -5,7 +5,7 @@ import {
   FiAlignRight, FiAlignJustify, FiMaximize2, FiPlay, FiType, FiArrowLeft,
   FiChevronDown, FiDownload
 } from 'react-icons/fi';
-import { Undo, Redo, RotateCw } from 'lucide-react';
+import { Undo, Redo, RotateCw, MoveHorizontal, List, ListOrdered } from 'lucide-react';
 import './Toolbar.css';
 
 const Toolbar = ({
@@ -127,6 +127,58 @@ const Toolbar = ({
     setTextFormatting(newFormat);
   };
 
+  // Utility function to normalize list text - removes all existing markers before applying new ones
+  const normalizeListText = (text, newType) => {
+    // Remove any existing markers (bullet •, number 1., or any combination)
+    const cleaned = text
+      .split('\n')
+      .map(line => line.replace(/^(\s*[\u2022•]\s*|\s*\d+\.\s*)/, ''))
+      .join('\n');
+
+    if (newType === 'bullet') {
+      return cleaned
+        .split('\n')
+        .map(line => (line.trim() ? `• ${line}` : line))
+        .join('\n');
+    }
+    if (newType === 'number') {
+      return cleaned
+        .split('\n')
+        .map((line, idx) => {
+          if (line.trim()) {
+            return `${idx + 1}. ${line}`;
+          }
+          return line;
+        })
+        .join('\n');
+    }
+    return cleaned; // for 'none'
+  };
+
+  const toggleListType = () => {
+    const order = ['none', 'bullet', 'number'];
+    const current = selectedElement?.listType || textFormatting.listType || 'none';
+    const next = order[(order.indexOf(current) + 1) % order.length];
+    
+    applyFormat('listType', next);
+
+    if (selectedElement?.id) {
+      const textElement = document.querySelector(`[data-element-id="${selectedElement.id}"]`);
+      if (textElement) {
+        // Get current content and normalize it properly
+        const currentContent = textElement.innerText || selectedElement.content || '';
+        const normalizedContent = normalizeListText(currentContent, next);
+        textElement.innerText = normalizedContent;
+        updateSlideElement(selectedElement.id, { content: normalizedContent, listType: next });
+      } else {
+        // Fallback: normalize the content from selectedElement directly
+        const currentContent = selectedElement.content || '';
+        const normalizedContent = normalizeListText(currentContent, next);
+        updateSlideElement(selectedElement.id, { content: normalizedContent, listType: next });
+      }
+    }
+  };
+
   const toggleStyle = (property) => {
     // Get current value from selected element or formatting state
     const current = selectedElement?.[property] || textFormatting[property];
@@ -189,6 +241,28 @@ const Toolbar = ({
   const fontSizes = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60, 80, 120, 200];
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
   const [activeDropdown, setActiveDropdown] = useState(null);
+
+  // 🔄 Keep toolbar in sync when a new textbox is selected
+  useEffect(() => {
+    if (selectedElement && selectedElement.type === 'text') {
+      setTextFormatting(prev => ({
+        ...prev,
+        letterSpacing: selectedElement.letterSpacing ?? 0,
+        lineHeight: selectedElement.lineHeight ?? 1.2,
+        textTransform: selectedElement.textTransform ?? 'none',
+        listType: selectedElement.listType ?? 'none',
+      }));
+    } else {
+      // Reset to default values when no text element is selected
+      setTextFormatting(prev => ({
+        ...prev,
+        letterSpacing: 0,
+        lineHeight: 1.2,
+        textTransform: 'none',
+        listType: 'none',
+      }));
+    }
+  }, [selectedElement]);
 
   // Increase font size
   const increaseFontSize = () => {
@@ -315,18 +389,116 @@ const Toolbar = ({
               {/* Separator */}
               <div className="formatting-separator">|</div>
 
-              {/* Text Alignment */}
-              <button className={`toolbar-button ${(selectedElement?.textAlign || textFormatting.textAlign) === 'left' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); applyFormat('textAlign', 'left'); }}>
-                <FiAlignLeft size={14} />
+              {/* === CANVA-STYLE FORMATTING OPTIONS === */}
+
+              {/* ① Alignment Toggle (4 icons cycling) */}
+              <button
+                className="toolbar-button"
+                title="Toggle text alignment"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const order = ['left', 'center', 'right', 'justify'];
+                  const current = selectedElement?.textAlign || textFormatting.textAlign || 'left';
+                  const next = order[(order.indexOf(current) + 1) % order.length];
+                  applyFormat('textAlign', next);
+                }}
+              >
+                {(() => {
+                  const current = selectedElement?.textAlign || textFormatting.textAlign || 'left';
+                  switch (current) {
+                    case 'center': return <FiAlignCenter size={16} />;
+                    case 'right': return <FiAlignRight size={16} />;
+                    case 'justify': return <FiAlignJustify size={16} />;
+                    default: return <FiAlignLeft size={16} />;
+                  }
+                })()}
               </button>
-              <button className={`toolbar-button ${(selectedElement?.textAlign || textFormatting.textAlign) === 'center' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); applyFormat('textAlign', 'center'); }}>
-                <FiAlignCenter size={14} />
+
+              {/* ② List Toggle Button */}
+              <button
+                className={`toolbar-button ${(selectedElement?.listType || textFormatting.listType) !== 'none' ? 'active' : ''}`}
+                title={
+                  (selectedElement?.listType || textFormatting.listType) === 'none'
+                    ? 'Bullet List'
+                    : (selectedElement?.listType || textFormatting.listType) === 'bullet'
+                    ? 'Numbered List'
+                    : 'Turn Off List'
+                }
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleListType();
+                }}
+              >
+                {(() => {
+                  const current = selectedElement?.listType || textFormatting.listType || 'none';
+                  if (current === 'none') {
+                    return <List size={16} strokeWidth={2} />;
+                  } else if (current === 'bullet') {
+                    return <List size={16} strokeWidth={2} />;
+                  } else {
+                    return <ListOrdered size={16} strokeWidth={2} />;
+                  }
+                })()}
               </button>
-              <button className={`toolbar-button ${(selectedElement?.textAlign || textFormatting.textAlign) === 'right' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); applyFormat('textAlign', 'right'); }}>
-                <FiAlignRight size={14} />
-              </button>
-              <button className={`toolbar-button ${(selectedElement?.textAlign || textFormatting.textAlign) === 'justify' ? 'active' : ''}`} onClick={(e) => { e.stopPropagation(); applyFormat('textAlign', 'justify'); }}>
-                <FiAlignJustify size={14} />
+
+              {/* ③ Text Spacing Dropdown (A above MoveHorizontal icon) */}
+              <div className="custom-dropdown">
+                <button
+                  className="toolbar-button dropdown-trigger text-spacing-btn"
+                  title="Text Spacing"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setDropdownPos({
+                      top: rect.bottom + window.scrollY + 4,
+                      left: rect.left + window.scrollX,
+                      width: rect.width,
+                    });
+                    setActiveDropdown('spacing');
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      lineHeight: '1',
+                      fontWeight: 600,
+                      gap: '0px',
+                      margin: '0',
+                      padding: '0',
+                    }}
+                  >
+                    <span style={{ fontSize: '11px', marginBottom: '0px', padding: '0', lineHeight: '1', transform: 'translateY(2px)' }}>A</span>
+                    <MoveHorizontal size={15} strokeWidth={2.2} style={{ margin: '0', padding: '0' }} />
+                  </div>
+                </button>
+              </div>
+
+              {/* ④ Capitalize Toggle (Aa) */}
+              <button
+                className={`toolbar-button ${(selectedElement?.textTransform || textFormatting.textTransform) === 'uppercase' ? 'active' : ''}`}
+                title="Toggle Uppercase / Lowercase"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const current = selectedElement?.textTransform || textFormatting.textTransform || 'none';
+                  const newValue = current === 'uppercase' ? 'none' : 'uppercase';
+                  applyFormat('textTransform', newValue);
+
+                  if (selectedElement?.id) {
+                    const textElement = document.querySelector(`[data-element-id="${selectedElement.id}"]`);
+                    if (textElement) {
+                      const newHTML = newValue === 'uppercase'
+                        ? textElement.innerText.toUpperCase()
+                        : textElement.innerText.toLowerCase();
+                      textElement.innerText = newHTML;
+                      updateSlideElement(selectedElement.id, { content: newHTML });
+                    }
+                  }
+                }}
+              >
+                <span style={{ fontWeight: 600 }}>Aa</span>
               </button>
 
               {/* Separator */}
@@ -335,7 +507,7 @@ const Toolbar = ({
               {/* Font Color */}
               <div className="color-button-container">
                 <button 
-                  className="toolbar-button" 
+                  className="font-color-btn" 
                   onClick={(e) => { 
                     e.stopPropagation(); 
                     e.preventDefault();
@@ -361,14 +533,8 @@ const Toolbar = ({
                     }
                   }}
                 >
-                  <span style={{ 
-                    fontWeight: 'bold', 
-                    textDecoration: 'underline', 
-                    color: '#dc2626',
-                    fontSize: '12px'
-                  }}>
-                    A
-                  </span>
+                  <span className="font-color-btn__label">A</span>
+                  <span className="font-color-btn__swatch"></span>
                 </button>
                 <input 
                   type="color" 
@@ -441,7 +607,7 @@ const Toolbar = ({
       </div>
 
       {/* Portal Dropdown */}
-      {activeDropdown && createPortal(
+      {activeDropdown && activeDropdown !== 'spacing' && createPortal(
         <div
           className="dropdown-menu"
           style={{
@@ -474,6 +640,47 @@ const Toolbar = ({
               {item}
             </div>
           ))}
+        </div>,
+        document.body
+      )}
+
+      {/* Text Spacing Dropdown */}
+      {activeDropdown === 'spacing' && createPortal(
+        <div className="dropdown-menu" style={{
+          position: 'absolute',
+          top: dropdownPos.top,
+          left: dropdownPos.left,
+          width: 180,
+          zIndex: 999999,
+        }}>
+          <div className="dropdown-item">
+            <span>Letter spacing</span>
+            <div className="spacing-controls">
+              <button onClick={(e) => {
+                e.stopPropagation();
+                applyFormat('letterSpacing', Math.max(0, (selectedElement?.letterSpacing || textFormatting.letterSpacing || 0) - 1));
+              }}>–</button>
+              <span>{selectedElement?.letterSpacing || textFormatting.letterSpacing || 0}</span>
+              <button onClick={(e) => {
+                e.stopPropagation();
+                applyFormat('letterSpacing', (selectedElement?.letterSpacing || textFormatting.letterSpacing || 0) + 1);
+              }}>+</button>
+            </div>
+          </div>
+          <div className="dropdown-item">
+            <span>Line spacing</span>
+            <div className="spacing-controls">
+              <button onClick={(e) => {
+                e.stopPropagation();
+                applyFormat('lineHeight', Math.max(0.8, (selectedElement?.lineHeight || textFormatting.lineHeight || 1.2) - 0.1));
+              }}>–</button>
+              <span>{(selectedElement?.lineHeight || textFormatting.lineHeight || 1.2).toFixed(1)}</span>
+              <button onClick={(e) => {
+                e.stopPropagation();
+                applyFormat('lineHeight', (selectedElement?.lineHeight || textFormatting.lineHeight || 1.2) + 0.1);
+              }}>+</button>
+            </div>
+          </div>
         </div>,
         document.body
       )}

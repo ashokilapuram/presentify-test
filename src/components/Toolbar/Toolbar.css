@@ -24,6 +24,14 @@
 .format-container .toolbar-button svg {
   width: 14px;
   height: 14px;
+  stroke: currentColor;
+  display: block;
+}
+
+/* SVG Styling for Toolbar Buttons */
+.toolbar-button svg {
+  stroke: currentColor;
+  display: block;
 }
 
 /* Reduce dropdown sizes inside format-container */
@@ -34,10 +42,79 @@
   height: 24px;
 }
 
+/* Text spacing button - match width of other buttons */
+.format-container .text-spacing-btn {
+  min-width: 24px !important;
+  padding: 0.15rem 0.2rem !important;
+}
+
 /* Reduce separator size inside format-container */
 .format-container .formatting-separator {
   font-size: 0.7rem;
   margin: 0 0.2rem;
+}
+
+/* Font Color Button - New Design */
+.format-container .font-color-btn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #18181b;
+  color: #fafafa;
+  border-radius: 6px;
+  padding: 2px 4px;
+  width: 32px;
+  height: 24px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  user-select: none;
+  overflow: visible;
+}
+
+.format-container .font-color-btn:hover {
+  background: #1f1f25;
+  transform: translateY(-1px);
+}
+
+.format-container .font-color-btn:active {
+  background: #141419;
+  transform: translateY(0);
+}
+
+.format-container .font-color-btn__label {
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Ubuntu, Cantarell, Noto Sans, Arial;
+  display: block;
+  flex-shrink: 0;
+}
+
+.format-container .font-color-btn__swatch {
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    #8b5cf6 0%,
+    #4f46e5 16%,
+    #3b82f6 32%,
+    #10b981 48%,
+    #facc15 64%,
+    #f59e0b 80%,
+    #ef4444 100%
+  );
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+    0 1px 2px rgba(0, 0, 0, 0.35);
+  display: block;
+  flex-shrink: 0;
 }
 
 /* Reduce color button size inside format-container */
@@ -276,6 +353,23 @@
     min-width: 24px;
     font-size: 0.7rem;
   }
+  
+  .format-container .font-color-btn {
+    width: 30px;
+    height: 22px;
+    padding: 2px 3px;
+    gap: 1px;
+    border-radius: 6px;
+  }
+  
+  .format-container .font-color-btn__label {
+    font-size: 11px;
+  }
+  
+  .format-container .font-color-btn__swatch {
+    width: 100%;
+    height: 4px;
+  }
 }
 
 /* Keep small size for medium screens (1024px - 1365px) */
@@ -325,7 +419,7 @@
   }
 
   .format-container {
-    padding: var(--space-1) 0.5rem;
+    padding: 0.2rem 0.5rem;
   }
 }
 
@@ -346,7 +440,7 @@
   }
 
   .format-container {
-    padding: var(--space-2) 0.5rem;
+    padding: 0.25rem 0.5rem;
   }
   
   .color-button {
@@ -373,13 +467,30 @@
   .color-button-container .toolbar-button span {
     font-size: 9px;
   }
+  
+  .format-container .font-color-btn {
+    width: 31px;
+    height: 24px;
+    padding: 2px 4px;
+    gap: 1px;
+    border-radius: 6px;
+  }
+  
+  .format-container .font-color-btn__label {
+    font-size: 12px;
+  }
+  
+  .format-container .font-color-btn__swatch {
+    width: 100%;
+    height: 5px;
+  }
 }
 
 /* Large screen spacing improvements */
 @media (min-width: 1366px) {
   .format-container {
     gap: 0.4rem;
-    padding: var(--space-2) 0.6rem;
+    padding: 0.25rem 0.6rem;
   }
   
   .format-container .toolbar-button {
@@ -415,6 +526,23 @@
   .font-size-display {
     min-width: 30px;
     font-size: 0.8rem;
+  }
+  
+  .format-container .font-color-btn {
+    width: 32px;
+    height: 26px;
+    padding: 2.5px 4.5px;
+    gap: 1px;
+    border-radius: 6px;
+  }
+  
+  .format-container .font-color-btn__label {
+    font-size: 13px;
+  }
+  
+  .format-container .font-color-btn__swatch {
+    width: 100%;
+    height: 5px;
   }
   
   .toolbar-formatting {
@@ -541,6 +669,23 @@
   .font-size-display {
     min-width: 22px;
     font-size: 0.65rem;
+  }
+  
+  .format-container .font-color-btn {
+    width: 28px;
+    height: 20px;
+    padding: 1.5px 3px;
+    gap: 1px;
+    border-radius: 6px;
+  }
+  
+  .format-container .font-color-btn__label {
+    font-size: 10px;
+  }
+  
+  .format-container .font-color-btn__swatch {
+    width: 100%;
+    height: 4px;
   }
   
   .toolbar-top {
@@ -1138,6 +1283,40 @@ body.dark .toolbar-button.active {
   z-index: 99999 !important;
 }
 
+/* Spacing Controls */
+.spacing-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.spacing-controls button {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: inherit;
+  width: 20px;
+  height: 20px;
+  line-height: 18px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  padding: 0;
+}
+
+.spacing-controls button:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dropdown-menu .dropdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 /* Keep compact toolbar-top styling for 1024px–1150px like tablet view */
 @media (min-width: 1024px) and (max-width: 1150px) {
   .toolbar-top {
@@ -1227,6 +1406,23 @@ body.dark .toolbar-button.active {
     min-width: 20px;
     font-size: 0.65rem;
     padding: 0 0.15rem;
+  }
+  
+  .format-container .font-color-btn {
+    width: 28px;
+    height: 20px;
+    padding: 1.5px 3px;
+    gap: 1px;
+    border-radius: 6px;
+  }
+  
+  .format-container .font-color-btn__label {
+    font-size: 10px;
+  }
+  
+  .format-container .font-color-btn__swatch {
+    width: 100%;
+    height: 4px;
   }
 }
 

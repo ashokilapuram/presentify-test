@@ -59,6 +59,53 @@ const TextOptions = ({
         </div>
       </div>
 
+      <SectionTitle icon={<FiDroplet />} text="Stroke colour" />
+      <div className="option-group">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+          <QuickColorsGrid
+            colors={borderColors}
+            titles={borderTitles}
+            onColorSelect={(color) => updateSlideElement(selectedElement.id, { strokeColor: color, strokeWidth: (selectedElement.strokeWidth && selectedElement.strokeWidth > 0) ? selectedElement.strokeWidth : 1 })}
+          />
+          <ColorPickerGroup
+            value={selectedElement.strokeColor || '#000000'}
+            onChange={(color) => updateSlideElement(selectedElement.id, { strokeColor: color, strokeWidth: (selectedElement.strokeWidth && selectedElement.strokeWidth > 0) ? selectedElement.strokeWidth : 1 })}
+            onReset={() => updateSlideElement(selectedElement.id, { strokeColor: undefined, strokeWidth: 0 })}
+            pickerTitle="Pick custom color"
+            resetTitle="Remove stroke color"
+          />
+        </div>
+
+        {/* Stroke width slider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <input
+            type="range"
+            onClick={(e) => e.stopPropagation()}
+            min="0"
+            max="10"
+            value={selectedElement.strokeWidth || 0}
+            onChange={(e) => {
+              e.stopPropagation();
+              updateSlideElement(selectedElement.id, { strokeWidth: parseInt(e.target.value) });
+            }}
+            style={{ flex: 1 }}
+          />
+          <div style={{
+            minWidth: '32px',
+            textAlign: 'center',
+            fontSize: '12px',
+            fontWeight: '600',
+            color: '#374151',
+            padding: '4px 8px',
+            background: '#ffffff',
+            borderRadius: '4px',
+            border: '1px solid #e5e7eb'
+          }}>
+            {selectedElement.strokeWidth || 0}px
+          </div>
+        </div>
+      </div>
+
       <SectionTitle icon={<FiDroplet />} text="Border color" />
       <div className="option-group">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>

@@ -156,7 +156,17 @@ const KonvaCanvas = ({
             element={element}
             isSelected={selectedElement?.id === element.id}
             onSelect={() => handleElementClick(element)}
-            onChange={(updates) => updateSlideElement(element.id, updates)}
+            onChange={(updates) => {
+              // update element in slides state
+              updateSlideElement(element.id, updates);
+              // immediately update selectedElement in parent to the latest merged object
+              // so selection doesn't point to a stale object after update
+              setSelectedElement(prev => {
+                // If previously selected isn't this element, don't override selection
+                if (!prev || prev.id !== element.id) return prev;
+                return { ...prev, ...updates };
+              });
+            }}
             readOnly={readOnly}
           />
         );
