@@ -4,21 +4,31 @@ import { Html } from "react-konva-utils";
 
 // Utility function to normalize list text - removes all existing markers before applying new ones
 function normalizeListText(text, newType) {
+  const lines = text.split('\n');
+  
+  // First, check if text already has the correct markers for bullets
+  if (newType === 'bullet') {
+    const alreadyFormatted = lines.every(line => {
+      if (!line.trim()) return true; // empty line is fine
+      return line.match(/^[\u2022•]\s*/);
+    });
+    if (alreadyFormatted) {
+      return text; // Already properly formatted
+    }
+  }
+  
+  // For numbers, check if all lines are numbered (but we'll still renumber to fix sequences)
   // Remove any existing markers (bullet •, number 1., or any combination)
-  const cleaned = text
-    .split('\n')
-    .map(line => line.replace(/^(\s*[\u2022•]\s*|\s*\d+\.\s*)/, ''))
-    .join('\n');
+  const cleanedLines = lines
+    .map(line => line.replace(/^(\s*[\u2022•]\s*|\s*\d+\.\s*)/, ''));
 
   if (newType === 'bullet') {
-    return cleaned
-      .split('\n')
+    return cleanedLines
       .map(line => (line.trim() ? `• ${line}` : line))
       .join('\n');
   }
   if (newType === 'number') {
-    return cleaned
-      .split('\n')
+    return cleanedLines
       .map((line, idx) => {
         if (line.trim()) {
           return `${idx + 1}. ${line}`;
@@ -27,7 +37,15 @@ function normalizeListText(text, newType) {
       })
       .join('\n');
   }
-  return cleaned; // for 'none'
+  return cleanedLines.join('\n'); // for 'none'
+}
+
+// Utility function to strip all list markers from text (used when saving raw content)
+function stripListMarkers(text) {
+  const lines = text.split('\n');
+  return lines
+    .map(line => line.replace(/^(\s*[\u2022•]\s*|\s*\d+\.\s*)/, ''))
+    .join('\n');
 }
 
 const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = false }) => {
@@ -36,6 +54,9 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
   const trRef = useRef();
   const textareaRef = useRef();
   const editingLockRef = useRef(false);
+  const lastFormattedListTypeRef = useRef(null);
+  const originalYPositionRef = useRef(null);
+  const originalRotationRef = useRef(null);
 
   // Force Transformer to refresh after selection re-apply
   const forceTransformerRefresh = useCallback(() => {
@@ -83,7 +104,31 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
     }
   }, [element.content, isSelected]);
 
-  // When you enter editing mode
+  // When you enter editing mode - format content to show bullets/numbers matching display
+  useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      const currentListType = element.listType || 'none';
+      // Format when entering edit mode or when listType changes during editing
+      if (lastFormattedListTypeRef.current !== currentListType) {
+        // Format the current value to show bullets/numbers in edit mode to match display
+        const formattedValue = normalizeListText(value || element.content || "", currentListType);
+        
+        // Update textarea directly to show formatted content (only if different)
+        // Use requestAnimationFrame to ensure this happens after initial render and cursor positioning
+        requestAnimationFrame(() => {
+          if (textareaRef.current && formattedValue !== textareaRef.current.value) {
+            textareaRef.current.value = formattedValue;
+            lastFormattedListTypeRef.current = currentListType;
+          }
+        });
+      }
+    } else if (!isEditing) {
+      // Reset tracking when exiting edit mode
+      lastFormattedListTypeRef.current = null;
+    }
+  }, [isEditing, element.listType]);
+
+  // When you enter editing mode - handle focus and cursor
   useEffect(() => {
     if (isEditing && textareaRef.current) {
       const ta = textareaRef.current;
@@ -203,6 +248,15 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
     const node = textRef.current;
     const scaleX = node.scaleX();
     
+    // Store original y position and rotation on first transform (to preserve position when stroke is present)
+    if (originalYPositionRef.current === null) {
+      originalYPositionRef.current = node.y();
+      originalRotationRef.current = node.rotation();
+    }
+    
+    // Check if rotation has changed (user is rotating, not just resizing)
+    const rotationChanged = Math.abs(node.rotation() - originalRotationRef.current) > 0.01;
+    
     // Calculate minimum width based on 2 characters
     const calculateMinWidth = () => {
       const canvas = document.createElement('canvas');
@@ -229,6 +283,12 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
     node.scaleY(1);
     node.width(newWidth);
     
+    // Preserve original y position when stroke is present AND user is only resizing (not rotating)
+    // Rotation needs to allow y to change naturally
+    if (originalYPositionRef.current !== null && element.strokeWidth > 0 && !rotationChanged) {
+      node.y(originalYPositionRef.current);
+    }
+    
     // Mirror Konva measured height after width change
     if (node.getLayer()) node.getLayer().batchDraw();
     const newHeight = Math.ceil(node.height());
@@ -249,6 +309,16 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
     // Always reset scale to prevent font size changes
     node.scaleX(1);
     node.scaleY(1);
+    
+    // Check if rotation changed during transform
+    const rotationChanged = originalRotationRef.current !== null && 
+      Math.abs(node.rotation() - originalRotationRef.current) > 0.01;
+    
+    // Preserve original y position when stroke is present AND user only resized (not rotated)
+    // Rotation needs to allow y to change naturally
+    if (originalYPositionRef.current !== null && element.strokeWidth > 0 && !rotationChanged) {
+      node.y(originalYPositionRef.current);
+    }
     
     // Set transforming to false after a short delay to allow the height to be set
     setTimeout(() => {
@@ -271,14 +341,23 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
       backgroundRef.current.rotation(node.rotation());
     }
 
+    // Use preserved y position if stroke is present and no rotation occurred, otherwise use current position
+    const finalY = (originalYPositionRef.current !== null && element.strokeWidth > 0 && !rotationChanged) 
+      ? originalYPositionRef.current 
+      : node.y();
+
     onChange({
       ...element,
       x: node.x(),
-      y: node.y(),
+      y: finalY,
       width: newWidth,
       height: newHeight,
       rotation: node.rotation(),
     });
+    
+    // Reset the stored positions after transform ends
+    originalYPositionRef.current = null;
+    originalRotationRef.current = null;
   };
 
   return (
@@ -532,8 +611,8 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
             }}
             onBlur={(e) => {
               let content = e.target.value;
-              // Normalize content using the utility function to remove all old markers first
-              content = normalizeListText(content, element.listType || 'none');
+              // Strip markers before saving to storage (content is stored without markers)
+              content = stripListMarkers(content);
 
               onChange({ ...element, content });
               setIsEditing(false);
@@ -552,8 +631,8 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 let content = e.target.value;
-                // Normalize content using the utility function to remove all old markers first
-                content = normalizeListText(content, element.listType || 'none');
+                // Strip markers before saving to storage (content is stored without markers)
+                content = stripListMarkers(content);
 
                 onChange({ ...element, content });
                 setIsEditing(false);

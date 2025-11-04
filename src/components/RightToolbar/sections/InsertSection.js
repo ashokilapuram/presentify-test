@@ -37,6 +37,7 @@ const InsertSection = ({ addTextBox, addShape, addChart, addImage }) => {
         </button>
         <button className="shape-icon-button" onClick={() => addShape('circle')}>
           <FiCircle />
+
         </button>
         <button className="shape-icon-button" onClick={() => addShape('triangle')}>
           <FiTriangle />
@@ -74,4 +75,5 @@ const InsertSection = ({ addTextBox, addShape, addChart, addImage }) => {
 };
 
 export default InsertSection;
+
 

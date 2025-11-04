@@ -129,21 +129,31 @@ const Toolbar = ({
 
   // Utility function to normalize list text - removes all existing markers before applying new ones
   const normalizeListText = (text, newType) => {
+    const lines = text.split('\n');
+    
+    // First, check if text already has the correct markers for bullets
+    if (newType === 'bullet') {
+      const alreadyFormatted = lines.every(line => {
+        if (!line.trim()) return true; // empty line is fine
+        return line.match(/^[\u2022•]\s*/);
+      });
+      if (alreadyFormatted) {
+        return text; // Already properly formatted
+      }
+    }
+    
+    // For numbers, check if all lines are numbered (but we'll still renumber to fix sequences)
     // Remove any existing markers (bullet •, number 1., or any combination)
-    const cleaned = text
-      .split('\n')
-      .map(line => line.replace(/^(\s*[\u2022•]\s*|\s*\d+\.\s*)/, ''))
-      .join('\n');
+    const cleanedLines = lines
+      .map(line => line.replace(/^(\s*[\u2022•]\s*|\s*\d+\.\s*)/, ''));
 
     if (newType === 'bullet') {
-      return cleaned
-        .split('\n')
+      return cleanedLines
         .map(line => (line.trim() ? `• ${line}` : line))
         .join('\n');
     }
     if (newType === 'number') {
-      return cleaned
-        .split('\n')
+      return cleanedLines
         .map((line, idx) => {
           if (line.trim()) {
             return `${idx + 1}. ${line}`;
@@ -152,7 +162,7 @@ const Toolbar = ({
         })
         .join('\n');
     }
-    return cleaned; // for 'none'
+    return cleanedLines.join('\n'); // for 'none'
   };
 
   const toggleListType = () => {
@@ -160,23 +170,14 @@ const Toolbar = ({
     const current = selectedElement?.listType || textFormatting.listType || 'none';
     const next = order[(order.indexOf(current) + 1) % order.length];
     
-    applyFormat('listType', next);
-
+    // Simply update listType - EditableTextBox will handle the formatting on render
     if (selectedElement?.id) {
-      const textElement = document.querySelector(`[data-element-id="${selectedElement.id}"]`);
-      if (textElement) {
-        // Get current content and normalize it properly
-        const currentContent = textElement.innerText || selectedElement.content || '';
-        const normalizedContent = normalizeListText(currentContent, next);
-        textElement.innerText = normalizedContent;
-        updateSlideElement(selectedElement.id, { content: normalizedContent, listType: next });
-      } else {
-        // Fallback: normalize the content from selectedElement directly
-        const currentContent = selectedElement.content || '';
-        const normalizedContent = normalizeListText(currentContent, next);
-        updateSlideElement(selectedElement.id, { content: normalizedContent, listType: next });
-      }
+      updateSlideElement(selectedElement.id, { listType: next });
     }
+
+    // Update the formatting state
+    const newFormat = { ...textFormatting, listType: next };
+    setTextFormatting(newFormat);
   };
 
   const toggleStyle = (property) => {
@@ -478,24 +479,14 @@ const Toolbar = ({
 
               {/* ④ Capitalize Toggle (Aa) */}
               <button
-                className={`toolbar-button ${(selectedElement?.textTransform || textFormatting.textTransform) === 'uppercase' ? 'active' : ''}`}
+                className="toolbar-button"
                 title="Toggle Uppercase / Lowercase"
                 onClick={(e) => {
                   e.stopPropagation();
                   const current = selectedElement?.textTransform || textFormatting.textTransform || 'none';
-                  const newValue = current === 'uppercase' ? 'none' : 'uppercase';
-                  applyFormat('textTransform', newValue);
-
-                  if (selectedElement?.id) {
-                    const textElement = document.querySelector(`[data-element-id="${selectedElement.id}"]`);
-                    if (textElement) {
-                      const newHTML = newValue === 'uppercase'
-                        ? textElement.innerText.toUpperCase()
-                        : textElement.innerText.toLowerCase();
-                      textElement.innerText = newHTML;
-                      updateSlideElement(selectedElement.id, { content: newHTML });
-                    }
-                  }
+                  // Toggle between uppercase and lowercase only, skip 'none'
+                  const next = current === 'uppercase' ? 'lowercase' : 'uppercase';
+                  applyFormat('textTransform', next);
                 }}
               >
                 <span style={{ fontWeight: 600 }}>Aa</span>

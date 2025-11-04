@@ -1,4 +1,5 @@
 import React from 'react';
+import { Trash2 } from 'lucide-react';
 import LayerActions from '../shared/LayerActions';
 
 const ChartOptions = ({
@@ -14,8 +15,18 @@ const ChartOptions = ({
   const defaultColors = ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#f43f5e', '#06b6d4', '#84cc16', '#f97316'];
 
   const getBarColor = (index) => {
-    return (selectedElement.barColors && selectedElement.barColors[index]) ||
-      defaultColors[index % defaultColors.length];
+    if (selectedElement.barColors && selectedElement.barColors[index]) {
+      return selectedElement.barColors[index];
+    }
+    // Use correct defaults based on chart type
+    if (selectedElement.chartType === 'line') {
+      return defaultColors[index % defaultColors.length];
+    } else if (selectedElement.chartType === 'bar') {
+      return selectedElement.color || '#0ea5e9';
+    } else {
+      // pie chart
+      return defaultColors[index % defaultColors.length];
+    }
   };
 
   const handleBarColorChange = (index, color) => {
@@ -35,15 +46,35 @@ const ChartOptions = ({
   const removeDataPoint = (index) => {
     const newLabels = [...(selectedElement.labels || [])];
     const newValues = [...(selectedElement.values || [])];
+    const newBarColors = [...(selectedElement.barColors || [])];
     newLabels.splice(index, 1);
     newValues.splice(index, 1);
-    updateSlideElement(selectedElement.id, { labels: newLabels, values: newValues });
+    newBarColors.splice(index, 1);
+    updateSlideElement(selectedElement.id, { labels: newLabels, values: newValues, barColors: newBarColors });
   };
 
   const addDataPoint = () => {
     const newLabels = [...(selectedElement.labels || []), `Item ${(selectedElement.labels?.length || 0) + 1}`];
     const newValues = [...(selectedElement.values || []), 0];
-    updateSlideElement(selectedElement.id, { labels: newLabels, values: newValues });
+    
+    // Also update barColors to match what ChartBox will generate
+    const currentBarColors = selectedElement.barColors || [];
+    const newBarColors = [...currentBarColors];
+    const newIndex = newLabels.length - 1;
+    
+    // Determine the color for the new item based on chart type (matching ChartBox logic)
+    if (selectedElement.chartType === 'line') {
+      // For line charts, use diverse colors
+      newBarColors.push(defaultColors[newIndex % defaultColors.length]);
+    } else if (selectedElement.chartType === 'bar') {
+      // For bar charts, use the single default color
+      newBarColors.push(selectedElement.color || '#0ea5e9');
+    } else {
+      // For pie charts, use diverse colors
+      newBarColors.push(defaultColors[newIndex % defaultColors.length]);
+    }
+    
+    updateSlideElement(selectedElement.id, { labels: newLabels, values: newValues, barColors: newBarColors });
   };
 
   return (
@@ -309,14 +340,49 @@ const ChartOptions = ({
               <div
                 className="color-swatch-small"
                 style={{
-                  backgroundColor: selectedElement.backgroundColor || '#ffffff',
+                  backgroundColor: selectedElement.backgroundColor || 'transparent',
                   width: '20px',
                   height: '20px',
                   cursor: 'pointer',
-                  position: 'relative'
+                  position: 'relative',
+                  border: selectedElement.backgroundColor ? 'none' : '1px dashed #9ca3af'
                 }}
               />
             </div>
+            {selectedElement.backgroundColor && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  updateSlideElement(selectedElement.id, { backgroundColor: undefined });
+                }}
+                title="Remove background color"
+                style={{
+                  width: '20px',
+                  height: '20px',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '4px',
+                  background: '#ffffff',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0,
+                  transition: 'all 0.2s ease',
+                  flexShrink: 0,
+                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#fee2e2';
+                  e.currentTarget.style.borderColor = '#f87171';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#ffffff';
+                  e.currentTarget.style.borderColor = '#e5e7eb';
+                }}
+              >
+                <Trash2 size={14} style={{ color: '#ef4444' }} />
+              </button>
+            )}
           </div>
         </div>
 

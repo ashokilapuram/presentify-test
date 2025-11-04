@@ -429,7 +429,7 @@ const ChartBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
         <Rect
           width={chartW}
           height={chartH}
-          fill={element.backgroundColor || "#ffffff"}
+          fill={element.backgroundColor || "transparent"}
           stroke={isSelected ? "#2563eb" : "transparent"}
           strokeWidth={1.5}
           cornerRadius={8}
