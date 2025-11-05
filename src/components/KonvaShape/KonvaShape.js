@@ -77,6 +77,22 @@ const KonvaShape = ({ element, isSelected, onSelect, onChange, readOnly = false 
         );
       case "square":
         return <Rect {...shapeProps} cornerRadius={4} />;
+      case "pentagon":
+        return (
+          <RegularPolygon
+            {...shapeProps}
+            sides={5}
+            radius={Math.min(element.width, element.height) / 2}
+          />
+        );
+      case "hexagon":
+        return (
+          <RegularPolygon
+            {...shapeProps}
+            sides={6}
+            radius={Math.min(element.width, element.height) / 2}
+          />
+        );
       default: // rectangle
         return <Rect {...shapeProps} cornerRadius={4} />;
     }

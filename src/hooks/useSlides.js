@@ -179,6 +179,9 @@ export const useSlides = () => {
       }
       return slide;
     }));
+    
+    // Automatically select the newly added element
+    setSelectedElement(newTextBox);
   }, [slides, selectedElement, currentSlideIndex]);
 
   const deleteElement = useCallback((elementId, onSnapshot) => {
@@ -221,6 +224,9 @@ export const useSlides = () => {
       }
       return slide;
     }));
+    
+    // Automatically select the newly added element
+    setSelectedElement(newShape);
   }, [slides, selectedElement, currentSlideIndex]);
 
   const addImage = useCallback((onSnapshot) => {
@@ -254,6 +260,9 @@ export const useSlides = () => {
             }
             return slide;
           }));
+          
+          // Automatically select the newly added element
+          setSelectedElement(newImage);
         };
         reader.readAsDataURL(file);
       }
@@ -293,6 +302,9 @@ export const useSlides = () => {
       }
       return slide;
     }));
+    
+    // Automatically select the newly added element
+    setSelectedElement(newChart);
   }, [slides, selectedElement, currentSlideIndex]);
 
   // Layer reordering for elements
