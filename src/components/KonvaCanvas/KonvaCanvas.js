@@ -21,24 +21,92 @@ const KonvaCanvas = ({
   const stageRef = useRef(null);
   const [scale, setScale] = useState(1);
   const [stageSize, setStageSize] = useState({ width: 800, height: 450 }); // 16:9
+  const [isFullscreenMode, setIsFullscreenMode] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [contextMenu, setContextMenu] = useState({ visible: false, position: null });
 
   // Responsive scaling logic
   useEffect(() => {
     const handleResize = () => {
-      const containerWidth = document.querySelector('.canvas-container')?.offsetWidth || 800;
-      const scaleFactor = containerWidth / 1024; // base width
-      setScale(scaleFactor);
-      setStageSize({
-        width: 1024 * scaleFactor,
-        height: 576 * scaleFactor,
+      // Use requestAnimationFrame to ensure DOM is ready
+      requestAnimationFrame(() => {
+        const container = document.querySelector('.canvas-container');
+        if (!container) return;
+        
+        const containerWidth = container.offsetWidth;
+        const containerHeight = container.offsetHeight;
+        const baseWidth = 1024;
+        const baseHeight = 576;
+        
+        // Check if we're in fullscreen slideshow (check for fullscreen-slideshow parent)
+        const isInSlideshow = container.closest('.fullscreen-slideshow') !== null;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const isFullscreen = isInSlideshow || (containerWidth >= viewportWidth * 0.85 && 
+                          containerHeight >= viewportHeight * 0.85);
+        
+        if (isFullscreen) {
+          // Fullscreen mode: scale based on screen width, height maintains ratio automatically
+          // Use the larger of container or viewport to ensure we fill the screen
+          const actualWidth = Math.max(containerWidth, viewportWidth);
+          const scaleFactor = actualWidth / baseWidth;
+          setScale(scaleFactor);
+          setIsFullscreenMode(true);
+          setStageSize({
+            width: baseWidth,
+            height: baseHeight,
+          });
+        } else {
+          setIsFullscreenMode(false);
+          // Normal mode: scale based on container width
+          const scaleFactor = containerWidth / baseWidth;
+          setScale(scaleFactor);
+          setStageSize({
+            width: baseWidth * scaleFactor,
+            height: baseHeight * scaleFactor,
+          });
+        }
       });
     };
+    
+    // Initial resize with a small delay to ensure DOM is ready
+    setTimeout(handleResize, 100);
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Ensure high-quality canvas rendering in fullscreen
+  useEffect(() => {
+    if (stageRef.current && isFullscreenMode) {
+      const stage = stageRef.current;
+      
+      // Set high pixel ratio on stage
+      const pixelRatio = Math.max(window.devicePixelRatio || 2, 3);
+      stage.pixelRatio(pixelRatio);
+      
+      const layers = stage.getLayers();
+      layers.forEach((layer) => {
+        const canvas = layer.getCanvas();
+        if (canvas) {
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            // Enable high-quality rendering
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+          }
+        }
+      });
+      
+      // Force redraw with high quality
+      stage.batchDraw();
+      
+      // Redraw again after a short delay to ensure settings are applied
+      setTimeout(() => {
+        stage.batchDraw();
+      }, 100);
+    }
+  }, [isFullscreenMode, slide, scale]);
 
   useEffect(() => {
     if (stageRef.current && typeof onThumbnailUpdate === 'function') {
@@ -222,6 +290,8 @@ const KonvaCanvas = ({
         height={stageSize.height}
         scaleX={scale}
         scaleY={scale}
+        pixelRatio={isFullscreenMode ? Math.max(window.devicePixelRatio || 2, 3) : 1}
+        imageSmoothingEnabled={true}
         style={{
           borderRadius: '12px',
           boxShadow: '0 0 20px rgba(0,0,0,0.15)',
