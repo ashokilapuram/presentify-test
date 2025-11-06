@@ -1121,8 +1121,8 @@ body.dark .view-button.active {
   }
 }
 
-/* Reduce width for screens 1024px-1150px to give canvas more space */
-@media (min-width: 1024px) and (max-width: 1150px) {
+/* Reduce width for screens 1101px-1150px to give canvas more space */
+@media (min-width: 1101px) and (max-width: 1150px) {
   .right-toolbar {
     width: 180px; /* Even further reduced from 300px */
   }
@@ -1257,20 +1257,180 @@ body.dark .view-button.active {
   }
 }
 
-/* Tablet breakpoint to match App.css adjustments */
-@media (max-width: 1024px) {
+/* Tablet breakpoint to match App.css adjustments - extended to 1100px */
+@media (max-width: 1100px) {
   .right-toolbar {
     width: 260px;
-    margin-right: 6px;
-    top: 60px; /* Reduced from 80px to match other elements */
+    right: 14px; /* Moved further left to balance gap with canvas and sidebar */
+    margin-right: 0; /* Remove margin since we're using right positioning */
+    top: 56px; /* Reduced gap from toolbar-top for tighter layout */
   }
-  .right-toolbar-header { padding: 0.5rem 0.75rem; } /* Reduced padding */
-  .toolbar-title { font-size: 0.95rem; }
-  .right-toolbar-content { padding: 0.5rem; }
-  .option-group { padding: 0.75rem; }
-  .option-button { width: 32px; height: 32px; }
-  .insert-button, .view-button, .layer-button, .quick-button { padding: 0.6rem 0.8rem; }
-  .font-select { padding: 0.4rem 0.6rem; }
+  
+  /* Compact header - reduce gap between header and tabs */
+  .right-toolbar-header {
+    padding: 0.35rem 0.5rem; /* Reduced padding for compact height */
+  }
+  
+  .toolbar-title {
+    font-size: 0.85rem; /* Reduced from 0.95rem */
+  }
+  
+  /* Compact tabs */
+  .right-toolbar-tab {
+    padding: 0.35rem 0.5rem; /* Reduced padding */
+    font-size: 0.7rem; /* Reduced font size */
+  }
+  
+  /* Compact content area */
+  .right-toolbar-content {
+    padding: 0.4rem; /* Reduced padding */
+  }
+  
+  /* Compact section titles */
+  .section-title {
+    font-size: 0.7rem; /* Reduced from 0.85rem */
+    margin-bottom: 0.4rem; /* Reduced vertical gap below section-title */
+    gap: 0.2rem; /* Reduced gap */
+  }
+  
+  /* Compact sections */
+  .right-toolbar-section {
+    margin-bottom: 0.8rem; /* Reduced vertical gap between sections */
+  }
+  
+  /* Compact option groups */
+  .option-group {
+    margin-bottom: 0.4rem; /* Reduced vertical gap below option-group */
+    padding: 0.4rem; /* Reduced padding - minimal gaps */
+  }
+  
+  /* Compact buttons */
+  .option-button {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .insert-button, .view-button, .layer-button, .quick-button {
+    padding: 0.5rem 0.7rem; /* Reduced padding */
+  }
+  
+  .font-select {
+    padding: 0.35rem 0.5rem; /* Reduced padding */
+  }
+  
+  /* Compact element button rows */
+  .text-elements-row,
+  .shapes-row,
+  .chart-row,
+  .media-row {
+    margin-bottom: 0.6rem; /* Reduced vertical gap */
+  }
+  
+  /* Compact element buttons */
+  .text-element-button,
+  .shape-element-button,
+  .chart-element-button,
+  .media-element-button {
+    padding: 0.5rem 0.35rem; /* Reduced padding */
+    font-size: 0.7rem; /* Reduced font size */
+  }
+  
+  /* Compact chart name input - reduce gap between input and container */
+  .option-group[style*="flex-direction: column"] {
+    gap: 4px !important; /* Reduced from 8px */
+  }
+  
+  /* Compact chart name input box */
+  .option-group input[type="text"] {
+    padding: 3px 5px !important; /* Reduced padding */
+    font-size: 11px !important; /* Reduced font size */
+    border-radius: 3px !important;
+  }
+  
+  /* Compact chart name button */
+  .option-group button {
+    padding: 4px 8px !important; /* Reduced padding */
+    font-size: 11px !important; /* Reduced font size */
+    border-radius: 4px !important;
+  }
+  
+  /* Compact color container - reduce vertical gaps */
+  .option-group[style*="gap: 16"] {
+    gap: 8px !important; /* Reduced from 16px */
+  }
+  
+  /* Compact color palette items - reduce gap between options */
+  .color-palette-item {
+    gap: 1px !important; /* Reduced gap */
+    padding: 2px !important; /* Reduced padding */
+  }
+  
+  /* Smaller color swatches in palette */
+  .color-swatch-palette {
+    width: 12px !important; /* Reduced from 16px */
+    height: 12px !important; /* Reduced from 16px */
+    min-width: 12px !important;
+    min-height: 12px !important;
+  }
+  
+  /* Compact color section labels */
+  .option-group div[style*="fontSize: '12px'"] {
+    font-size: 10px !important; /* Reduced font size */
+    margin-bottom: 4px !important; /* Reduced margin */
+  }
+  
+  /* Compact color palette wrapper gaps */
+  .option-group div[style*="gap: 6"] {
+    gap: 4px !important; /* Reduced gap */
+  }
+  
+  /* Compact all text in option-group */
+  .option-group {
+    font-size: 0.7rem; /* Reduced base font size */
+  }
+  
+  /* Compact option-group inputs and selects */
+  .option-group input,
+  .option-group select,
+  .option-group textarea {
+    font-size: 0.7rem !important; /* Reduced font size */
+    padding: 0.25rem 0.4rem !important; /* Reduced padding */
+  }
+  
+  /* Compact option-group labels */
+  .option-group label {
+    font-size: 0.7rem !important; /* Reduced font size */
+    margin-bottom: 0.2rem !important; /* Reduced margin */
+  }
+  
+  /* Compact action buttons */
+  .action-button {
+    padding: 0.35rem 0.5rem !important; /* Reduced padding */
+    font-size: 0.7rem !important; /* Reduced font size */
+    margin-bottom: 0.3rem !important; /* Reduced margin */
+  }
+  
+  /* Compact size displays */
+  .size-display,
+  .zoom-display {
+    font-size: 0.7rem !important; /* Reduced font size */
+  }
+  
+  /* Compact info rows */
+  .info-row {
+    font-size: 0.7rem !important; /* Reduced font size */
+    margin-bottom: 0.3rem !important; /* Reduced margin */
+  }
+  
+  /* Compact color inputs */
+  .color-input {
+    height: 32px !important; /* Reduced from 40px */
+  }
+  
+  .color-input-square {
+    width: 28px !important; /* Reduced from 36px */
+    height: 28px !important; /* Reduced from 36px */
+  }
 }
 
 /* Text Modal Styles */

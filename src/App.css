@@ -1142,8 +1142,8 @@ body.dark .toolbar-bottom {
 .canvas-container {
   position: fixed;
   top: 60px !important;
-  left: 232px;
-  right: 324px;
+  left: 262px; /* Increased from 232px to add more gap from sidebar */
+  right: 354px; /* Increased from 324px to add more gap from right toolbar */
   bottom: 0px;
   display: flex;
   flex-direction: column;
@@ -2065,13 +2065,13 @@ body.dark .toolbar-bottom {
   }
   
   .canvas-container {
-    left: 200px; /* 180px + 20px gap */
-    right: 340px; /* 324px + 16px gap */
+    left: 230px; /* 180px + 50px gap (increased from 20px) */
+    right: 370px; /* 324px + 46px gap (increased from 16px) */
   }
   
   .toolbar-bottom {
-    left: 200px; /* 180px + 20px gap */
-    right: 340px; /* 324px + 16px gap */
+    left: 230px; /* 180px + 50px gap (increased from 20px) */
+    right: 370px; /* 324px + 46px gap (increased from 16px) */
   }
   
   /* Canvas adapts to container */
@@ -2124,14 +2124,14 @@ body.dark .toolbar-bottom {
   }
   
   .toolbar-bottom {
-    left: 180px; /* 160px + 20px gap */
-    right: 300px; /* 280px + 20px gap */
+    left: 210px; /* 160px + 50px gap (increased from 20px) */
+    right: 330px; /* 280px + 50px gap (increased from 20px) */
     top: 60px; /* Same good gap as 1024px screens */
   }
   
   .canvas-container {
-    left: 180px; /* 160px + 20px gap */
-    right: 300px; /* 280px + 20px gap */
+    left: 210px; /* 160px + 50px gap (increased from 20px) */
+    right: 330px; /* 280px + 50px gap (increased from 20px) */
     top: 150px;
   }
   
@@ -2160,10 +2160,10 @@ body.dark .toolbar-bottom {
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
   .sidebar {
     width: 140px;
-    top: 60px; /* Reduced from 80px to match toolbar-bottom */
+    top: 56px; /* Reduced gap from toolbar-top for tighter layout */
   }
   
   /* Make sidebar buttons same height on smaller screens */
@@ -2183,20 +2183,21 @@ body.dark .toolbar-bottom {
   }
   
   .toolbar-bottom {
-    left: 160px; /* 140px + 20px gap */
-    right: 280px; /* 260px + 20px gap */
-    top: 60px; /* Align with sidebar and right toolbar */
+    left: 170px; /* 140px + 30px gap (moved slightly left) */
+    right: 290px; /* Aligned with canvas-container to center canvas horizontally */
+    top: 56px; /* Align with sidebar and right toolbar */
   }
   
   .canvas-container {
-    left: 160px; /* 140px + 20px gap */
-    right: 275px; /* 260px + 15px gap - very small adjustment towards right toolbar */
+    left: 170px; /* 140px + 30px gap (moved slightly left) */
+    right: 290px; /* Further reduced to center canvas horizontally - balances left and right gaps */
+    top: 56px !important; /* Align with sidebar and right toolbar for tighter layout */
   }
   
-  /* Canvas adapts to container */
+  /* Canvas adapts to container - increased size */
   .canvas {
-    width: 95%;
-    max-width: 850px;
+    width: 98%;
+    max-width: 950px;
     height: auto;
     aspect-ratio: 850 / 614;
     margin: 12px auto;
@@ -2238,14 +2239,14 @@ body.dark .toolbar-bottom {
   }
   
   .toolbar-bottom {
-    left: 132px; /* 120px + 8px gap + 4px margin */
-    right: 244px; /* 220px + 8px gap + 4px margin */
+    left: 162px; /* 120px + 38px gap + 4px margin (increased from 8px) */
+    right: 274px; /* 220px + 38px gap + 4px margin (increased from 8px) */
     top: 80px;
   }
   
   .canvas-container {
-    left: 132px; /* 120px + 8px gap + 4px margin */
-    right: 244px; /* 220px + 8px gap + 4px margin */
+    left: 162px; /* 120px + 38px gap + 4px margin (increased from 8px) */
+    right: 274px; /* 220px + 38px gap + 4px margin (increased from 8px) */
     top: 150px;
   }
   
@@ -2299,13 +2300,13 @@ body.dark .toolbar-bottom {
   }
   
   .toolbar-bottom {
-    left: 112px; /* 100px + 8px gap + 4px margin */
-    right: 224px; /* 200px + 8px gap + 4px margin */
+    left: 142px; /* 100px + 38px gap + 4px margin (increased from 8px) */
+    right: 254px; /* 200px + 38px gap + 4px margin (increased from 8px) */
   }
   
   .canvas-container {
-    left: 112px; /* 100px + 8px gap + 4px margin */
-    right: 224px; /* 200px + 8px gap + 4px margin */
+    left: 142px; /* 100px + 38px gap + 4px margin (increased from 8px) */
+    right: 254px; /* 200px + 38px gap + 4px margin (increased from 8px) */
   }
   
   /* Canvas adapts to container */
@@ -2340,13 +2341,13 @@ body.dark .toolbar-bottom {
   }
   
   .toolbar-bottom {
-    left: 92px; /* 80px + 8px gap + 4px margin */
-    right: 204px; /* 180px + 8px gap + 4px margin */
+    left: 122px; /* 80px + 38px gap + 4px margin (increased from 8px) */
+    right: 234px; /* 180px + 38px gap + 4px margin (increased from 8px) */
   }
   
   .canvas-container {
-    left: 92px; /* 80px + 8px gap + 4px margin */
-    right: 204px; /* 180px + 8px gap + 4px margin */
+    left: 122px; /* 80px + 38px gap + 4px margin (increased from 8px) */
+    right: 234px; /* 180px + 38px gap + 4px margin (increased from 8px) */
   }
   
   /* Canvas adapts to container */
@@ -2375,8 +2376,8 @@ body.dark .toolbar-bottom {
   }
 }
 
-/* Fix vertical gaps between toolbar-top and other containers for 1024–1150px */
-@media (min-width: 1024px) and (max-width: 1150px) {
+/* Fix vertical gaps between toolbar-top and other containers for 1101–1150px */
+@media (min-width: 1101px) and (max-width: 1150px) {
   /* Move sidebar up, directly under toolbar-top */
   .sidebar {
     top: 64px !important; /* previously 80px or more */
@@ -2409,27 +2410,27 @@ body.dark .toolbar-bottom {
 /* Canvas alignment for 1200px to 1399px - expand to full available width */
 @media (min-width: 1200px) and (max-width: 1399px) {
   .canvas-container {
-    left: 200px !important; /* 180px sidebar + 20px gap */
-    right: 320px !important; /* 300px toolbar + 20px gap */
-    width: calc(100vw - 520px) !important; /* 180px sidebar + 20px left gap + 300px toolbar + 20px right gap = 520px */
+    left: 230px !important; /* 180px sidebar + 50px gap (increased from 20px) */
+    right: 350px !important; /* 300px toolbar + 50px gap (increased from 20px) */
+    width: calc(100vw - 580px) !important; /* 180px sidebar + 50px left gap + 300px toolbar + 50px right gap = 580px */
   }
   
   .toolbar-bottom {
-    left: 200px !important; /* 180px sidebar + 20px gap */
-    right: 320px !important; /* 300px toolbar + 20px gap */
+    left: 230px !important; /* 180px sidebar + 50px gap (increased from 20px) */
+    right: 350px !important; /* 300px toolbar + 50px gap (increased from 20px) */
   }
 }
 
 /* Canvas alignment for 1400px and above - full width */
 @media (min-width: 1400px) {
   .canvas-container {
-    left: 220px !important; /* 200px sidebar + 20px gap */
-    right: 320px !important; /* 300px toolbar + 20px gap */
+    left: 250px !important; /* 200px sidebar + 50px gap (increased from 20px) */
+    right: 350px !important; /* 300px toolbar + 50px gap (increased from 20px) */
     width: auto !important; /* ensure it expands to fill space */
   }
   
   .toolbar-bottom {
-    left: 220px !important; /* 200px sidebar + 20px gap */
-    right: 320px !important; /* 300px toolbar + 20px gap */
+    left: 250px !important; /* 200px sidebar + 50px gap (increased from 20px) */
+    right: 350px !important; /* 300px toolbar + 50px gap (increased from 20px) */
   }
 }

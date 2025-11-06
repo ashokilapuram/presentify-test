@@ -1,7 +1,7 @@
 import React from 'react';
 import './TemplateSelectionModal.css';
 
-const TemplateSelectionModal = ({ isOpen, onClose, onSelectTemplate }) => {
+const TemplateSelectionModal = ({ isOpen, onClose, onSelectTemplate, showCreateNew = false, onCreateNew }) => {
   const templates = [
     {
       id: 'sample_1',
@@ -73,9 +73,23 @@ const TemplateSelectionModal = ({ isOpen, onClose, onSelectTemplate }) => {
         </div>
         
         <div className="template-modal-footer">
-          <button className="btn-secondary" onClick={onClose}>
-            Cancel
-          </button>
+          {showCreateNew ? (
+            <button 
+              className="btn-create-new" 
+              onClick={() => {
+                if (onCreateNew) {
+                  onCreateNew();
+                }
+                onClose();
+              }}
+            >
+              Create New
+            </button>
+          ) : (
+            <button className="btn-secondary" onClick={onClose}>
+              Cancel
+            </button>
+          )}
         </div>
       </div>
     </div>

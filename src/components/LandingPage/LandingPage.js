@@ -19,6 +19,11 @@ const LandingPage = ({ onLaunchPresentify }) => {
     onLaunchPresentify(template);
   };
 
+  const handleCreateNew = () => {
+    // Create a blank canvas with no template
+    onLaunchPresentify(null);
+  };
+
   const handleCloseModal = () => {
     setShowTemplateModal(false);
   };
@@ -36,7 +41,7 @@ const LandingPage = ({ onLaunchPresentify }) => {
                     <polygon points="8,12 12,8 16,12" fill="currentColor"/>
                   </svg>
                 </div>
-                <span className="logo-text">Presentify</span>
+                <span className="logo-text">Slidalyst</span>
               </div>
               
               <h1 className="hero-title">
@@ -51,7 +56,7 @@ const LandingPage = ({ onLaunchPresentify }) => {
               
               <div className="hero-buttons">
                 <button className="btn-primary" onClick={handleLaunchClick}>
-                  Launch Presentify
+                  Launch Slidalyst
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                     <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
@@ -63,7 +68,7 @@ const LandingPage = ({ onLaunchPresentify }) => {
             </div>
             
             <div className="hero-image">
-              <img src="/images/hero-workspace.jpg" alt="Presentify Workspace" />
+              <img src="/images/hero-workspace.jpg" alt="Slidalyst Workspace" />
             </div>
           </div>
         </div>
@@ -81,7 +86,7 @@ const LandingPage = ({ onLaunchPresentify }) => {
           
           <div className="learn-more-content">
             <div className="app-mockup">
-              <img src="/images/feature-presentations.jpg" alt="Presentify App Interface" />
+              <img src="/images/feature-presentations.jpg" alt="Slidalyst App Interface" />
             </div>
             
             <div className="features-list">
@@ -147,6 +152,8 @@ const LandingPage = ({ onLaunchPresentify }) => {
         isOpen={showTemplateModal}
         onClose={handleCloseModal}
         onSelectTemplate={handleTemplateSelect}
+        showCreateNew={true}
+        onCreateNew={handleCreateNew}
       />
     </div>
   );

@@ -42,6 +42,22 @@
   justify-content: flex-start;
 }
 
+/* Fade-in animation for slide container */
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.slide-placeholder.fade-in-slide {
+  animation: fadeInSlide 0.6s ease-in-out;
+}
+
 .slide-placeholder .canvas-container {
   position: relative !important;
   top: 0 !important;
@@ -54,6 +70,19 @@
   justify-content: flex-start;
   background: transparent !important;
   box-shadow: none !important;
+  animation: fadeInContent 0.8s ease-in-out 0.2s both;
+}
+
+/* Fade-in animation for content with delay */
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .slide-placeholder .canvas-container > div {
@@ -86,16 +115,26 @@
   max-height: 100vh !important;
   display: block !important;
   image-rendering: auto !important;
-  opacity: 1 !important;
   filter: none !important;
   transform: translateZ(0) !important;
-  will-change: auto !important;
+  will-change: opacity !important;
   color-adjust: exact !important;
   -webkit-print-color-adjust: exact !important;
   mix-blend-mode: normal !important;
   isolation: isolate !important;
   backface-visibility: hidden !important;
   -webkit-backface-visibility: hidden !important;
+  animation: fadeInCanvas 0.8s ease-in-out 0.3s both;
+}
+
+/* Smooth fade-in for canvas */
+@keyframes fadeInCanvas {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Controls bar */

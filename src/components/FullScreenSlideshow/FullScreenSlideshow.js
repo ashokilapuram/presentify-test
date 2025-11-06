@@ -88,7 +88,7 @@ const FullScreenSlideshow = ({
       <div className="slideshow-content">
         {/* Centered 16:9 container */}
         <div className="slide-viewport">
-          <div className="slide-placeholder">
+          <div className="slide-placeholder fade-in-slide" key={slideshowSlideIndex}>
             <KonvaCanvas
               slide={currentSlide}
               selectedElement={null}

@@ -200,7 +200,7 @@ const Toolbar = ({
               <polygon points="8,12 12,8 16,12" fill="currentColor"/>
             </svg>
           </div>
-          Presentify
+          Slidalyst
         </div>
 
         <div className="toolbar-actions">
