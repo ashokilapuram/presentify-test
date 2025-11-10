@@ -47,6 +47,9 @@ function EditorApp() {
     listType: 'none'
   });
 
+  // Zoom state
+  const [zoom, setZoom] = useState(100);
+
   // Sync toolbar formatting with the currently selected text element
   useEffect(() => {
     if (slidesHook.selectedElement && slidesHook.selectedElement.type === 'text') {
@@ -113,6 +116,10 @@ function EditorApp() {
     slidesHook.addChart(chartType, historyHook.pushSnapshot);
   }, [slidesHook.addChart, historyHook.pushSnapshot]);
 
+  const addTableWithHistory = useCallback((style) => {
+    slidesHook.addTable(historyHook.pushSnapshot, style);
+  }, [slidesHook.addTable, historyHook.pushSnapshot]);
+
   const bringForwardWithHistory = useCallback(() => {
     if (slidesHook.selectedElement) {
       slidesHook.bringForward(slidesHook.selectedElement.id, historyHook.pushSnapshot);
@@ -164,6 +171,101 @@ function EditorApp() {
     );
   }, [historyHook.redo, slidesHook.slides, slidesHook.selectedElement, slidesHook.currentSlideIndex, slidesHook.setSlides, slidesHook.setSelectedElement, slidesHook.setCurrentSlideIndex]);
 
+  // Zoom handlers
+  const handleZoomIn = useCallback(() => {
+    setZoom(prev => Math.min(200, prev + 10));
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    setZoom(prev => Math.max(50, prev - 10));
+  }, []);
+
+  const handleResetZoom = useCallback(() => {
+    setZoom(100);
+  }, []);
+
+  // Fullscreen state
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Handle slideshow close - exit fullscreen and reset
+  const handleCloseSlideshow = useCallback(async () => {
+    try {
+      // Exit fullscreen if we're in it
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      }
+    } catch (error) {
+      console.error('Failed to exit fullscreen:', error);
+    } finally {
+      // Always reset zoom and close slideshow
+      setZoom(100);
+      slideshowHook.stopSlideshow();
+    }
+  }, [slideshowHook]);
+
+  // Handle fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isCurrentlyFullscreen = !!document.fullscreenElement;
+      setIsFullscreen(isCurrentlyFullscreen);
+      
+      // If fullscreen was exited and slideshow is active, close slideshow
+      if (!isCurrentlyFullscreen && slideshowHook.isSlideshowActive) {
+        setZoom(100);
+        slideshowHook.stopSlideshow();
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, [slideshowHook.isSlideshowActive, slideshowHook]);
+
+  // Handle slideshow start - enter fullscreen and start slideshow
+  const handleStartSlideshow = useCallback(async () => {
+    // Immediately hide the editor UI and show transition overlay
+    slideshowHook.startTransition();
+    
+    // Small delay to ensure transition overlay is visible
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    try {
+      // Set zoom before entering fullscreen (so it's ready)
+      setZoom(165);
+      
+      // Enter fullscreen
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      }
+      
+      // Wait a bit for fullscreen to settle, then show slideshow
+      setTimeout(() => {
+        slideshowHook.startSlideshow();
+      }, 100);
+    } catch (error) {
+      console.error('Failed to start slideshow:', error);
+      // If fullscreen fails, still start slideshow (it will work in windowed mode)
+      setZoom(165);
+      setTimeout(() => {
+        slideshowHook.startSlideshow();
+      }, 100);
+    }
+  }, [slideshowHook]);
+
+  // Handle regular fullscreen toggle (not slideshow)
+  const handleToggleFullscreen = useCallback(async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (error) {
+      console.error('Fullscreen toggle failed:', error);
+    }
+  }, []);
+
   // Keyboard shortcuts
   useKeyboardShortcuts({
     selectedElement: slidesHook.selectedElement,
@@ -173,7 +275,11 @@ function EditorApp() {
     deleteElement: deleteElementWithHistory,
     setTextFormatting,
     undo,
-    redo
+    redo,
+    isSlideshowActive: slideshowHook.isSlideshowActive,
+    onCloseSlideshow: handleCloseSlideshow,
+    onToggleFullscreen: handleToggleFullscreen,
+    onStartSlideshow: handleStartSlideshow
   });
 
   // Load template from sessionStorage on mount (if user came from landing page with a template)
@@ -209,7 +315,12 @@ function EditorApp() {
   }, [historyHook, slidesHook]);
 
   return (
-    <div className="app">
+    <div className="app" style={{ 
+      opacity: slideshowHook.isTransitioning || slideshowHook.isSlideshowActive ? 0 : 1,
+      transition: 'opacity 0.15s ease-out',
+      pointerEvents: slideshowHook.isTransitioning || slideshowHook.isSlideshowActive ? 'none' : 'auto',
+      backgroundColor: slideshowHook.isTransitioning || slideshowHook.isSlideshowActive ? '#000' : 'transparent',
+    }}>
         <Toolbar 
           textFormatting={textFormatting}
           setTextFormatting={setTextFormatting}
@@ -219,7 +330,9 @@ function EditorApp() {
           addShape={addShapeWithHistory}
           addImage={addImageWithHistory}
           onShowTemplates={() => templatesHook.setShowTemplates(true)}
-          onStartFullScreenSlideshow={slideshowHook.startFullScreenSlideshow}
+          onStartFullScreenSlideshow={handleStartSlideshow}
+          onToggleFullscreen={handleToggleFullscreen}
+          isFullscreen={isFullscreen}
           onDownloadPresentation={() => fileManagerHook.handleDownloadPresentation(slidesHook.slides, slidesHook.currentSlideIndex)}
           onUndo={undo}
           onRedo={redo}
@@ -231,8 +344,18 @@ function EditorApp() {
           onBackToLanding={handleBackToLanding}
           setShowDragMessage={uiStateHook.setShowDragMessage}
           onReset={handleReset}
+          zoom={zoom}
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          onResetZoom={handleResetZoom}
         />
-        <div className="app-body">
+        <div 
+          className="app-body"
+          style={{
+            backgroundColor: slideshowHook.isTransitioning || slideshowHook.isSlideshowActive ? '#000' : 'transparent',
+            transition: 'background-color 0.15s ease-out',
+          }}
+        >
           <Sidebar 
             slides={slidesHook.slides}
             currentSlideIndex={slidesHook.currentSlideIndex}
@@ -258,16 +381,17 @@ function EditorApp() {
             textFormatting={textFormatting}
             isDarkMode={uiStateHook.isDarkMode}
             onToggleDarkMode={uiStateHook.handleToggleDarkMode}
+            zoom={zoom}
             onOpenDesignTab={() => {
               uiStateHook.setForceRightToolbarTab('Design');
               slidesHook.setSelectedElement(null);
-              // Wait for DOM to update, then trigger color picker
+              // Wait for DOM to update, then trigger color picker button
               setTimeout(() => {
-                const colorInput = document.querySelector('[data-design-section-color-picker="true"]');
-                if (colorInput) {
-                  colorInput.click();
+                const colorPickerButton = document.querySelector('[data-design-section-color-picker="true"]');
+                if (colorPickerButton) {
+                  colorPickerButton.click();
                 }
-              }, 100);
+              }, 150);
             }}
             onThumbnailUpdate={(slideId, img) => {
               slidesHook.setSlides((prev) =>
@@ -288,6 +412,7 @@ function EditorApp() {
             addShape={addShapeWithHistory}
             addImage={addImageWithHistory}
             addChart={addChartWithHistory}
+            addTable={addTableWithHistory}
             bringForward={bringForwardWithHistory}
             bringToFront={bringToFrontWithHistory}
             sendBackward={sendBackwardWithHistory}
@@ -305,100 +430,42 @@ function EditorApp() {
           />
         )}
 
-        {slideshowHook.isSlideshowOpen && (
-          <div
+        {/* Transition overlay - shows immediately when starting slideshow */}
+        {slideshowHook.isTransitioning && (
+          <div 
             style={{
-              position: 'fixed', inset: 0, background: '#000', color: '#fff',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000
+              position: 'fixed',
+              inset: 0,
+              backgroundColor: '#000',
+              zIndex: 99998,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              animation: 'fadeInBlack 0.2s ease-out',
             }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ position: 'absolute', top: 16, right: 16 }}>
-              <button onClick={slideshowHook.stopSlideshow} style={{ padding: '8px 12px', borderRadius: 6, border: 'none', cursor: 'pointer' }}>Close</button>
-            </div>
-            <div style={{ width: '90vw', height: '80vh', background: '#111', borderRadius: 12, overflow: 'hidden', position: 'relative' }}>
-              {/* Render current slide content in read-only mode */}
-              <div style={{ width: '100%', height: '100%', position: 'relative', backgroundColor: slidesHook.slides[slidesHook.currentSlideIndex]?.backgroundColor || '#fff', backgroundImage: slidesHook.slides[slidesHook.currentSlideIndex]?.backgroundImage ? `url(${slidesHook.slides[slidesHook.currentSlideIndex].backgroundImage})` : 'none', backgroundSize: 'contain', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
-                {(slidesHook.slides[slidesHook.currentSlideIndex]?.elements || []).map((el) => {
-                  if (el.type === 'text') {
-                    return (
-                      <div key={el.id} style={{ position: 'absolute', left: el.x, top: el.y, width: el.width, height: el.height, color: el.color, fontSize: el.fontSize, fontWeight: el.fontWeight, fontStyle: el.fontStyle, textDecoration: el.textDecoration, textAlign: el.textAlign, background: el.backgroundColor || 'transparent', padding: 8, overflow: 'hidden' }} dangerouslySetInnerHTML={{ __html: el.content }} />
-                    );
-                  }
-                  if (el.type === 'shape') {
-                    return (
-                      <div key={el.id} style={{ position: 'absolute', left: el.x, top: el.y, width: el.width, height: el.height, backgroundColor: el.fillColor, border: `${el.borderWidth}px solid ${el.borderColor}`, borderRadius: el.shapeType === 'circle' ? '50%' : 0 }} />
-                    );
-                  }
-                  if (el.type === 'image') {
-                    return (
-                      <img 
-                        key={el.id} 
-                        src={el.src} 
-                        alt="" 
-                        style={{ 
-                          position: 'absolute', 
-                          left: el.x, 
-                          top: el.y, 
-                          width: el.width, 
-                          height: el.height, 
-                          objectFit: 'contain',
-                          border: el.borderWidth > 0 ? `${el.borderWidth}px solid ${el.borderColor || '#000000'}` : 'none'
-                        }} 
-                      />
-                    );
-                  }
-                  if (el.type === 'chart') {
-                    return (
-                      <div key={el.id} style={{ 
-                        position: 'absolute', 
-                        left: el.x, 
-                        top: el.y, 
-                        width: el.width, 
-                        height: el.height,
-                        backgroundColor: '#f3f4f6',
-                        border: '2px dashed #9ca3af',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#6b7280',
-                        fontSize: '14px',
-                        fontWeight: '500'
-                      }}>
-                        Chart: {el.chartType || 'bar'} ({el.labels?.length || 0} items)
-                      </div>
-                    );
-                  }
-                  return null;
-                })}
-              </div>
-              {/* Navigation overlay */}
-              <div style={{ position: 'absolute', top: '50%', left: 16, transform: 'translateY(-50%)' }}>
-                <button
-                  onClick={() => slidesHook.setCurrentSlideIndex((i) => Math.max(0, i - 1))}
-                  style={{ padding: '10px 14px', borderRadius: '9999px', border: 'none', cursor: 'pointer' }}
-                >
-                  ◀
-                </button>
-              </div>
-              <div style={{ position: 'absolute', top: '50%', right: 16, transform: 'translateY(-50%)' }}>
-                <button
-                  onClick={() => slidesHook.setCurrentSlideIndex((i) => Math.min(slidesHook.slides.length - 1, i + 1))}
-                  style={{ padding: '10px 14px', borderRadius: '9999px', border: 'none', cursor: 'pointer' }}
-                >
-                  ▶
-                </button>
-              </div>
-            </div>
-          </div>
+          />
         )}
         
-        {slideshowHook.showFullScreenSlideshow && (
+        <style>{`
+          @keyframes fadeInBlack {
+            from {
+              opacity: 0;
+              background-color: rgba(0, 0, 0, 0);
+            }
+            to {
+              opacity: 1;
+              background-color: #000;
+            }
+          }
+        `}</style>
+        
+        {slideshowHook.isSlideshowActive && (
           <FullScreenSlideshow
             slides={slidesHook.slides}
             currentSlideIndex={slidesHook.currentSlideIndex}
-            onClose={slideshowHook.closeFullScreenSlideshow}
+            onClose={handleCloseSlideshow}
             onSlideChange={slideshowHook.handleSlideshowSlideChange}
+            zoom={165}
           />
         )}
         

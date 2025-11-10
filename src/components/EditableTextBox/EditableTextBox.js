@@ -188,6 +188,14 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
   }, [element.fontSize, element.fontWeight, element.fontStyle, element.fontFamily, value, element.width, onChange, isEditing, isTransforming]);
 
   const handleDblClick = (e) => {
+    // Don't allow editing in read-only mode (e.g., slideshow)
+    if (readOnly) {
+      e.cancelBubble = true;
+      if (e.evt) {
+        e.evt.stopPropagation();
+      }
+      return;
+    }
     // Capture cursor position before entering edit mode
     if (textareaRef.current) {
       const ta = textareaRef.current;
@@ -414,10 +422,11 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
         lineHeight={element.lineHeight || 1.2}
         rotation={element.rotation || 0}
         draggable={!readOnly}
-        onClick={onSelect}
-        onTap={onSelect}
-        onDblClick={handleDblClick}
-        onDblTap={handleDblClick}
+        listening={!readOnly}
+        onClick={readOnly ? undefined : onSelect}
+        onTap={readOnly ? undefined : onSelect}
+        onDblClick={readOnly ? undefined : handleDblClick}
+        onDblTap={readOnly ? undefined : handleDblClick}
         onDragMove={(e) => {
           // Update the background rectangle position and rotation in real-time during drag
           if (backgroundRef.current) {
@@ -560,7 +569,7 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
         />
       )}
 
-      {isEditing && (
+      {isEditing && !readOnly && (
         <Html>
           <textarea
             ref={textareaRef}

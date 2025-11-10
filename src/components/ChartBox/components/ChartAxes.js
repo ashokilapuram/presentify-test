@@ -1,9 +1,9 @@
 import React from 'react';
-import { Line, Text } from 'react-konva';
+import { Line, Text, Shape } from 'react-konva';
 import * as d3 from 'd3';
 
 /**
- * Renders Y-axis labels (no lines)
+ * Renders Y-axis labels with enhanced sharp text rendering
  */
 export const YAxisValues = ({ 
   yScale, 
@@ -15,17 +15,35 @@ export const YAxisValues = ({
   const tickCount = 4;
   const domain = hasNegativeValues ? [minVal, maxVal] : [0, maxVal];
   const ticks = d3.ticks(domain[0], domain[1], tickCount);
+  const textColor = yAxisColor || "#1f2937"; // Darker, richer color
   
-  return ticks.map((t, i) => (
-    <Text
-      key={i}
-      text={t.toFixed(0)}
-      x={4}
-      y={yScale(t) - 6}
-      fontSize={10}
-      fill={yAxisColor || "#6b7280"}
-    />
-  ));
+  return ticks.map((t, i) => {
+    const text = t.toFixed(0);
+    const x = 4;
+    const y = yScale(t) - 6;
+    const fontSize = 13;
+    
+    return (
+      <Shape
+        key={i}
+        sceneFunc={(context, shape) => {
+          context.save();
+          
+          // Enable better text rendering
+          context.textAlign = 'left';
+          context.textBaseline = 'top';
+          context.font = `bold ${fontSize}px Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+          
+          // Draw text with rich color
+          context.fillStyle = textColor;
+          context.fillText(text, x, y);
+          
+          context.restore();
+          context.fillStrokeShape(shape);
+        }}
+      />
+    );
+  });
 };
 
 /**
@@ -48,7 +66,7 @@ export const XAxisLabels = ({
   const useTruncation = !needsLabelRotation && bandWidth < minWidthForHorizontal;
   
   // Estimate if labels will wrap to multiple lines
-  const labelFontSize = 12;
+  const labelFontSize = 14;
   const estimateTextWidth = (text) => {
     // Rough estimate: average character width is about 0.6 * fontSize for most fonts
     return text.length * labelFontSize * 0.6;
@@ -65,6 +83,8 @@ export const XAxisLabels = ({
   const rotatedLabelY = baseLabelY + (needsLabelRotation ? 20 : 0); // Extra space for rotated labels
   const multiLineLabelY = rotatedLabelY + (hasMultiLineLabels && !needsLabelRotation ? 0 : 0); // Keep same Y, but allow wrapping
   
+  const textColor = labelsColor || "#1f2937"; // Darker, richer color
+  
   return labels.map((label, i) => {
     // Center label perfectly under the bar band
     const labelX = xScale(label) + xScale.bandwidth() / 2;
@@ -78,25 +98,68 @@ export const XAxisLabels = ({
       }
     }
     
+    const rotation = needsLabelRotation ? -90 : 0;
+    const offsetY = needsLabelRotation ? labelFontSize / 2 : 0;
+    
     return (
-      <Text
+      <Shape
         key={i}
-        text={displayText}
-        x={labelX}
-        y={multiLineLabelY}
-        fontSize={labelFontSize}
-        fill={labelsColor || "#374151"}
-        rotation={needsLabelRotation ? -90 : 0}
-        align="center"
-        verticalAlign={needsLabelRotation ? "middle" : "top"}
-        offsetX={0}
-        offsetY={needsLabelRotation ? labelFontSize / 2 : 0}
-        width={needsLabelRotation ? undefined : (hasMultiLineLabels ? bandWidth : undefined)}
-        ellipsis={useTruncation && !hasMultiLineLabels}
-        wrap={hasMultiLineLabels && !needsLabelRotation ? "word" : undefined}
+        sceneFunc={(context, shape) => {
+          context.save();
+          
+          // Translate to center point for rotation
+          context.translate(labelX, multiLineLabelY);
+          if (needsLabelRotation) {
+            context.rotate((rotation * Math.PI) / 180);
+          }
+          
+          // Enable better text rendering
+          context.textAlign = needsLabelRotation ? 'center' : 'center';
+          context.textBaseline = needsLabelRotation ? 'middle' : 'top';
+          context.font = `bold ${labelFontSize}px Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+          
+          // Handle text wrapping
+          const lines = hasMultiLineLabels && !needsLabelRotation
+            ? wrapText(context, displayText, bandWidth)
+            : [displayText];
+          
+          const lineHeight = labelFontSize * 1.2;
+          const startY = needsLabelRotation ? 0 : (offsetY || 0);
+          
+          lines.forEach((line, lineIndex) => {
+            const y = startY + (lineIndex * lineHeight);
+            
+            // Draw text with rich color
+            context.fillStyle = textColor;
+            context.fillText(line, 0, y);
+          });
+          
+          context.restore();
+          context.fillStrokeShape(shape);
+        }}
       />
     );
   });
+  
+  // Helper function to wrap text
+  function wrapText(context, text, maxWidth) {
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = words[0];
+    
+    for (let i = 1; i < words.length; i++) {
+      const word = words[i];
+      const width = context.measureText(currentLine + ' ' + word).width;
+      if (width < maxWidth && currentLine.length < 50) {
+        currentLine += ' ' + word;
+      } else {
+        lines.push(currentLine);
+        currentLine = word;
+      }
+    }
+    lines.push(currentLine);
+    return lines;
+  }
 };
 
 /**

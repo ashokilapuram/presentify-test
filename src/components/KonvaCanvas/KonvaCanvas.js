@@ -5,6 +5,7 @@ import EditableTextBox from '../EditableTextBox/EditableTextBox';
 import KonvaShape from '../KonvaShape/KonvaShape';
 import ImageBox from '../ImageBox/ImageBox';
 import ChartBox from '../ChartBox/ChartBox';
+import TableBox from '../TableBox/TableBox';
 import ContextMenu from '../ContextMenu/ContextMenu';
 
 const KonvaCanvas = ({
@@ -17,6 +18,7 @@ const KonvaCanvas = ({
   onThumbnailUpdate,   // ✅ new prop
   onOpenDesignTab,
   readOnly = false,
+  zoom = 100,
 }) => {
   const stageRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -25,7 +27,7 @@ const KonvaCanvas = ({
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [contextMenu, setContextMenu] = useState({ visible: false, position: null });
 
-  // Responsive scaling logic
+  // Responsive scaling logic with zoom
   useEffect(() => {
     const handleResize = () => {
       // Use requestAnimationFrame to ensure DOM is ready
@@ -37,6 +39,7 @@ const KonvaCanvas = ({
         const containerHeight = container.offsetHeight;
         const baseWidth = 1024;
         const baseHeight = 576;
+        const zoomFactor = zoom / 100;
         
         // Check if we're in fullscreen slideshow (check for fullscreen-slideshow parent)
         const isInSlideshow = container.closest('.fullscreen-slideshow') !== null;
@@ -49,7 +52,7 @@ const KonvaCanvas = ({
           // Fullscreen mode: scale based on screen width, height maintains ratio automatically
           // Use the larger of container or viewport to ensure we fill the screen
           const actualWidth = Math.max(containerWidth, viewportWidth);
-          const scaleFactor = actualWidth / baseWidth;
+          const scaleFactor = (actualWidth / baseWidth) * zoomFactor;
           setScale(scaleFactor);
           setIsFullscreenMode(true);
           setStageSize({
@@ -58,8 +61,8 @@ const KonvaCanvas = ({
           });
         } else {
           setIsFullscreenMode(false);
-          // Normal mode: scale based on container width
-          const scaleFactor = containerWidth / baseWidth;
+          // Normal mode: scale based on container width with zoom
+          const scaleFactor = (containerWidth / baseWidth) * zoomFactor;
           setScale(scaleFactor);
           setStageSize({
             width: baseWidth * scaleFactor,
@@ -74,7 +77,7 @@ const KonvaCanvas = ({
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [zoom]);
 
   // Ensure high-quality canvas rendering in fullscreen
   useEffect(() => {
@@ -274,6 +277,27 @@ const KonvaCanvas = ({
             isSelected={selectedElement?.id === element.id}
             onSelect={() => handleElementClick(element)}
             onChange={(updates) => updateSlideElement(element.id, updates)}
+            readOnly={readOnly}
+          />
+        );
+      }
+
+      if (element.type === 'table') {
+        return (
+          <TableBox
+            key={element.id}
+            element={element}
+            isSelected={selectedElement?.id === element.id}
+            onSelect={() => handleElementClick(element)}
+            onChange={(updates) => {
+              // update element in slides state
+              updateSlideElement(element.id, updates);
+              // immediately update selectedElement in parent to the latest merged object
+              setSelectedElement(prev => {
+                if (!prev || prev.id !== element.id) return prev;
+                return { ...prev, ...updates };
+              });
+            }}
             readOnly={readOnly}
           />
         );

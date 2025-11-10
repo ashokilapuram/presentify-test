@@ -15,11 +15,11 @@ const ImageBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
 
   // Handle selection transformer
   useEffect(() => {
-    if (isSelected && trRef.current && imageRef.current) {
+    if (isSelected && trRef.current && imageRef.current && imgObj) {
       trRef.current.nodes([imageRef.current]);
       trRef.current.getLayer().batchDraw();
     }
-  }, [isSelected]);
+  }, [isSelected, imgObj]);
 
   const handleTransformEnd = () => {
     const node = imageRef.current;

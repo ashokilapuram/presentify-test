@@ -1,8 +1,9 @@
 import React from 'react';
 import { Shape } from 'react-konva';
+import { createBarGradient, applyShadow, clearShadow } from '../utils/chartGradients';
 
 /**
- * Renders bar chart
+ * Renders bar chart with gradients and shadows for realistic 3D effect
  */
 const BarChart = ({ 
   seriesData, 
@@ -60,47 +61,51 @@ const BarChart = ({
         <Shape
           key={`${labelIndex}-${seriesIndex}`}
           sceneFunc={(context, shape) => {
+            context.save();
+            
+            // Apply shadow for depth
+            if (height > 5) { // Only apply shadow to bars with significant height
+              applyShadow(context, 0, 2, 6, 'rgba(0, 0, 0, 0.2)');
+            }
+            
             context.beginPath();
             
             if (isNegative) {
               // Negative bar: rounded bottom corners, sharp top (at x-axis)
-              // Start from top-left (sharp corner at x-axis)
               context.moveTo(x, y);
-              // Line to top-right (sharp corner at x-axis)
               context.lineTo(x + width, y);
-              // Line to bottom-right, just before the rounded corner
               context.lineTo(x + width, y + height - radius);
-              // Draw rounded bottom-right corner
               context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-              // Line to bottom-left, just before the rounded corner
               context.lineTo(x + radius, y + height);
-              // Draw rounded bottom-left corner
               context.quadraticCurveTo(x, y + height, x, y + height - radius);
-              // Close path back to top-left
               context.closePath();
             } else {
               // Positive bar: rounded top corners, sharp bottom (at x-axis)
-              // Start from bottom-left (sharp corner at x-axis)
               context.moveTo(x, y + height);
-              // Line to bottom-right (sharp corner at x-axis)
               context.lineTo(x + width, y + height);
-              // Line to top-right, just before the rounded corner
               context.lineTo(x + width, y + radius);
-              // Draw rounded top-right corner
               context.quadraticCurveTo(x + width, y, x + width - radius, y);
-              // Line to top-left, just before the rounded corner
               context.lineTo(x + radius, y);
-              // Draw rounded top-left corner
               context.quadraticCurveTo(x, y, x, y + radius);
-              // Close path back to bottom-left
               context.closePath();
             }
             
-            context.fillStyle = barColor;
+            // Create and apply gradient
+            const gradient = createBarGradient(context, x, y, width, height, barColor, isNegative);
+            context.fillStyle = gradient;
             context.fill();
+            
+            // Clear shadow before drawing stroke
+            clearShadow(context);
+            
+            // Add subtle border for definition
+            context.strokeStyle = 'rgba(0, 0, 0, 0.08)';
+            context.lineWidth = 0.5;
+            context.stroke();
+            
+            context.restore();
             context.fillStrokeShape(shape);
           }}
-          fill={barColor}
         />
       );
     });

@@ -125,20 +125,98 @@ const Sidebar = ({
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, index)}
-                onMouseEnter={(e) => {
-                  const deleteBtn = e.currentTarget.querySelector('.slide-delete');
-                  const duplicateBtn = e.currentTarget.querySelector('.slide-duplicate-btn');
-                  if (deleteBtn) deleteBtn.style.opacity = '1';
-                  if (duplicateBtn) duplicateBtn.style.opacity = '1';
-                }}
-                onMouseLeave={(e) => {
-                  const deleteBtn = e.currentTarget.querySelector('.slide-delete');
-                  const duplicateBtn = e.currentTarget.querySelector('.slide-duplicate-btn');
-                  if (deleteBtn) deleteBtn.style.opacity = '0';
-                  if (duplicateBtn) duplicateBtn.style.opacity = '0';
-                }}
               >
-                <div className="slide-number">{index + 1}</div>
+                {/* Top row: slide number, delete, duplicate - all side by side */}
+                <div 
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    width: '100%',
+                    padding: '0',
+                    margin: '0 0 4px 0',
+                    gap: '4px',
+                    flexWrap: 'nowrap',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div 
+                    className="slide-number"
+                    style={{
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      color: 'var(--text-secondary)',
+                      textAlign: 'left',
+                      minWidth: '20px',
+                      flexShrink: 0,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {index + 1}
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      flexShrink: 0,
+                      marginLeft: 'auto',
+                    }}
+                  >
+                    <button
+                      className="slide-delete"
+                      draggable="false"
+                      onClick={(e) => handleDeleteSlide(e, index)}
+                      title={slides.length === 1 ? "Reset slide" : "Delete slide"}
+                      style={{
+                        width: '18px',
+                        height: '18px',
+                        minWidth: '18px',
+                        borderRadius: '3px',
+                        background: 'rgba(0, 0, 0, 0.6)',
+                        color: 'white',
+                        border: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '0',
+                        margin: '0',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Trash2 size={10} />
+                    </button>
+                    <button
+                      className="slide-duplicate-btn"
+                      draggable="false"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDuplicateSlide(index);
+                      }}
+                      title="Duplicate slide"
+                      style={{
+                        width: '18px',
+                        height: '18px',
+                        minWidth: '18px',
+                        borderRadius: '3px',
+                        background: 'rgba(0, 0, 0, 0.6)',
+                        color: 'white',
+                        border: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '0',
+                        margin: '0',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <FiCopy size={10} />
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Thumbnail */}
                 <div 
                   className="slide-thumbnail"
                   style={{
@@ -152,6 +230,9 @@ const Sidebar = ({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    width: '100%',
+                    aspectRatio: '16 / 9',
+                    height: 'auto',
                   }}
                 >
                   {slide.thumbnail ? (
@@ -317,65 +398,6 @@ const Sidebar = ({
                     </div>
                   )}
                 </div>
-                <button
-                  className="slide-duplicate-btn"
-                  draggable="false"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDuplicateSlide(index);
-                  }}
-                  title="Duplicate slide"
-                  style={{
-                    position: 'absolute',
-                    bottom: '4px',
-                    left: '4px',
-                    width: '20px',
-                    height: '20px',
-                    borderRadius: '4px',
-                    background: 'rgba(0, 0, 0, 0.7)',
-                    color: 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    zIndex: 10,
-                    opacity: 0,
-                    transition: 'opacity 0.2s ease',
-                  }}
-                >
-                  <FiCopy size={12} />
-                </button>
-                <button
-                  className="slide-delete"
-                  draggable="false"
-                  onClick={(e) => handleDeleteSlide(e, index)}
-                  title={slides.length === 1 ? "Reset slide" : "Delete slide"}
-                  style={{
-                    position: 'absolute',
-                    top: '4px',
-                    left: '4px',
-                    width: '20px',
-                    height: '20px',
-                    borderRadius: '4px',
-                    background: 'rgba(0, 0, 0, 0.7)',
-                    color: 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    zIndex: 10,
-                    opacity: 0,
-                    transition: 'opacity 0.2s ease',
-                  }}
-                >
-                  <Trash2 size={12} />
-                </button>
               </div>
             ))}
           </div>

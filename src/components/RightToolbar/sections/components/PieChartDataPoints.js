@@ -1,5 +1,6 @@
 import React from 'react';
 import { Trash2 } from 'lucide-react';
+import ModernColorPicker from '../../shared/ModernColorPicker';
 
 /**
  * Component for pie chart data points editing
@@ -78,33 +79,13 @@ const PieChartDataPoints = ({
                   width: '100%'
                 }}
               />
-              <div style={{ position: 'relative', width: '20px', height: '20px' }}>
-                <input
-                  type="color"
-                  value={getBarColor(index)}
-                  onChange={(e) => handleBarColorChange(index, e.target.value)}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    opacity: 0,
-                    cursor: 'pointer',
-                    zIndex: 2
-                  }}
-                />
-                <div
-                  className="color-swatch-small"
-                  style={{
-                    backgroundColor: getBarColor(index),
-                    width: '20px',
-                    height: '20px',
-                    cursor: 'pointer',
-                    position: 'relative'
-                  }}
-                />
-              </div>
+              <ModernColorPicker
+                value={getBarColor(index)}
+                onColorSelect={(color) => handleBarColorChange(index, color)}
+                compact={true}
+                buttonSize="20px"
+                defaultColor={getBarColor(index)}
+              />
               <button
                 onClick={(e) => {
                   e.stopPropagation();

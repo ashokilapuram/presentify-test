@@ -53,11 +53,25 @@ const BarLineColorPalettes = ({ selectedElement, updateSlideElement }) => {
   return (
     <>
       <div className="section-title">Colour</div>
-      <div className="option-group" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div className="option-group" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {/* Colourful Palettes */}
         <div>
-          <div style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: 8 }}>Colourful</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          <div style={{ 
+            fontSize: '11px', 
+            fontWeight: '600', 
+            color: '#6b7280', 
+            marginBottom: 6,
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
+            Colourful
+          </div>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(2, 1fr)', 
+            gap: 5,
+            width: '100%'
+          }}>
             {colorfulPalettes.map((palette, paletteIndex) => (
               <div
                 key={`colorful-${paletteIndex}`}
@@ -65,20 +79,25 @@ const BarLineColorPalettes = ({ selectedElement, updateSlideElement }) => {
                 className="color-palette-item"
                 style={{
                   display: 'flex',
-                  gap: 2,
+                  gap: 1.5,
                   cursor: 'pointer',
-                  padding: '3px',
-                  borderRadius: 4,
+                  padding: '4px',
+                  borderRadius: 5,
                   border: '2px solid transparent',
+                  background: '#f9fafb',
                   transition: 'all 0.2s ease',
-                  flex: '0 0 calc(50% - 3px)',
-                  minWidth: 0
+                  width: '100%',
+                  justifyContent: 'center'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#e5e7eb';
+                  e.currentTarget.style.borderColor = '#000000';
+                  e.currentTarget.style.background = '#ffffff';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = 'transparent';
+                  e.currentTarget.style.background = '#f9fafb';
+                  e.currentTarget.style.boxShadow = 'none';
                 }}
               >
                 {palette.map((color, colorIndex) => (
@@ -86,12 +105,13 @@ const BarLineColorPalettes = ({ selectedElement, updateSlideElement }) => {
                     key={colorIndex}
                     className="color-swatch-palette"
                     style={{
-                      width: '16px',
-                      height: '16px',
+                      width: '14px',
+                      height: '14px',
                       backgroundColor: color,
-                      borderRadius: 2,
-                      border: '1px solid rgba(0,0,0,0.1)',
-                      flexShrink: 0
+                      borderRadius: 3,
+                      border: '1px solid rgba(0,0,0,0.08)',
+                      flexShrink: 0,
+                      boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
                     }}
                   />
                 ))}
@@ -102,8 +122,23 @@ const BarLineColorPalettes = ({ selectedElement, updateSlideElement }) => {
 
         {/* Monochromatic Palettes */}
         <div>
-          <div style={{ fontSize: '12px', fontWeight: '600', color: '#6b7280', marginBottom: 8 }}>Monochromatic</div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          <div style={{ 
+            fontSize: '11px', 
+            fontWeight: '600', 
+            color: '#6b7280', 
+            marginBottom: 6,
+            marginTop: 4,
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
+            Monochromatic
+          </div>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(2, 1fr)', 
+            gap: 5,
+            width: '100%'
+          }}>
             {monochromePalettes.map((palette, paletteIndex) => (
               <div
                 key={`mono-${paletteIndex}`}
@@ -111,20 +146,25 @@ const BarLineColorPalettes = ({ selectedElement, updateSlideElement }) => {
                 className="color-palette-item"
                 style={{
                   display: 'flex',
-                  gap: 2,
+                  gap: 1.5,
                   cursor: 'pointer',
-                  padding: '3px',
-                  borderRadius: 4,
+                  padding: '4px',
+                  borderRadius: 5,
                   border: '2px solid transparent',
+                  background: '#f9fafb',
                   transition: 'all 0.2s ease',
-                  flex: '0 0 calc(50% - 3px)',
-                  minWidth: 0
+                  width: '100%',
+                  justifyContent: 'center'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = '#e5e7eb';
+                  e.currentTarget.style.borderColor = '#000000';
+                  e.currentTarget.style.background = '#ffffff';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = 'transparent';
+                  e.currentTarget.style.background = '#f9fafb';
+                  e.currentTarget.style.boxShadow = 'none';
                 }}
               >
                 {palette.shades.map((color, colorIndex) => (
@@ -132,12 +172,13 @@ const BarLineColorPalettes = ({ selectedElement, updateSlideElement }) => {
                     key={colorIndex}
                     className="color-swatch-palette"
                     style={{
-                      width: '16px',
-                      height: '16px',
+                      width: '14px',
+                      height: '14px',
                       backgroundColor: color,
-                      borderRadius: 2,
-                      border: '1px solid rgba(0,0,0,0.1)',
-                      flexShrink: 0
+                      borderRadius: 3,
+                      border: '1px solid rgba(0,0,0,0.08)',
+                      flexShrink: 0,
+                      boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
                     }}
                   />
                 ))}

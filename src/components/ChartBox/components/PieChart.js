@@ -1,10 +1,10 @@
 import React from 'react';
-import { Group, Circle, Text } from 'react-konva';
+import { Group, Circle, Text, Shape } from 'react-konva';
 import * as d3 from 'd3';
 import PathLike from './PathLike';
 
 /**
- * Renders pie chart
+ * Renders pie chart with enhanced text rendering
  */
 const PieChart = ({ 
   data, 
@@ -20,6 +20,7 @@ const PieChart = ({
   const arcGen = d3.arc().innerRadius(0).outerRadius(radius);
   const cx = chartW / 2;
   const cy = chartH / 2 + 10;
+  const textColor = element.labelsColor || "#1f2937"; // Darker, richer color
   
   return pieGen.map((slice, i) => {
     const path = arcGen(slice);
@@ -54,15 +55,27 @@ const PieChart = ({
           fill={sliceColors[i]}
           listening={false}
         />
-        {/* Pie slice labels - on the left side */}
-        <Text
-          text={labels[i]}
-          x={labelX + (dotRadius * 2) + 8}
-          y={labelY}
-          fontSize={fontSize}
-          fill={element.labelsColor || "#374151"}
-          align="left"
-          fontStyle="bold"
+        {/* Pie slice labels with enhanced sharp rendering */}
+        <Shape
+          sceneFunc={(context, shape) => {
+            const text = labels[i];
+            const x = labelX + (dotRadius * 2) + 8;
+            const y = labelY;
+            
+            context.save();
+            
+            // Enable better text rendering
+            context.textAlign = 'left';
+            context.textBaseline = 'top';
+            context.font = `bold ${fontSize}px Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+            
+            // Draw text with rich color
+            context.fillStyle = textColor;
+            context.fillText(text, x, y);
+            
+            context.restore();
+            context.fillStrokeShape(shape);
+          }}
           listening={false}
         />
       </Group>

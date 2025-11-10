@@ -1,41 +1,36 @@
 import { useState, useCallback } from 'react';
 
 export const useSlideshow = (setCurrentSlideIndex, setSelectedElement) => {
-  const [isSlideshowOpen, setIsSlideshowOpen] = useState(false);
-  const [showFullScreenSlideshow, setShowFullScreenSlideshow] = useState(false);
+  const [isSlideshowActive, setIsSlideshowActive] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const startFullScreenSlideshow = useCallback(() => {
-    setShowFullScreenSlideshow(true);
-  }, []);
-
-  const closeFullScreenSlideshow = useCallback(() => {
-    setShowFullScreenSlideshow(false);
+  const startSlideshow = useCallback(() => {
+    setIsSlideshowActive(true);
   }, []);
 
   const stopSlideshow = useCallback(() => {
-    setIsSlideshowOpen(false);
+    setIsSlideshowActive(false);
+    setIsTransitioning(false);
+  }, []);
+
+  const startTransition = useCallback(() => {
+    setIsTransitioning(true);
   }, []);
 
   const handleSlideshowSlideChange = useCallback((newSlideIndex) => {
     setCurrentSlideIndex(newSlideIndex);
-    // Deselect element when changing slides
     setSelectedElement(null);
-    // Also clear text editing state
+    // Clear text editing state
     const clearEditingEvent = new CustomEvent('clearTextEditing');
     document.dispatchEvent(clearEditingEvent);
   }, [setCurrentSlideIndex, setSelectedElement]);
 
   return {
-    // State
-    isSlideshowOpen,
-    setIsSlideshowOpen,
-    showFullScreenSlideshow,
-    setShowFullScreenSlideshow,
-    
-    // Actions
-    startFullScreenSlideshow,
-    closeFullScreenSlideshow,
+    isSlideshowActive,
+    isTransitioning,
+    startSlideshow,
     stopSlideshow,
+    startTransition,
     handleSlideshowSlideChange
   };
 };

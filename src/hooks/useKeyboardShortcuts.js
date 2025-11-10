@@ -8,10 +8,38 @@ export const useKeyboardShortcuts = ({
   deleteElement,
   setTextFormatting,
   undo,
-  redo
+  redo,
+  isSlideshowActive,
+  onCloseSlideshow,
+  onToggleFullscreen,
+  onStartSlideshow
 }) => {
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Don't process any shortcuts if slideshow is active (let slideshow component handle it)
+      if (isSlideshowActive) {
+        return;
+      }
+
+      // Handle ESC key for regular fullscreen (not slideshow)
+      if (e.key === 'Escape') {
+        // If in fullscreen but not slideshow, exit fullscreen
+        if (document.fullscreenElement && onToggleFullscreen) {
+          e.preventDefault();
+          onToggleFullscreen();
+          return;
+        }
+      }
+
+      // Handle F5 to start slideshow
+      if (e.key === 'F5') {
+        e.preventDefault();
+        if (onStartSlideshow) {
+          onStartSlideshow();
+        }
+        return;
+      }
+
       if (e.ctrlKey || e.metaKey) {
         switch (e.key) {
           case 'n':
@@ -71,5 +99,5 @@ export const useKeyboardShortcuts = ({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [selectedElement, addSlide, addTextBox, updateSlideElement, deleteElement, setTextFormatting, undo, redo]);
+  }, [selectedElement, addSlide, addTextBox, updateSlideElement, deleteElement, setTextFormatting, undo, redo, isSlideshowActive, onCloseSlideshow, onToggleFullscreen, onStartSlideshow]);
 };

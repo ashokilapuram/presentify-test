@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { FiImage, FiDroplet } from 'react-icons/fi';
 import { Palette, Trash2 } from 'lucide-react';
 import SectionTitle from '../shared/SectionTitle';
+import ModernColorPicker from '../shared/ModernColorPicker';
 
 const DesignSection = ({ updateSlide, currentSlide }) => {
+  const colorPickerButtonRef = useRef(null);
+  
   const themes = [
     { id: 1, src: '/images/themes/theme1.jpg', alt: 'Theme 1' },
     { id: 2, src: '/images/themes/theme2.jpg', alt: 'Theme 2' },
@@ -122,40 +125,60 @@ const DesignSection = ({ updateSlide, currentSlide }) => {
           {/* Color Picker, Image Upload, and Delete */}
           <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', alignItems: 'center' }}>
             <div style={{ position: 'relative', width: '36px', height: '36px' }}>
-              <input
-                type="color"
-                value={currentSlide?.backgroundColor || '#ffffff'}
-                onChange={(e) => {
-                  e.stopPropagation();
-                  applyBackgroundColor(e.target.value);
-                }}
-                onClick={(e) => e.stopPropagation()}
+              <div style={{ position: 'absolute', top: 0, left: 0, width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+                <ModernColorPicker
+                  value={currentSlide?.backgroundColor || '#ffffff'}
+                  onColorSelect={(color) => {
+                    applyBackgroundColor(color);
+                  }}
+                  defaultColor="#ffffff"
+                  compact={true}
+                  quickColors={[]}
+                  buttonSize="0px"
+                  buttonStyle={{
+                    display: 'none',
+                    opacity: 0,
+                    position: 'absolute',
+                    pointerEvents: 'none',
+                    width: 0,
+                    height: 0
+                  }}
+                />
+              </div>
+              <div 
+                ref={colorPickerButtonRef}
                 data-design-section-color-picker="true"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Trigger the hidden ModernColorPicker button
+                  const mcpButton = e.currentTarget.parentElement.querySelector('.modern-color-picker > div');
+                  if (mcpButton) {
+                    // Update position before triggering
+                    if (colorPickerButtonRef.current) {
+                      const rect = colorPickerButtonRef.current.getBoundingClientRect();
+                      mcpButton.setAttribute('data-actual-left', rect.left.toString());
+                      mcpButton.setAttribute('data-actual-top', rect.top.toString());
+                      mcpButton.setAttribute('data-actual-bottom', rect.bottom.toString());
+                      mcpButton.setAttribute('data-actual-width', rect.width.toString());
+                    }
+                    mcpButton.click();
+                  }
+                }}
                 style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  opacity: 0,
+                  width: '36px',
+                  height: '36px',
+                  background: currentSlide?.backgroundColor || '#ffffff',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
                   cursor: 'pointer',
-                  zIndex: 2
+                  position: 'relative',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
                 title="Pick custom color"
-              />
-              <div style={{
-                width: '36px',
-                height: '36px',
-                background: '#ffffff',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                position: 'relative',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
+              >
                 <Palette size={16} />
               </div>
             </div>

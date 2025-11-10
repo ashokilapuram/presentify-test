@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 /**
  * Custom hook to manage chart animations
@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 export const useChartAnimations = (element, seriesData) => {
   const [animationProgress, setAnimationProgress] = useState(0);
   const [barAnimations, setBarAnimations] = useState({});
+  const prevDataRef = useRef({ seriesCount: 0, labelCount: 0 });
 
   // Individual bar animations
   useEffect(() => {
@@ -37,6 +38,7 @@ export const useChartAnimations = (element, seriesData) => {
   }, [element.chartType, seriesData]);
 
   // Animation (mount + update)
+  // For line charts, only animate on mount to prevent flickering during live updates
   useEffect(() => {
     let frame = 0;
     const total = 30;
@@ -45,8 +47,36 @@ export const useChartAnimations = (element, seriesData) => {
       setAnimationProgress(frame / total);
       if (frame < total) requestAnimationFrame(animate);
     };
-    animate();
-  }, [seriesData, element.labels]);
+    
+    // For line charts, check if this is a significant data change (structure change)
+    // Only restart animation if series count or label count changed
+    if (element.chartType === 'line') {
+      const currentSeriesCount = seriesData.length;
+      const currentLabelCount = element.labels?.length || 0;
+      const prevSeriesCount = prevDataRef.current.seriesCount;
+      const prevLabelCount = prevDataRef.current.labelCount;
+      
+      // Only animate if structure changed (new series or labels), not just values
+      if (currentSeriesCount !== prevSeriesCount || currentLabelCount !== prevLabelCount) {
+        prevDataRef.current.seriesCount = currentSeriesCount;
+        prevDataRef.current.labelCount = currentLabelCount;
+        // Set to 1 immediately to prevent flicker, or animate if it's a new structure
+        if (prevSeriesCount === 0 && prevLabelCount === 0) {
+          // First mount - animate
+          animate();
+        } else {
+          // Structure change - set to 1 immediately
+          setAnimationProgress(1);
+        }
+      } else {
+        // Just value changes - keep progress at 1
+        setAnimationProgress(1);
+      }
+    } else {
+      // For bar and pie charts, animate normally
+      animate();
+    }
+  }, [seriesData, element.labels, element.chartType]);
 
   // Animate individual bars
   useEffect(() => {

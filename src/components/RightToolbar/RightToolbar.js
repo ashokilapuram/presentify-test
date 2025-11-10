@@ -7,6 +7,7 @@ import TextOptions from './sections/TextOptions';
 import ShapeOptions from './sections/ShapeOptions';
 import ImageOptions from './sections/ImageOptions';
 import ChartOptions from './sections/ChartOptions';
+import TableOptions from './sections/TableOptions';
 
 const RightToolbar = ({ 
   selectedElement, 
@@ -19,6 +20,7 @@ const RightToolbar = ({
   addShape,
   addImage,
   addChart,
+  addTable,
   bringForward,
   bringToFront,
   sendBackward,
@@ -137,6 +139,21 @@ const RightToolbar = ({
       );
     }
 
+    if (selectedElement && selectedElement.type === 'table') {
+      return (
+        <TableOptions
+          selectedElement={selectedElement}
+          updateSlideElement={updateSlideElement}
+          bringForward={bringForward}
+          bringToFront={bringToFront}
+          sendBackward={sendBackward}
+          sendToBack={sendToBack}
+          updateSlide={updateSlide}
+          currentSlide={currentSlide}
+        />
+      );
+    }
+
     // Default tab-based sections
     switch (activeTab) {
       case 'Design':
@@ -148,6 +165,7 @@ const RightToolbar = ({
             addShape={addShape}
             addChart={addChart}
             addImage={addImage}
+            addTable={addTable}
           />
         );
       default:

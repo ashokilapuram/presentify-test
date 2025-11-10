@@ -14,7 +14,11 @@ const GeneralActions = ({
   onStartFullScreenSlideshow, 
   onDownloadPresentation, 
   onToggleFullscreen, 
-  onReset 
+  onReset,
+  zoom,
+  onZoomIn,
+  onZoomOut,
+  onResetZoom
 }) => {
   return (
     <>

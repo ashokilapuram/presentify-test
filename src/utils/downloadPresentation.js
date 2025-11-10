@@ -78,12 +78,34 @@ export const downloadPresentation = async (slides, currentSlideIndex) => {
               
             case 'shape':
               // Add shape element
+              // Convert hex to rgba with opacity if needed
+              let fillColor = element.fillColor || '#2d9cdb';
+              if (element.fillOpacity !== undefined && element.fillOpacity < 1) {
+                // Convert hex to rgba
+                const hexToRgba = (hex, opacity) => {
+                  if (!hex || hex === 'transparent') return `rgba(0, 0, 0, ${opacity})`;
+                  const colorHex = hex.startsWith('#') ? hex.slice(1) : hex;
+                  let r, g, b;
+                  if (colorHex.length === 3) {
+                    r = parseInt(colorHex[0] + colorHex[0], 16);
+                    g = parseInt(colorHex[1] + colorHex[1], 16);
+                    b = parseInt(colorHex[2] + colorHex[2], 16);
+                  } else {
+                    r = parseInt(colorHex.slice(0, 2), 16);
+                    g = parseInt(colorHex.slice(2, 4), 16);
+                    b = parseInt(colorHex.slice(4, 6), 16);
+                  }
+                  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+                };
+                fillColor = hexToRgba(element.fillColor || '#2d9cdb', element.fillOpacity);
+              }
+              
               const shapeProps = {
                 x: (element.x / 800) * 10,
                 y: (element.y / 450) * 5.625,
                 w: (element.width / 800) * 10,
                 h: (element.height / 450) * 5.625,
-                fill: { color: element.fillColor || '#2d9cdb' },
+                fill: { color: fillColor },
                 line: { 
                   color: element.borderColor || '#1e7bb8', 
                   width: Math.max(0.1, (element.borderWidth || 2) * 0.1) // Convert px to inches
@@ -146,6 +168,49 @@ export const downloadPresentation = async (slides, currentSlideIndex) => {
                 fill: { color: '#f3f4f6' },
                 line: { color: '#9ca3af', width: 0.1, dashType: 'dash' }
               });
+              break;
+              
+            case 'table':
+              // Add table element
+              try {
+                if (element.data && element.data.length > 0) {
+                  const tableData = element.data.map(row =>
+                    row.map(cell => ({
+                      text: cell.text || '',
+                      options: {
+                        fill: { color: cell.bgColor || '#ffffff' },
+                        color: cell.textColor || '#000000',
+                        fontSize: cell.fontSize || 14,
+                        bold: cell.fontWeight === 'bold',
+                        italic: cell.fontStyle === 'italic',
+                        align: cell.align || 'left'
+                      }
+                    }))
+                  );
+                  
+                  pptxSlide.addTable(tableData, {
+                    x: (element.x / 800) * 10,
+                    y: (element.y / 450) * 5.625,
+                    w: (element.width / 800) * 10,
+                    h: (element.height / 450) * 5.625,
+                    border: { type: 'solid', color: '#cccccc', pt: 1 }
+                  });
+                }
+              } catch (error) {
+                console.warn('Could not add table:', error);
+                // Add placeholder text instead
+                pptxSlide.addText('Table', {
+                  x: (element.x / 800) * 10,
+                  y: (element.y / 450) * 5.625,
+                  w: (element.width / 800) * 10,
+                  h: (element.height / 450) * 5.625,
+                  fontSize: 12,
+                  color: '#666666',
+                  align: 'center',
+                  valign: 'middle',
+                  fill: { color: '#f0f0f0' }
+                });
+              }
               break;
           }
         } catch (elementError) {
@@ -213,6 +278,23 @@ const generatePresentationHTML = (slides) => {
             ">${element.content}</div>
           `;
         case 'shape':
+          // Convert hex to rgba with opacity if needed
+          let shapeFillColor = element.fillColor || '#2d9cdb';
+          if (element.fillOpacity !== undefined && element.fillOpacity < 1) {
+            const hex = shapeFillColor.startsWith('#') ? shapeFillColor.slice(1) : shapeFillColor;
+            let r, g, b;
+            if (hex.length === 3) {
+              r = parseInt(hex[0] + hex[0], 16);
+              g = parseInt(hex[1] + hex[1], 16);
+              b = parseInt(hex[2] + hex[2], 16);
+            } else {
+              r = parseInt(hex.slice(0, 2), 16);
+              g = parseInt(hex.slice(2, 4), 16);
+              b = parseInt(hex.slice(4, 6), 16);
+            }
+            shapeFillColor = `rgba(${r}, ${g}, ${b}, ${element.fillOpacity})`;
+          }
+          
           return `
             <div style="
               position: absolute;
@@ -220,8 +302,8 @@ const generatePresentationHTML = (slides) => {
               top: ${element.y}px;
               width: ${element.width}px;
               height: ${element.height}px;
-              background-color: ${element.fillColor || '#2d9cdb'};
-              border: ${element.borderWidth || 2}px solid ${element.borderColor || '#1e7bb8'};
+              background-color: ${shapeFillColor};
+              border: ${element.borderWidth || 0}px solid ${element.borderColor || 'transparent'};
               border-radius: ${element.shapeType === 'circle' ? '50%' : '0'};
             "></div>
           `;

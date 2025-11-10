@@ -1,5 +1,5 @@
 import React from 'react';
-import { Group, Rect, Text } from 'react-konva';
+import { Group, Rect, Text, Shape } from 'react-konva';
 
 /**
  * Renders series legend below X-axis labels inside chart container
@@ -107,18 +107,43 @@ const ChartLegend = ({
           cornerRadius={2}
           listening={false}
         />
-        {/* Series name */}
-        <Text
-          x={legendX + 14}
-          y={legendY}
-          text={series.name || `Series ${index + 1}`}
-          fontSize={10}
-          fill={labelsColor || "#374151"}
-          fontFamily="Inter"
-          align="left"
+        {/* Series name with enhanced sharp rendering */}
+        <Shape
+          sceneFunc={(context, shape) => {
+            const text = series.name || `Series ${index + 1}`;
+            const x = legendX + 14;
+            const y = legendY;
+            const fontSize = 13;
+            const textColor = labelsColor || "#1f2937"; // Darker, richer color
+            
+            context.save();
+            
+            // Enable better text rendering
+            context.textAlign = 'left';
+            context.textBaseline = 'top';
+            context.font = `bold ${fontSize}px Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+            
+            // Measure text and handle ellipsis
+            let displayText = text;
+            const maxWidth = minItemWidth;
+            const textMetrics = context.measureText(text);
+            if (textMetrics.width > maxWidth) {
+              // Truncate with ellipsis
+              let truncated = text;
+              while (context.measureText(truncated + '...').width > maxWidth && truncated.length > 0) {
+                truncated = truncated.slice(0, -1);
+              }
+              displayText = truncated + '...';
+            }
+            
+            // Draw text with rich color
+            context.fillStyle = textColor;
+            context.fillText(displayText, x, y);
+            
+            context.restore();
+            context.fillStrokeShape(shape);
+          }}
           listening={false}
-          width={minItemWidth}
-          ellipsis={true}
         />
       </Group>
     );

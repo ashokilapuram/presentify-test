@@ -18,9 +18,15 @@ const ChartOptions = ({
   currentSlide
 }) => {
   const [isDataModalOpen, setIsDataModalOpen] = useState(false);
+  const [modalInitialPosition, setModalInitialPosition] = useState(null);
   
   const handleSaveData = (updates) => {
     updateSlideElement(selectedElement.id, updates);
+  };
+
+  const handleEditDataClick = (position) => {
+    setModalInitialPosition(position);
+    setIsDataModalOpen(true);
   };
 
   // Helper functions that use the selectedElement
@@ -34,7 +40,7 @@ const ChartOptions = ({
       <ChartNameInput
         selectedElement={selectedElement}
         updateSlideElement={updateSlideElement}
-        onEditDataClick={() => setIsDataModalOpen(true)}
+        onEditDataClick={handleEditDataClick}
       />
 
       {/* Data points - Only for pie charts */}
@@ -77,9 +83,13 @@ const ChartOptions = ({
 
       <ChartDataModal
         isOpen={isDataModalOpen}
-        onClose={() => setIsDataModalOpen(false)}
+        onClose={() => {
+          setIsDataModalOpen(false);
+          setModalInitialPosition(null);
+        }}
         element={selectedElement}
         onSave={handleSaveData}
+        initialPosition={modalInitialPosition}
       />
     </div>
   );

@@ -307,6 +307,114 @@ export const useSlides = () => {
     setSelectedElement(newChart);
   }, [slides, selectedElement, currentSlideIndex]);
 
+  const addTable = useCallback((onSnapshot, style = 'default') => {
+    onSnapshot({ slides, selectedElement, currentSlideIndex });
+
+    const rows = 4; // 1 header + 3 data rows
+    const cols = 4;
+    const cellWidth = 100;
+    const cellHeight = 40;
+    const width = cols * cellWidth;
+    const height = rows * cellHeight;
+
+    // Table style definitions
+    const tableStyles = {
+      default: {
+        header: { bgColor: "#ffffff", textColor: "#000000", borderColor: "#FFFFFF", fontWeight: "bold" },
+        row1: { bgColor: "#f5f5f5", textColor: "#000000", borderColor: "#FFFFFF" },
+        row2: { bgColor: "#e8e8e8", textColor: "#000000", borderColor: "#FFFFFF" },
+        row3: { bgColor: "#f5f5f5", textColor: "#000000", borderColor: "#FFFFFF" }
+      },
+      orange: {
+        header: { bgColor: "#FF6B35", textColor: "#ffffff", borderColor: "#FFFFFF", fontWeight: "bold" },
+        row1: { bgColor: "#FFE5D9", textColor: "#000000", borderColor: "#FFFFFF" },
+        row2: { bgColor: "#FFF0E6", textColor: "#000000", borderColor: "#FFFFFF" },
+        row3: { bgColor: "#FFE5D9", textColor: "#000000", borderColor: "#FFFFFF" }
+      },
+      grey: {
+        header: { bgColor: "#6C757D", textColor: "#ffffff", borderColor: "#FFFFFF", fontWeight: "bold" },
+        row1: { bgColor: "#E9ECEF", textColor: "#000000", borderColor: "#FFFFFF" },
+        row2: { bgColor: "#F5F6F7", textColor: "#000000", borderColor: "#FFFFFF" },
+        row3: { bgColor: "#E9ECEF", textColor: "#000000", borderColor: "#FFFFFF" }
+      },
+      yellow: {
+        header: { bgColor: "#FFC000", textColor: "#000000", borderColor: "#FFFFFF", fontWeight: "bold" },
+        row1: { bgColor: "#FFF2CC", textColor: "#000000", borderColor: "#FFFFFF" },
+        row2: { bgColor: "#FFF9E6", textColor: "#000000", borderColor: "#FFFFFF" },
+        row3: { bgColor: "#FFF2CC", textColor: "#000000", borderColor: "#FFFFFF" }
+      },
+      blue: {
+        header: { bgColor: "#2196F3", textColor: "#ffffff", borderColor: "#FFFFFF", fontWeight: "bold" },
+        row1: { bgColor: "#BBDEFB", textColor: "#000000", borderColor: "#FFFFFF" },
+        row2: { bgColor: "#E3F2FD", textColor: "#000000", borderColor: "#FFFFFF" },
+        row3: { bgColor: "#BBDEFB", textColor: "#000000", borderColor: "#FFFFFF" }
+      }
+    };
+
+    const selectedStyle = tableStyles[style] || tableStyles.default;
+
+    // Initialize table data with style
+    const initialData = Array(rows).fill(null).map((_, rowIndex) =>
+      Array(cols).fill(null).map(() => {
+        let cellStyle;
+        if (rowIndex === 0) {
+          // Header row
+          cellStyle = selectedStyle.header;
+        } else if (rowIndex === 1) {
+          // First data row
+          cellStyle = selectedStyle.row1;
+        } else if (rowIndex === 2) {
+          // Second data row
+          cellStyle = selectedStyle.row2;
+        } else {
+          // Third data row
+          cellStyle = selectedStyle.row3;
+        }
+
+        return {
+          text: "",
+          bgColor: cellStyle.bgColor,
+          textColor: cellStyle.textColor,
+          borderColor: cellStyle.borderColor,
+          borderWidth: 2,
+          fontSize: 14,
+          fontFamily: "Arial",
+          fontWeight: cellStyle.fontWeight || "normal",
+          fontStyle: "normal",
+          textDecoration: "none",
+          align: "left"
+        };
+      })
+    );
+
+    const newTable = {
+      id: uuidv4(),
+      type: 'table',
+      x: 150,
+      y: 150,
+      width,
+      height,
+      rows,
+      cols,
+      cellWidth,
+      cellHeight,
+      data: initialData
+    };
+
+    setSlides(prev => prev.map((slide, index) => {
+      if (index === currentSlideIndex) {
+        return {
+          ...slide,
+          elements: [...slide.elements, newTable]
+        };
+      }
+      return slide;
+    }));
+    
+    // Automatically select the newly added element
+    setSelectedElement(newTable);
+  }, [slides, selectedElement, currentSlideIndex]);
+
   // Layer reordering for elements
   const bringForward = useCallback((elementId, onSnapshot) => {
     onSnapshot({ slides, selectedElement, currentSlideIndex });
@@ -389,6 +497,7 @@ export const useSlides = () => {
     addShape,
     addImage,
     addChart,
+    addTable,
     
     // Layer ordering
     bringForward,

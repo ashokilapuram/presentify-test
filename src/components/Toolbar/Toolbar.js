@@ -21,36 +21,19 @@ const Toolbar = ({
   slides,
   onBackToLanding,
   setShowDragMessage,
-  onReset
+  onReset,
+  zoom,
+  onZoomIn,
+  onZoomOut,
+  onResetZoom,
+  onToggleFullscreen,
+  isFullscreen
 }) => {
   const [viewMode, setViewMode] = useState('normal');
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
   const [activeDropdown, setActiveDropdown] = useState(null);
 
   const fontSizes = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60, 80, 120, 200];
-
-  // Listen for fullscreen changes
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
-
-  const toggleFullscreen = async () => {
-    try {
-      if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen();
-      } else {
-        await document.exitFullscreen();
-      }
-    } catch (error) {
-      console.error('Fullscreen toggle failed:', error);
-    }
-  };
 
   // 🔄 Keep toolbar in sync when a new textbox is selected
   useEffect(() => {
@@ -238,8 +221,12 @@ const Toolbar = ({
             onRedo={onRedo}
             onStartFullScreenSlideshow={onStartFullScreenSlideshow}
             onDownloadPresentation={onDownloadPresentation}
-            onToggleFullscreen={toggleFullscreen}
+            onToggleFullscreen={onToggleFullscreen}
             onReset={onReset}
+            zoom={zoom}
+            onZoomIn={onZoomIn}
+            onZoomOut={onZoomOut}
+            onResetZoom={onResetZoom}
           />
         </div>
       </div>
