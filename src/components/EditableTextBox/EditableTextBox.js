@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import { Text, Transformer, Rect } from "react-konva";
 import { Html } from "react-konva-utils";
+import Konva from "konva";
 
 // Utility function to normalize list text - removes all existing markers before applying new ones
 function normalizeListText(text, newType) {
@@ -57,6 +58,8 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
   const lastFormattedListTypeRef = useRef(null);
   const originalYPositionRef = useRef(null);
   const originalRotationRef = useRef(null);
+  const canvasReadyRef = useRef(false);
+  const animationRef = useRef(null);
 
   // Force Transformer to refresh after selection re-apply
   const forceTransformerRefresh = useCallback(() => {
@@ -85,6 +88,68 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
       textRef.current.getLayer().batchDraw();
     }
   }, [element.fontWeight, element.fontStyle, element.fontSize, element.fontFamily]);
+
+  // Handle text animation in slideshow mode
+  useEffect(() => {
+    if (!readOnly || !textRef.current) return;
+
+    // Ensure cleanup of previous animation
+    if (animationRef.current) {
+      animationRef.current.stop();
+      animationRef.current = null;
+    }
+
+    // Wait for canvas to be ready
+    const layer = textRef.current.getLayer();
+    if (!layer) return;
+
+    layer.draw(); // Force initial draw
+    canvasReadyRef.current = true;
+
+    // Initial position (50px below target position)
+    const targetY = element.y;
+    textRef.current.y(targetY + 50);
+    // Only animate background if it exists
+    if (backgroundRef.current && (element.backgroundColor || element.borderWidth > 0)) {
+      backgroundRef.current.y(targetY + 50);
+    }
+
+    // Create and start the animation
+    animationRef.current = new Konva.Animation((frame) => {
+      if (!frame) return;
+
+      const progress = Math.min(1, frame.time / 500); // 500ms duration
+      const ease = 0.5 - Math.cos(progress * Math.PI) / 2; // Smooth easing
+      const currentY = targetY + 50 * (1 - ease);
+
+      textRef.current.y(currentY);
+      // Only animate background if it exists and is visible
+      if (backgroundRef.current && (element.backgroundColor || element.borderWidth > 0)) {
+        backgroundRef.current.y(currentY);
+      }
+
+      if (progress >= 1) {
+        animationRef.current.stop();
+      }
+    }, layer);
+
+    animationRef.current.start();
+
+    return () => {
+      if (animationRef.current) {
+        animationRef.current.stop();
+        animationRef.current = null;
+      }
+      // Reset position on cleanup
+      if (textRef.current) {
+        textRef.current.y(targetY);
+      }
+      // Only reset background if it exists and is visible
+      if (backgroundRef.current && (element.backgroundColor || element.borderWidth > 0)) {
+        backgroundRef.current.y(targetY);
+      }
+    };
+  }, [readOnly, element.y]);
 
   // Keep value synced with slide element, but NOT while editing
   useEffect(() => {
@@ -607,7 +672,7 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
               transform: `rotate(${element.rotation || 0}deg)`,
               transformOrigin: "top left",
             }}
-            defaultValue={value} // 🧠 key difference
+            defaultValue={normalizeListText(value || element.content || "", element.listType || 'none')}
             onInput={(e) => {
               // Auto-resize textarea to fit content
               e.target.style.height = 'auto';

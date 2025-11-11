@@ -3,10 +3,49 @@ import { useState, useEffect } from 'react';
 /**
  * Custom hook to handle modal dragging functionality
  */
-export const useModalDrag = (isOpen, modalRef) => {
-  const [position, setPosition] = useState(null); // null means use default centering
+export const useModalDrag = (isOpen, modalRef, initialPosition) => {
+  const [position, setPosition] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+
+  // Set initial position only on first open
+  useEffect(() => {
+    if (isOpen && modalRef.current && initialPosition && !position) {
+      const modal = modalRef.current;
+      const modalWidth = modal.offsetWidth;
+      const modalHeight = modal.offsetHeight;
+      const padding = 16;
+      
+      // Calculate initial position (below the button)
+      let x = initialPosition.x - (modalWidth / 2) + (initialPosition.width / 2);
+      let y = initialPosition.y + initialPosition.height + 8; // 8px gap below button
+      
+      // Adjust position to stay within viewport
+      // Right edge check
+      if (x + modalWidth > window.innerWidth - padding) {
+        x = window.innerWidth - modalWidth - padding;
+      }
+      // Left edge check
+      if (x < padding) {
+        x = padding;
+      }
+      // Bottom edge check
+      if (y + modalHeight > window.innerHeight - padding) {
+        // If not enough space below, try above the button
+        if (initialPosition.y - modalHeight > padding) {
+          y = initialPosition.y - modalHeight - 8; // 8px gap above button
+        } else {
+          y = window.innerHeight - modalHeight - padding;
+        }
+      }
+      // Top edge check
+      if (y < padding) {
+        y = padding;
+      }
+      
+      setPosition({ x, y });
+    }
+  }, [isOpen, modalRef, initialPosition]);
 
   // Handle drag functionality
   const handleMouseDown = (e) => {

@@ -10,14 +10,18 @@ import ModalHeader from './components/ModalHeader';
 import DataTable from './components/DataTable';
 import ActionsBar from './components/ActionsBar';
 
-const ChartDataModal = ({ isOpen, onClose, element, onSave }) => {
+const ChartDataModal = ({ isOpen, onClose, element, onSave, initialPosition }) => {
   const modalRef = useRef(null);
 
   // Initialize data from element
   const { labels, series, setLabels, setSeries } = useDataInitialization(isOpen, element);
 
-  // Handle modal dragging
-  const { position, setPosition, isDragging, handleMouseDown } = useModalDrag(isOpen, modalRef);
+  // Handle modal dragging with initial position
+  const { position, setPosition, isDragging, handleMouseDown } = useModalDrag(
+    isOpen, 
+    modalRef,
+    initialPosition
+  );
 
   // Handle modal resizing
   const { modalHeight, isResizing, handleResizeMouseDown, setIsResizing } = useModalResize(

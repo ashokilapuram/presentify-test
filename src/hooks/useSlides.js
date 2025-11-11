@@ -211,8 +211,8 @@ export const useSlides = () => {
       width: 100,
       height: 100,
       fillColor: '#2d9cdb',
-      borderColor: '#1e7bb8',
-      borderWidth: 2
+      borderColor: 'transparent',
+      borderWidth: 0
     };
 
     setSlides(prev => prev.map((slide, index) => {

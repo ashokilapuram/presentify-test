@@ -14,30 +14,15 @@ const ChartNameInput = ({
   const handleEditDataClick = (e) => {
     e.stopPropagation();
     if (editDataButtonRef.current && onEditDataClick) {
-      const rect = editDataButtonRef.current.getBoundingClientRect();
-      const modalWidth = 510; // Approximate modal width
-      const modalHeight = 320; // Height for 4 rows
-      const padding = 20;
+      const buttonRect = editDataButtonRef.current.getBoundingClientRect();
       
-      let x = rect.left;
-      let y = rect.bottom + 8;
-      
-      // Ensure modal stays within viewport
-      if (x + modalWidth > window.innerWidth - padding) {
-        x = window.innerWidth - modalWidth - padding;
-      }
-      if (x < padding) {
-        x = padding;
-      }
-      if (y + modalHeight > window.innerHeight - padding) {
-        y = window.innerHeight - modalHeight - padding;
-      }
-      if (y < padding) {
-        y = padding;
-      }
-      
-      // Pass position to parent component
-      onEditDataClick({ x, y });
+      // Pass the button's position and dimensions for accurate modal positioning
+      onEditDataClick({
+        x: buttonRect.left,
+        y: buttonRect.top,
+        width: buttonRect.width,
+        height: buttonRect.height
+      });
     } else if (onEditDataClick) {
       onEditDataClick(null);
     }

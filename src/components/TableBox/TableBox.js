@@ -40,7 +40,9 @@ const EditableCell = ({
       setTimeout(() => {
         if (textareaRef.current) {
           textareaRef.current.focus();
-          textareaRef.current.select();
+          // Place cursor at the end of text
+          const length = textareaRef.current.value.length;
+          textareaRef.current.setSelectionRange(length, length);
         }
       }, 10);
     }
@@ -306,7 +308,9 @@ const TableBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
       setTimeout(() => {
         if (textareaRef.current) {
           textareaRef.current.focus();
-          textareaRef.current.select();
+          // Place cursor at the end of text
+          const length = textareaRef.current.value.length;
+          textareaRef.current.setSelectionRange(length, length);
         }
       }, 10);
     }
@@ -344,24 +348,29 @@ const TableBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
             ref={textareaRef}
             style={{
               position: "absolute",
-              top: element.y + editingCellY + padding,
-              left: element.x + editingCellX + padding,
-              width: cellWidth - padding * 2,
-              height: cellHeight - padding * 2,
-              fontSize: 16, // Always use fontSize 16 when editing
+              top: element.y + editingCellY,
+              left: element.x + editingCellX,
+              width: cellWidth,
+              height: cellHeight,
+              fontSize: (editingCellStyle.fontSize || 14) * stageScale,
               fontFamily: editingCellStyle.fontFamily || "Arial",
               fontWeight: editingCellStyle.fontWeight || "normal",
               fontStyle: editingCellStyle.fontStyle || "normal",
               textDecoration: editingCellStyle.textDecoration || "none",
               color: editingCellStyle.textColor || "#000000",
               background: editingCellStyle.bgColor || "#ffffff",
-              border: "2px solid #0066cc",
+              border: `${(editingCellStyle.borderWidth || 1) * stageScale}px solid ${editingCellStyle.borderColor || "#cccccc"}`,
               outline: "none",
               resize: "none",
-              padding: "4px",
+              padding: `${padding}px`,
+              margin: 0,
               boxSizing: "border-box",
               textAlign: editingCellStyle.align || "left",
               zIndex: 1000,
+              borderRadius: 0,
+              lineHeight: "normal",
+              display: "flex",
+              alignItems: "center",
             }}
             value={editingValue}
             onChange={(e) => {
@@ -382,6 +391,13 @@ const TableBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
               });
               onChange({ data: newData });
               setEditingCell(null);
+              // Force refresh transformer after editing
+              if (transformerRef.current && groupRef.current) {
+                setTimeout(() => {
+                  transformerRef.current.nodes([groupRef.current]);
+                  transformerRef.current.getLayer().batchDraw();
+                }, 0);
+              }
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
@@ -399,7 +415,34 @@ const TableBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
                   return row;
                 });
                 onChange({ data: newData });
-                setEditingCell(null);
+
+                // Calculate next cell position
+                let nextRow = editingCell.row;
+                let nextCol = editingCell.col + 1;
+
+                // If we're at the end of the row, move to the next row
+                if (nextCol >= cols) {
+                  nextCol = 0;
+                  nextRow++;
+                }
+
+                // If we haven't reached the last cell of the table
+                if (nextRow < rows) {
+                  // Move to next cell
+                  const nextCellData = data[nextRow]?.[nextCol];
+                  setEditingCell({ row: nextRow, col: nextCol });
+                  setEditingValue(nextCellData?.text || "");
+                } else {
+                  // If we're at the last cell, just close editing
+                  setEditingCell(null);
+                  // Force refresh transformer after editing
+                  if (transformerRef.current && groupRef.current) {
+                    setTimeout(() => {
+                      transformerRef.current.nodes([groupRef.current]);
+                      transformerRef.current.getLayer().batchDraw();
+                    }, 0);
+                  }
+                }
               } else if (e.key === "Escape") {
                 setEditingCell(null);
                 setEditingValue(editingCellData?.text || "");
