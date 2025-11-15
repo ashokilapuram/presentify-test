@@ -72,7 +72,8 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(element.content || "");
   const [isTransforming, setIsTransforming] = useState(false);
-  const [cursorPosition, setCursorPosition] = useState(null);
+  const userHasInteractedRef = useRef(false);
+  // Removed cursorPosition state as it was complex and likely caused the bug
 
   // Attach transformer when selected
   useEffect(() => {
@@ -88,6 +89,38 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
       textRef.current.getLayer().batchDraw();
     }
   }, [element.fontWeight, element.fontStyle, element.fontSize, element.fontFamily]);
+
+  // If formatting/appearance changes while this element is selected (for example
+  // via a toolbar that updates fontWeight/color/size), ensure the Transformer
+  // is re-attached and redrawn so resize handles remain visible. We don't
+  // depend on isSelected toggling here because formatting updates often happen
+  // while selection is already true.
+  useEffect(() => {
+    if (isSelected && !isEditing) {
+      try {
+        forceTransformerRefresh();
+      } catch (err) {
+        console.error('Error refreshing transformer after formatting change:', err);
+      }
+    }
+    // Intentionally include commonly changed element appearance props
+  }, [
+    isSelected,
+    isEditing,
+    element.fontWeight,
+    element.fontStyle,
+    element.fontSize,
+    element.fontFamily,
+    element.color,
+    element.width,
+    element.height,
+    element.textAlign,
+    element.rotation,
+    element.strokeWidth,
+    element.strokeColor,
+    element.letterSpacing,
+    element.lineHeight,
+  ]);
 
   // Handle text animation in slideshow mode
   useEffect(() => {
@@ -195,32 +228,45 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
 
   // When you enter editing mode - handle focus and cursor
   useEffect(() => {
-    if (isEditing && textareaRef.current) {
+    if (isEditing && textareaRef.current && !userHasInteractedRef.current) {
       const ta = textareaRef.current;
-      // Grab focus immediately
+      
+      // Only set cursor to end if user hasn't interacted yet (i.e., just entered edit mode)
+      const setCursorToEnd = () => {
+        if (userHasInteractedRef.current) return; // Don't force if user has interacted
+        const len = ta.value.length;
+        try {
+          // Set selection range to the end to force cursor position
+          ta.setSelectionRange(len, len);
+        } catch (e) {
+          // In case setSelectionRange fails in some environments
+          console.error("Failed to set selection range:", e);
+        }
+      };
+      
+      // Set cursor position first, then focus
+      setCursorToEnd();
       ta.focus({ preventScroll: true });
       
-      // Only set cursor to end for new textboxes, preserve position for existing text
-      if (element.content === 'Click to edit text') {
-        // Defer selection to next frame so browser finishes focusing first
-        requestAnimationFrame(() => {
-          const len = ta.value.length;
-          try {
-            ta.setSelectionRange(len, len);
-          } catch {}
-        });
-      } else {
-        // For existing text, restore cursor position if we have one
-        if (cursorPosition !== null) {
-          requestAnimationFrame(() => {
-            try {
-              ta.setSelectionRange(cursorPosition, cursorPosition);
-            } catch {}
-          });
+      // Try again after focus to ensure it sticks (but only if user hasn't interacted)
+      requestAnimationFrame(() => {
+        if (!userHasInteractedRef.current) {
+          setCursorToEnd();
+          // Try multiple times to override browser default behavior
+          setTimeout(() => {
+            if (!userHasInteractedRef.current) {
+              setCursorToEnd();
+              setTimeout(() => {
+                if (!userHasInteractedRef.current) {
+                  setCursorToEnd();
+                }
+              }, 20);
+            }
+          }, 10);
         }
-      }
+      });
     }
-  }, [isEditing, element.content, cursorPosition]);
+  }, [isEditing]); // Only dependent on isEditing
 
   // Simple auto-resize textarea based on content
   const autoResize = useCallback(() => {
@@ -252,6 +298,23 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
     }
   }, [element.fontSize, element.fontWeight, element.fontStyle, element.fontFamily, value, element.width, onChange, isEditing, isTransforming]);
 
+  const handleBlur = () => {
+    // Strip markers before saving
+    const contentToSave = stripListMarkers(textareaRef.current?.value || value);
+    // Update local value state immediately to prevent flicker when switching from textarea to Text
+    setValue(contentToSave);
+    // Set editing lock to prevent value sync effect from overwriting during transition
+    editingLockRef.current = true;
+    setIsEditing(false);
+    // Reset user interaction flag when exiting edit mode
+    userHasInteractedRef.current = false;
+    onChange({ ...element, content: contentToSave });
+    // Release lock after a brief delay to allow parent update to complete
+    setTimeout(() => {
+      editingLockRef.current = false;
+    }, 0);
+  };
+  
   const handleDblClick = (e) => {
     // Don't allow editing in read-only mode (e.g., slideshow)
     if (readOnly) {
@@ -261,19 +324,14 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
       }
       return;
     }
-    // Capture cursor position before entering edit mode
-    if (textareaRef.current) {
-      const ta = textareaRef.current;
-      const pos = ta.selectionStart || 0;
-      setCursorPosition(pos);
+    // Prevent default double-click text selection
+    if (e.evt) {
+      e.evt.preventDefault();
     }
+    // Reset user interaction flag when entering edit mode via double-click
+    userHasInteractedRef.current = false;
+    // This is the core fix: simply set the state
     setIsEditing(true);
-  };
-
-  const handleBlur = () => {
-    editingLockRef.current = false;
-    setIsEditing(false);
-    onChange({ ...element, content: value });
   };
 
   const handleKeyDown = (e) => {
@@ -293,6 +351,7 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
           onChange({ ...element, textDecoration: element.textDecoration === 'underline' ? 'none' : 'underline' });
           break;
         case 'Enter':
+          // Ctrl/Meta + Enter finishes editing
           e.preventDefault();
           handleBlur();
           break;
@@ -300,19 +359,95 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
           break;
       }
     } else if (e.key === 'Escape') {
+      // Escape reverts to original content and exits
       setIsEditing(false);
       setValue(element.content || "");
     } else if (e.key === 'Tab') {
       // Tab key finishes editing
       e.preventDefault();
       handleBlur();
-    } else if (e.key === 'Enter' && e.shiftKey) {
-      // Shift+Enter creates a new line (default behavior)
-      // Don't prevent default, let the textarea handle it
-    } else if (e.key === 'Enter' && !e.shiftKey) {
-      // Only Ctrl+Enter should finish editing, not regular Enter
-      // Let Enter create new lines by default
-      // Don't prevent default or call handleBlur
+    } else if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey) {
+      // Handle Enter key for bullets/numbers
+      const listType = element.listType || 'none';
+      if (listType === 'bullet' || listType === 'number') {
+        const textarea = e.target;
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = textarea.value;
+        
+        // Get the current line
+        const textBeforeCursor = text.substring(0, start);
+        const textAfterCursor = text.substring(end);
+        const lines = textBeforeCursor.split('\n');
+        const currentLine = lines[lines.length - 1];
+        
+        // Check if current line has a bullet or number
+        const hasBullet = /^[\u2022•]\s*/.test(currentLine);
+        const hasNumber = /^\d+\.\s*/.test(currentLine);
+        
+        // If current line has a marker, add one to the new line
+        if ((listType === 'bullet' && hasBullet) || (listType === 'number' && hasNumber)) {
+          e.preventDefault();
+          
+          // Find where the current line starts in the full text
+          const lastNewlineIndex = textBeforeCursor.lastIndexOf('\n');
+          const lineStartIndex = lastNewlineIndex + 1;
+          
+          // Get the marker from current line
+          let markerLength = 0;
+          if (listType === 'bullet') {
+            const bulletMatch = currentLine.match(/^[\u2022•]\s*/);
+            markerLength = bulletMatch ? bulletMatch[0].length : 0;
+          } else {
+            const numberMatch = currentLine.match(/^\d+\.\s*/);
+            markerLength = numberMatch ? numberMatch[0].length : 0;
+          }
+          
+          // Calculate position within line content (excluding marker)
+          const positionInLine = start - lineStartIndex;
+          const positionInContent = Math.max(0, positionInLine - markerLength);
+          
+          // Get line content without marker
+          const lineContent = currentLine.substring(markerLength);
+          const contentBeforeCursor = lineContent.substring(0, positionInContent);
+          const contentAfterCursor = lineContent.substring(positionInContent);
+          
+          // Build new text
+          const previousLines = lines.slice(0, -1);
+          const prefix = previousLines.length > 0 ? previousLines.join('\n') + '\n' : '';
+          let newText;
+          let newCursorPos;
+          
+          if (listType === 'bullet') {
+            // Build text with bullet on new line
+            newText = prefix + '• ' + contentBeforeCursor + '\n• ' + contentAfterCursor + textAfterCursor;
+            // Cursor position: after the new bullet and space
+            newCursorPos = prefix.length + '• '.length + contentBeforeCursor.length + '\n• '.length;
+          } else if (listType === 'number') {
+            // Get current number and calculate next
+            const numberMatch = currentLine.match(/^(\d+)\.\s*/);
+            const currentNumber = numberMatch ? parseInt(numberMatch[1]) : lines.length;
+            const nextNumber = currentNumber + 1;
+            
+            const numberPrefix = currentNumber + '. ';
+            const nextNumberPrefix = nextNumber + '. ';
+            newText = prefix + numberPrefix + contentBeforeCursor + '\n' + nextNumberPrefix + contentAfterCursor + textAfterCursor;
+            // Cursor position: after the new number and space
+            newCursorPos = prefix.length + numberPrefix.length + contentBeforeCursor.length + '\n'.length + nextNumberPrefix.length;
+          }
+          
+          // Update textarea value
+          textarea.value = newText;
+          setValue(newText);
+          
+          // Set cursor position after the new bullet/number
+          setTimeout(() => {
+            textarea.setSelectionRange(newCursorPos, newCursorPos);
+          }, 0);
+        }
+        // If no marker, allow default behavior (just newline)
+      }
+      // If listType is 'none', allow default behavior (just newline)
     }
   };
 
@@ -536,9 +671,10 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
               return Math.max(40, twoCharWidth + 10); // Add some padding
             };
 
-            // Calculate minimum height based on text content
+            // Calculate minimum height based on Konva's displayed text content
             const calculateMinHeight = () => {
-              if (!value || value.trim() === '') {
+              const currentText = textRef.current?.text() || '';
+              if (!currentText || currentText.trim() === '') {
                 return 20; // Default minimum
               }
               
@@ -555,7 +691,7 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
               ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${fontFamily}`;
               
               // Handle line breaks first
-              const paragraphs = value.split('\n');
+              const paragraphs = currentText.split('\n');
               let totalLines = 0;
               
               for (const paragraph of paragraphs) {
@@ -674,49 +810,137 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
             }}
             defaultValue={normalizeListText(value || element.content || "", element.listType || 'none')}
             onInput={(e) => {
+              // Mark that user has interacted
+              userHasInteractedRef.current = true;
+              
+              // Auto-apply bullets/numbers if listType is set but current line doesn't have marker
+              const listType = element.listType || 'none';
+              if (listType === 'bullet' || listType === 'number') {
+                const textarea = e.target;
+                const cursorPos = textarea.selectionStart;
+                const textBeforeCursor = textarea.value.substring(0, cursorPos);
+                const lines = textBeforeCursor.split('\n');
+                const currentLine = lines[lines.length - 1];
+                
+                // Check if current line has a marker
+                const hasBullet = /^[\u2022•]\s*/.test(currentLine);
+                const hasNumber = /^\d+\.\s*/.test(currentLine);
+                
+                // If no marker but listType is set and line has content (user started typing), add it
+                // Only add if the line doesn't already have a marker and has some non-whitespace content
+                const lineHasContent = currentLine.trim().length > 0;
+                if (lineHasContent && 
+                    ((listType === 'bullet' && !hasBullet) || 
+                     (listType === 'number' && !hasNumber))) {
+                  const lastNewlineIndex = textBeforeCursor.lastIndexOf('\n');
+                  const lineStartIndex = lastNewlineIndex + 1;
+                  const lineContent = currentLine;
+                  const textAfterCursor = textarea.value.substring(cursorPos);
+                  
+                  let newText;
+                  let newCursorPos;
+                  
+                  if (listType === 'bullet') {
+                    newText = textarea.value.substring(0, lineStartIndex) + '• ' + lineContent + textAfterCursor;
+                    newCursorPos = cursorPos + 2; // +2 for '• '
+                  } else if (listType === 'number') {
+                    // Count existing numbered lines to get the next number
+                    const allLines = textarea.value.split('\n');
+                    let lineNumber = 1;
+                    for (let i = 0; i < lines.length - 1; i++) {
+                      const numMatch = allLines[i]?.match(/^(\d+)\.\s*/);
+                      if (numMatch) {
+                        lineNumber = Math.max(lineNumber, parseInt(numMatch[1]) + 1);
+                      }
+                    }
+                    newText = textarea.value.substring(0, lineStartIndex) + lineNumber + '. ' + lineContent + textAfterCursor;
+                    newCursorPos = cursorPos + (lineNumber + '. ').length;
+                  }
+                  
+                  textarea.value = newText;
+                  setValue(newText);
+                  setTimeout(() => {
+                    textarea.setSelectionRange(newCursorPos, newCursorPos);
+                  }, 0);
+                  return; // Don't continue with normal input handling
+                }
+              }
+              
               // Auto-resize textarea to fit content
               e.target.style.height = 'auto';
               e.target.style.height = e.target.scrollHeight + 'px';
+              // Update state value on input to trigger autoResize effect on value change
+              setValue(e.target.value);
             }}
             onFocus={(e) => {
               // Auto-resize on focus to ensure full text is visible
               e.target.style.height = 'auto';
               e.target.style.height = e.target.scrollHeight + 'px';
+              
+              // Only force cursor to end if user hasn't interacted yet (initial focus from double-click)
+              if (!userHasInteractedRef.current) {
+                const setCursorToEnd = () => {
+                  if (userHasInteractedRef.current) return; // Don't force if user has interacted
+                  const len = e.target.value.length;
+                  try {
+                    e.target.setSelectionRange(len, len);
+                  } catch (err) {
+                    // Ignore errors
+                  }
+                };
+                
+                // Set immediately
+                setCursorToEnd();
+                
+                // Set again after a small delay to override browser default
+                setTimeout(() => {
+                  if (!userHasInteractedRef.current) {
+                    setCursorToEnd();
+                    setTimeout(() => {
+                      if (!userHasInteractedRef.current) {
+                        setCursorToEnd();
+                      }
+                    }, 10);
+                  }
+                }, 0);
+              }
             }}
             onBlur={(e) => {
-              let content = e.target.value;
-              // Strip markers before saving to storage (content is stored without markers)
-              content = stripListMarkers(content);
+              // Centralized blur handler saves content and exits edit mode
+              handleBlur();
 
-              onChange({ ...element, content });
-              setIsEditing(false);
-
-              // 🟢 When exited with mouse click, don't auto reselect
-              // 🟢 When exited with Enter, handles are already shown (handled above)
-              // So we only restore selection if user is still focused inside textbox
+              // After the textarea is removed and state updates, ensure selection
+              // and transformer attachment happen. We don't rely on the stale
+              // `isEditing` closure value here — always re-select and refresh
+              // the transformer on the next frame.
               requestAnimationFrame(() => {
-                if (document.activeElement !== e.target && typeof onSelect === 'function') {
-                  onSelect();
+                if (typeof onSelect === 'function') {
+                  try {
+                    onSelect();
+                  } catch (err) {
+                    // swallow errors from parent handlers
+                    console.error('onSelect handler failed after blur:', err);
+                  }
+                }
+
+                // Force the transformer to re-attach and redraw so handles become visible
+                try {
                   forceTransformerRefresh();
+                } catch (err) {
+                  console.error('forceTransformerRefresh failed after blur:', err);
                 }
               });
             }}
+            onMouseDown={(e) => {
+              // Mark that user has interacted when they click
+              userHasInteractedRef.current = true;
+            }}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                let content = e.target.value;
-                // Strip markers before saving to storage (content is stored without markers)
-                content = stripListMarkers(content);
-
-                onChange({ ...element, content });
-                setIsEditing(false);
-
-                // ✅ re-select & show handles
-                requestAnimationFrame(() => {
-                  if (typeof onSelect === 'function') onSelect();
-                  forceTransformerRefresh();
-                });
+              // Mark that user has interacted when they type or use arrow keys
+              if (e.key.length === 1 || e.key.startsWith('Arrow') || e.key === 'Home' || e.key === 'End') {
+                userHasInteractedRef.current = true;
               }
+              handleKeyDown(e);
             }}
             autoFocus
           />

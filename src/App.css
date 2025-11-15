@@ -260,7 +260,7 @@ body.dark .toolbar-bottom {
 
 .toolbar-bottom {
   position: fixed;
-  top: 58px; /* Move closer to toolbar-top */
+  top: 58px;
   left: 224px;
   right: 316px;
   height: 50px;
@@ -270,11 +270,12 @@ body.dark .toolbar-bottom {
   padding: 0 var(--space-4);
   border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
   z-index: 100;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 10px 40px rgba(0, 0, 0, 0.15),
+    0 4px 16px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
@@ -489,9 +490,9 @@ body.dark .toolbar-bottom {
 
 /* Toolbar Styles */
 .toolbar {
-  background: hsl(var(--card) / 0.8);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
-  border: 1px solid hsl(var(--border));
+  border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: var(--radius-lg);
   padding: var(--space-2) var(--space-6);
   display: flex;
@@ -499,8 +500,9 @@ body.dark .toolbar-bottom {
   transition: all var(--transition-normal);
   gap: 0;
   box-shadow: 
-    0 8px 32px hsl(var(--primary) / 0.1),
-    inset 0 1px 0 hsl(var(--accent) / 0.9);
+    0 10px 40px rgba(0, 0, 0, 0.15),
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
   margin: var(--space-2);
 }
 
@@ -791,11 +793,11 @@ body.dark .toolbar-bottom {
 /* Sidebar Styles */
 .sidebar {
   position: fixed;
-  top: 60px; /* Same good gap as 1024px screens */
+  top: 60px;
   left: 4px;
   width: 200px;
-  height: calc(100vh - 80px); /* Extended to use more vertical space */
-  background: rgba(255, 255, 255, 0.7);
+  height: calc(100vh - 80px);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
   border: none;
   border-radius: var(--radius-lg);
@@ -803,9 +805,10 @@ body.dark .toolbar-bottom {
   flex-direction: column;
   overflow: hidden;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 10px 40px rgba(0, 0, 0, 0.15),
+    0 4px 16px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  z-index: 98; /* Below canvas */
+  z-index: 98;
   margin-top: 10px;
   margin-left: 10px;
   scrollbar-width: none;
@@ -982,11 +985,12 @@ body.dark .toolbar-bottom {
   cursor: pointer;
   transition: all var(--transition-normal);
   position: relative;
-  background: hsl(var(--card) / 0.6);
-  border: 1px solid hsl(var(--border));
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 
-    0 4px 12px hsl(var(--primary) / 0.1),
-    inset 0 1px 0 hsl(var(--accent) / 0.9);
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    0 2px 6px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
   box-sizing: border-box;
   width: 100%;
@@ -995,19 +999,20 @@ body.dark .toolbar-bottom {
 }
 
 .slide-item:hover {
-  background: hsl(var(--card) / 0.8);
-  border-color: hsl(var(--ring));
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.12);
   transform: translateX(4px) scale(1.02);
   box-shadow: 
-    0 8px 25px hsl(var(--primary) / 0.15),
-    inset 0 1px 0 hsl(var(--accent) / 0.95);
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 .slide-item.active {
   background: rgba(0, 0, 0, 0.05);
   color: var(--text-primary);
   border: none;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
   transform: translateX(2px) scale(1.01);
 }
 
@@ -1053,7 +1058,7 @@ body.dark .toolbar-bottom {
 
 .slide-item.active .slide-thumbnail {
   border: none;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35), 0 8px 16px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .slide-thumbnail-content {
@@ -2452,3 +2457,4 @@ body.dark .toolbar-bottom {
     right: 350px !important; /* 300px toolbar + 50px gap (increased from 20px) */
   }
 }
+

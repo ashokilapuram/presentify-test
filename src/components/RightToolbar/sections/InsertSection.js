@@ -172,7 +172,7 @@ const InsertSection = ({ addTextBox, addShape, addChart, addImage, addTable }) =
 
       <div className="section-title">Tables</div>
       <div className="media-row">
-        <button className="media-element-button" onClick={() => addTable('yellow')}>
+        <button className="media-element-button" onClick={() => addTable()}>
           <FiGrid />
           <span>Table</span>
         </button>

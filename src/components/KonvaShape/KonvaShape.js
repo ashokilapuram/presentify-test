@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Rect, Circle, RegularPolygon, Star, Transformer } from "react-konva";
+import { Rect, Circle, RegularPolygon, Star, Transformer, Group } from "react-konva";
 
 // Convert hex to rgba with opacity
 const hexToRgba = (hex, opacity = 1) => {
@@ -61,12 +61,15 @@ const KonvaShape = ({ element, isSelected, onSelect, onChange, readOnly = false 
     node.scaleX(1);
     node.scaleY(1);
 
+    const newWidth = Math.max(30, node.width() * scaleX);
+    const newHeight = Math.max(30, node.height() * scaleY);
+
     onChange({
       ...element,
       x: node.x(),
       y: node.y(),
-      width: Math.max(30, node.width() * scaleX),
-      height: Math.max(30, node.height() * scaleY),
+      width: newWidth,
+      height: newHeight,
       rotation: node.rotation(),
     });
   };
@@ -76,14 +79,14 @@ const KonvaShape = ({ element, isSelected, onSelect, onChange, readOnly = false 
   const fillOpacity = element.fillOpacity !== undefined ? element.fillOpacity : 1;
   const fillWithOpacity = fillOpacity < 1 ? hexToRgba(fillColor, fillOpacity) : fillColor;
 
-  const shapeProps = {
+  // Check if shape needs to be wrapped in a Group (non-rectangular shapes)
+  const needsGroup = element.shapeType !== "square" && element.shapeType !== "rectangle";
+
+  const groupProps = {
     x: element.x,
     y: element.y,
     width: element.width,
     height: element.height,
-    fill: fillWithOpacity,
-    stroke: element.borderColor,
-    strokeWidth: element.borderWidth,
     rotation: element.rotation || 0,
     draggable: !readOnly,
     onClick: (e) => {
@@ -96,53 +99,128 @@ const KonvaShape = ({ element, isSelected, onSelect, onChange, readOnly = false 
     ref: shapeRef,
   };
 
+  const shapeProps = {
+    fill: fillWithOpacity,
+    stroke: element.borderColor,
+    strokeWidth: element.borderWidth,
+  };
+
   const renderShape = () => {
+    // For rectangles and squares, render directly
+    if (element.shapeType === "square" || element.shapeType === "rectangle") {
+      return (
+        <Rect
+          x={element.x}
+          y={element.y}
+          width={element.width}
+          height={element.height}
+          cornerRadius={4}
+          {...shapeProps}
+          rotation={element.rotation || 0}
+          draggable={!readOnly}
+          onClick={(e) => {
+            e.cancelBubble = true;
+            onSelect();
+          }}
+          onDragEnd={(e) =>
+            onChange({ ...element, x: e.target.x(), y: e.target.y() })
+          }
+          onTransformEnd={handleTransformEnd}
+          ref={shapeRef}
+        />
+      );
+    }
+
+    // For other shapes, wrap in Group with bounding box
+    // Use a base size and scale the shape to fit the bounding box
+    const baseSize = Math.min(element.width, element.height);
+    const scaleX = element.width / baseSize;
+    const scaleY = element.height / baseSize;
+    const centerX = element.width / 2;
+    const centerY = element.height / 2;
+
+    let shapeComponent;
     switch (element.shapeType) {
       case "circle":
-        return (
+        shapeComponent = (
           <Circle
+            x={centerX}
+            y={centerY}
+            radius={baseSize / 2}
+            scaleX={scaleX}
+            scaleY={scaleY}
             {...shapeProps}
-            radius={Math.min(element.width, element.height) / 2}
           />
         );
+        break;
       case "triangle":
-        return (
+        shapeComponent = (
           <RegularPolygon
-            {...shapeProps}
+            x={centerX}
+            y={centerY}
             sides={3}
-            radius={Math.min(element.width, element.height) / 2}
+            radius={baseSize / 2}
+            scaleX={scaleX}
+            scaleY={scaleY}
+            {...shapeProps}
           />
         );
+        break;
       case "star":
-        return (
+        shapeComponent = (
           <Star
-            {...shapeProps}
+            x={centerX}
+            y={centerY}
             numPoints={5}
-            innerRadius={Math.min(element.width, element.height) / 4}
-            outerRadius={Math.min(element.width, element.height) / 2}
+            innerRadius={baseSize / 4}
+            outerRadius={baseSize / 2}
+            scaleX={scaleX}
+            scaleY={scaleY}
+            {...shapeProps}
           />
         );
-      case "square":
-        return <Rect {...shapeProps} cornerRadius={4} />;
+        break;
       case "pentagon":
-        return (
+        shapeComponent = (
           <RegularPolygon
-            {...shapeProps}
+            x={centerX}
+            y={centerY}
             sides={5}
-            radius={Math.min(element.width, element.height) / 2}
-          />
-        );
-      case "hexagon":
-        return (
-          <RegularPolygon
+            radius={baseSize / 2}
+            scaleX={scaleX}
+            scaleY={scaleY}
             {...shapeProps}
-            sides={6}
-            radius={Math.min(element.width, element.height) / 2}
           />
         );
-      default: // rectangle
-        return <Rect {...shapeProps} cornerRadius={4} />;
+        break;
+      case "hexagon":
+        shapeComponent = (
+          <RegularPolygon
+            x={centerX}
+            y={centerY}
+            sides={6}
+            radius={baseSize / 2}
+            scaleX={scaleX}
+            scaleY={scaleY}
+            {...shapeProps}
+          />
+        );
+        break;
+      default:
+        return null;
     }
+
+    return (
+      <Group {...groupProps}>
+        {/* Invisible rect for bounding box */}
+        <Rect
+          width={element.width}
+          height={element.height}
+          visible={false}
+        />
+        {shapeComponent}
+      </Group>
+    );
   };
 
   return (
@@ -152,36 +230,25 @@ const KonvaShape = ({ element, isSelected, onSelect, onChange, readOnly = false 
         <Transformer
           ref={trRef}
           rotateEnabled
-          enabledAnchors={
-            element.shapeType === "square" 
-              ? [
-                  "top-left",
-                  "top-right", 
-                  "bottom-left",
-                  "bottom-right",
-                  "top-center",
-                  "bottom-center",
-                  "middle-left",
-                  "middle-right"
-                ]
-              : [
-                  "top-left",
-                  "top-right",
-                  "bottom-left", 
-                  "bottom-right"
-                ]
-          }
+          enabledAnchors={[
+            "top-left",
+            "top-right",
+            "bottom-left",
+            "bottom-right",
+            "middle-left",
+            "middle-right",
+            "bottom-center"
+          ]}
           boundBoxFunc={(oldBox, newBox) => {
             if (newBox.width < 30 || newBox.height < 30) return oldBox;
             return newBox;
           }}
-          anchorSize={element.shapeType === "square" ? 8 : 6}
+          anchorSize={8}
           anchorStroke="#0ea5e9"
           anchorFill="#ffffff"
           anchorStrokeWidth={2}
           borderStroke="#0ea5e9"
-          borderStrokeWidth={2}
-          borderDash={[5, 5]}
+          borderStrokeWidth={1}
         />
       )}
     </>

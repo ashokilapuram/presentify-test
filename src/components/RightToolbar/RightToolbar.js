@@ -25,11 +25,14 @@ const RightToolbar = ({
   bringToFront,
   sendBackward,
   sendToBack,
+  deleteElement,
   deselectElement,
   onTabChange,
   slides,
   forceTab,
   onTabForced,
+  updateAllSlides,
+  onCurrentTabChange,
 }) => {
   const [activeTab, setActiveTab] = useState('Insert');
   
@@ -47,6 +50,13 @@ const RightToolbar = ({
       }
     }
   }, [forceTab, onTabForced]);
+
+  // Notify parent of current tab when it changes (for preservation)
+  useEffect(() => {
+    if (onCurrentTabChange && !selectedElement) {
+      onCurrentTabChange(activeTab);
+    }
+  }, [activeTab, onCurrentTabChange, selectedElement]);
 
   const updateIndicator = () => {
     const container = tabsContainerRef.current;
@@ -73,6 +83,10 @@ const RightToolbar = ({
     if (onTabChange) {
       onTabChange(tab);
     }
+    // Notify parent of current tab for preservation
+    if (onCurrentTabChange) {
+      onCurrentTabChange(tab);
+    }
   };
 
   const renderContent = () => {
@@ -90,6 +104,7 @@ const RightToolbar = ({
           sendToBack={sendToBack}
           updateSlide={updateSlide}
           currentSlide={currentSlide}
+          deleteElement={deleteElement}
         />
       );
     }
@@ -105,6 +120,7 @@ const RightToolbar = ({
           sendToBack={sendToBack}
           updateSlide={updateSlide}
           currentSlide={currentSlide}
+          deleteElement={deleteElement}
         />
       );
     }
@@ -120,6 +136,7 @@ const RightToolbar = ({
           sendToBack={sendToBack}
           updateSlide={updateSlide}
           currentSlide={currentSlide}
+          deleteElement={deleteElement}
         />
       );
     }
@@ -135,6 +152,7 @@ const RightToolbar = ({
           sendToBack={sendToBack}
           updateSlide={updateSlide}
           currentSlide={currentSlide}
+          deleteElement={deleteElement}
         />
       );
     }
@@ -150,6 +168,7 @@ const RightToolbar = ({
           sendToBack={sendToBack}
           updateSlide={updateSlide}
           currentSlide={currentSlide}
+          deleteElement={deleteElement}
         />
       );
     }
@@ -157,7 +176,7 @@ const RightToolbar = ({
     // Default tab-based sections
     switch (activeTab) {
       case 'Design':
-        return <DesignSection updateSlide={updateSlide} currentSlide={currentSlide} />;
+        return <DesignSection updateSlide={updateSlide} currentSlide={currentSlide} slides={slides} updateAllSlides={updateAllSlides} />;
       case 'Insert':
         return (
           <InsertSection

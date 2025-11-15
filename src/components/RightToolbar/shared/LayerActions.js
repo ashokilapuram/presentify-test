@@ -14,7 +14,8 @@ const LayerActions = ({
   bringToFront,
   sendBackward,
   sendToBack,
-  updateSlide
+  updateSlide,
+  deleteElement
 }) => {
   const handleDuplicate = (e) => {
     e.stopPropagation();
@@ -32,11 +33,8 @@ const LayerActions = ({
 
   const handleDelete = (e) => {
     e.stopPropagation();
-    if (selectedElement) {
-      const updatedElements = (currentSlide?.elements || []).filter(
-        element => element.id !== selectedElement.id
-      );
-      updateSlide && updateSlide({ elements: updatedElements });
+    if (selectedElement && deleteElement) {
+      deleteElement(selectedElement.id);
     }
   };
 

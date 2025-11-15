@@ -74,7 +74,19 @@ export const useModalDrag = (isOpen, modalRef, initialPosition) => {
   };
 
   useEffect(() => {
-    if (!isDragging) return;
+    if (!isDragging) {
+      // Reset cursor when not dragging
+      if (document.body) {
+        document.body.style.cursor = '';
+      }
+      return;
+    }
+
+    // Set move cursor on body during dragging to ensure it's always visible
+    if (document.body) {
+      document.body.style.cursor = 'move';
+      document.body.style.userSelect = 'none';
+    }
 
     const handleMouseMove = (e) => {
       if (!modalRef.current) return;
@@ -101,14 +113,34 @@ export const useModalDrag = (isOpen, modalRef, initialPosition) => {
 
     const handleMouseUp = () => {
       setIsDragging(false);
+      // Reset cursor when dragging ends
+      if (document.body) {
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+    };
+
+    const handleMouseLeave = () => {
+      // Ensure cursor is reset if mouse leaves window
+      if (document.body) {
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
     };
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+      // Cleanup cursor on unmount
+      if (document.body) {
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
     };
   }, [isDragging, dragOffset, modalRef]);
 

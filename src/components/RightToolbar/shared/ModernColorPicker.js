@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { HexColorPicker } from "react-colorful";
-import { Palette } from "lucide-react";
+import { Palette, Pipette } from "lucide-react";
 import "./ModernColorPicker.css";
 
 const DEFAULT_QUICK_COLORS = [
@@ -153,6 +153,26 @@ export default function ModernColorPicker({
     onColorSelect(quickColor);
   };
 
+  const openEyeDropper = async () => {
+    if (!window.EyeDropper) {
+      alert("Your browser doesn't support the EyeDropper API. Use Chrome or Edge.");
+      return;
+    }
+
+    try {
+      const eyeDropper = new window.EyeDropper();
+      const result = await eyeDropper.open();
+
+      if (result?.sRGBHex) {
+        setColor(result.sRGBHex);
+        onColorSelect(result.sRGBHex);
+      }
+    } catch (err) {
+      // User cancelled or error occurred - silently handle
+      console.log("Eyedropper cancelled:", err);
+    }
+  };
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -190,7 +210,19 @@ export default function ModernColorPicker({
         />
         {showPicker && createPortal(
           <div className="mcp-picker-popup" style={popupStyle}>
-            <HexColorPicker color={color || defaultColor} onChange={handleChangeComplete} />
+            <div className="mcp-picker-wrapper">
+              <HexColorPicker color={color || defaultColor} onChange={handleChangeComplete} />
+              <button
+                className="mcp-dropper-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openEyeDropper();
+                }}
+                title="Pick color from screen"
+              >
+                <Pipette size={12} />
+              </button>
+            </div>
           </div>,
           document.body
         )}
@@ -233,7 +265,19 @@ export default function ModernColorPicker({
 
       {showPicker && createPortal(
         <div className="mcp-picker-popup" style={popupStyle}>
-          <HexColorPicker color={color} onChange={handleChangeComplete} />
+          <div className="mcp-picker-wrapper">
+            <HexColorPicker color={color} onChange={handleChangeComplete} />
+            <button
+              className="mcp-dropper-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                openEyeDropper();
+              }}
+              title="Pick color from screen"
+            >
+              <Pipette size={12} />
+            </button>
+          </div>
         </div>,
         document.body
       )}

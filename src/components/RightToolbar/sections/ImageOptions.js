@@ -13,7 +13,8 @@ const ImageOptions = ({
   sendBackward,
   sendToBack,
   updateSlide,
-  currentSlide
+  currentSlide,
+  deleteElement
 }) => {
   const borderColorButtonRef = useRef(null);
 
@@ -224,6 +225,7 @@ const ImageOptions = ({
           sendBackward={sendBackward}
           sendToBack={sendToBack}
           updateSlide={updateSlide}
+          deleteElement={deleteElement}
         />
       </div>
     </div>

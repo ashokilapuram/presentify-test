@@ -4,6 +4,7 @@ export const useUIState = (setSelectedElement) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showDragMessage, setShowDragMessage] = useState(false);
   const [forceRightToolbarTab, setForceRightToolbarTab] = useState(null);
+  const [currentRightToolbarTab, setCurrentRightToolbarTab] = useState('Insert');
 
   const handleToggleDarkMode = useCallback(() => {
     setIsDarkMode(prev => !prev);
@@ -72,6 +73,8 @@ export const useUIState = (setSelectedElement) => {
     setShowDragMessage,
     forceRightToolbarTab,
     setForceRightToolbarTab,
+    currentRightToolbarTab,
+    setCurrentRightToolbarTab,
     
     // Actions
     handleToggleDarkMode,

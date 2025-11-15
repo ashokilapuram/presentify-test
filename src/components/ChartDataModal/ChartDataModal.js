@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import './ChartDataModal.css';
 import { useModalDrag } from './hooks/useModalDrag';
@@ -12,6 +12,7 @@ import ActionsBar from './components/ActionsBar';
 
 const ChartDataModal = ({ isOpen, onClose, element, onSave, initialPosition }) => {
   const modalRef = useRef(null);
+  const [shouldBlinkClose, setShouldBlinkClose] = useState(false);
 
   // Initialize data from element
   const { labels, series, setLabels, setSeries } = useDataInitialization(isOpen, element);
@@ -49,11 +50,23 @@ const ChartDataModal = ({ isOpen, onClose, element, onSave, initialPosition }) =
 
   if (!isOpen) return null;
 
+  const handleOverlayClick = (e) => {
+    if (isResizing || isDragging) {
+      return;
+    }
+    // Instead of closing, blink the close button to indicate it can be clicked
+    setShouldBlinkClose(true);
+    // Reset after animation completes
+    setTimeout(() => {
+      setShouldBlinkClose(false);
+    }, 600); // Match animation duration
+  };
+
   return createPortal(
-    <div className="chart-data-modal-overlay" onClick={onClose}>
+    <div className="chart-data-modal-overlay" onClick={handleOverlayClick}>
       <div 
         ref={modalRef}
-        className="chart-data-modal" 
+        className={`chart-data-modal ${isDragging ? 'dragging' : ''}`}
         data-animate={!position ? 'true' : 'false'}
         onClick={(e) => e.stopPropagation()}
         style={{
@@ -61,7 +74,6 @@ const ChartDataModal = ({ isOpen, onClose, element, onSave, initialPosition }) =
           left: position ? `${position.x}px` : '50%',
           top: position ? `${position.y}px` : '50%',
           transform: position ? 'none' : 'translate(-50%, -50%)',
-          cursor: isDragging ? 'grabbing' : 'default',
           margin: 0,
           pointerEvents: 'auto',
           opacity: position ? 1 : undefined,
@@ -71,6 +83,7 @@ const ChartDataModal = ({ isOpen, onClose, element, onSave, initialPosition }) =
         <ModalHeader 
           onClose={onClose} 
           onMouseDown={handleMouseDown}
+          shouldBlink={shouldBlinkClose}
         />
         
         <div className="chart-data-modal-content">

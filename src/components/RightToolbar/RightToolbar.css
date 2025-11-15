@@ -1,11 +1,11 @@
 /* Right Toolbar Styles */
 .right-toolbar {
   position: fixed;
-  top: 60px; /* Same good gap as 1024px screens */
-  right: 4px; /* Reduced from 8px to 4px to match new app padding */
-  width: 300px; /* increased slightly */
-  height: calc(100vh - 80px); /* Extended to use more vertical space */
-  background: rgba(255, 255, 255, 0.7);
+  top: 60px;
+  right: 4px;
+  width: 300px;
+  height: calc(100vh - 80px);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: var(--radius-xl, 1rem);
@@ -13,9 +13,10 @@
   flex-direction: column;
   overflow: hidden;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 10px 40px rgba(0, 0, 0, 0.15),
+    0 4px 16px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  z-index: 97; /* Below canvas */
+  z-index: 97;
   margin-top: 10px;
   margin-right: 10px;
 }
@@ -50,14 +51,14 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 
 .text-element-button:hover {
   background-color: white;
   border-color: var(--neutral-300);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .text-element-button:active {
@@ -89,14 +90,14 @@
   color: var(--neutral-700);
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 
 .shape-icon-button:hover {
   background-color: white;
   border-color: var(--neutral-300);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .shape-icon-button:active {
@@ -154,14 +155,14 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 
 .chart-element-button:hover {
   background-color: white;
   border-color: var(--neutral-300);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .chart-element-button:active {
@@ -307,7 +308,7 @@
   background: #e5e7eb;
   border: 1px solid #d1d5db;
   border-radius: var(--radius-lg, 0.75rem);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 
 /* Special padding for element actions */
@@ -1209,6 +1210,44 @@ body.dark .view-button.active {
     width: 11px;
     height: 11px;
   }
+
+  /* Chart components - Further reduced sizes for mobile */
+  .chart-name-label,
+  .chart-options-label {
+    font-size: 0.65rem !important;
+  }
+
+  .chart-name-input,
+  .chart-edit-data-button {
+    height: 26px !important;
+    padding: 0.3rem 0.4rem !important;
+    font-size: 0.7rem !important;
+  }
+
+  .chart-option-item {
+    min-height: 26px !important;
+    padding: 0.3rem 0.4rem !important;
+  }
+
+  .chart-option-item label {
+    font-size: 0.7rem !important;
+  }
+
+  /* Delete button - Ensure it's visible on mobile */
+  .chart-background-delete-btn {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+  }
+
+  .chart-background-delete-btn svg,
+  .chart-background-delete-btn .delete-icon {
+    width: 9px !important;
+    height: 9px !important;
+    min-width: 9px !important;
+    min-height: 9px !important;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1228,6 +1267,44 @@ body.dark .view-button.active {
   .action-button-icon svg {
     width: 10px;
     height: 10px;
+  }
+
+  /* Chart components - Even smaller for very small screens */
+  .chart-name-label,
+  .chart-options-label {
+    font-size: 0.6rem !important;
+  }
+
+  .chart-name-input,
+  .chart-edit-data-button {
+    height: 24px !important;
+    padding: 0.25rem 0.35rem !important;
+    font-size: 0.65rem !important;
+  }
+
+  .chart-option-item {
+    min-height: 24px !important;
+    padding: 0.25rem 0.35rem !important;
+  }
+
+  .chart-option-item label {
+    font-size: 0.65rem !important;
+  }
+
+  /* Delete button - Minimum size to ensure visibility */
+  .chart-background-delete-btn {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+  }
+
+  .chart-background-delete-btn svg,
+  .chart-background-delete-btn .delete-icon {
+    width: 8px !important;
+    height: 8px !important;
+    min-width: 8px !important;
+    min-height: 8px !important;
   }
 }
 
@@ -1430,6 +1507,54 @@ body.dark .view-button.active {
   .color-input-square {
     width: 28px !important; /* Reduced from 36px */
     height: 28px !important; /* Reduced from 36px */
+  }
+
+  /* Chart Name and Chart Options - Responsive adjustments */
+  .chart-name-label,
+  .chart-options-label {
+    font-size: 0.7rem !important; /* Reduced from 0.875rem */
+    margin-bottom: 0.2rem !important; /* Reduced from 0.25rem */
+  }
+
+  /* Chart Name Input and Edit Data Button - Reduced height */
+  .chart-name-input,
+  .chart-edit-data-button {
+    height: 28px !important; /* Reduced from 36px */
+    padding: 0.375rem 0.5rem !important; /* Reduced padding */
+    font-size: 0.75rem !important; /* Reduced from 0.875rem */
+  }
+
+  /* Chart Options - Ensure labels are vertically centered */
+  .chart-option-item {
+    min-height: 28px !important; /* Reduced from 36px */
+    padding: 0.375rem 0.5rem !important; /* Reduced padding */
+  }
+
+  .chart-option-item label {
+    font-size: 0.75rem !important; /* Reduced from 0.875rem */
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  /* Background delete button - Make it responsive and visible */
+  .chart-background-delete-btn {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    min-height: 18px !important;
+  }
+
+  .chart-background-delete-btn svg,
+  .chart-background-delete-btn .delete-icon {
+    width: 10px !important;
+    height: 10px !important;
+    min-width: 10px !important;
+    min-height: 10px !important;
+  }
+
+  /* Ensure background item has proper spacing for delete button */
+  .chart-background-item {
+    gap: 0.375rem !important; /* Reduced gap */
   }
 }
 
@@ -1783,9 +1908,9 @@ body.dark .action-button-icon.danger:hover svg {
 }
 
 .table-style-preview:hover {
-  border-color: #3b82f6;
+  border-color: #000000;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .table-preview {
@@ -1848,9 +1973,9 @@ body.dark .action-button-icon.danger:hover svg {
 }
 
 .table-style-preview-inline:hover {
-  border-color: #3b82f6;
+  border-color: #000000;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .table-style-preview-inline .table-preview {
@@ -1860,17 +1985,138 @@ body.dark .action-button-icon.danger:hover svg {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  padding: 0;
+  margin: 0;
+  min-height: auto;
+  height: auto;
 }
 
 /* Responsive adjustments for inline table styles */
-@media (max-width: 1024px) {
+/* Table styles for 1024px and below - moved to max-width: 1023px to avoid conflict */
+@media (max-width: 1023px) {
   .table-style-grid-inline {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.4rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.3rem;
   }
 
   .table-style-preview-inline {
-    padding: 0.4rem;
+    padding: 0.3rem;
+  }
+
+  /* Decrease table style preview height to maintain ratio */
+  .table-style-preview-inline .table-preview {
+    min-height: auto !important;
+    height: auto !important;
+  }
+
+  .table-style-preview-inline .table-preview-row {
+    height: 6px;
+  }
+
+  .table-style-preview-inline .table-preview-header {
+    height: 8px;
+  }
+}
+
+/* Increase gaps between chart option containers for screens 1024px and above */
+@media (min-width: 1024px) {
+  .right-toolbar-section .chart-name-container,
+  .right-toolbar-section .chart-options-container {
+    margin-bottom: 1.05rem !important; /* Slightly increased gap for better spacing */
+  }
+  
+  /* Target color palette container (option-group containing color palettes) */
+  .right-toolbar-section .option-group:has(.color-palette-item),
+  .right-toolbar-section .option-group:has(.color-swatch-palette) {
+    margin-bottom: 1.05rem !important; /* Slightly increased gap for better spacing */
+  }
+
+  /* Table Structure - Decrease label size and padding */
+  .table-structure-label {
+    font-size: 0.7rem !important; /* Decreased from 0.875rem */
+  }
+
+  .table-structure-container {
+    padding: 0.5rem !important; /* Decreased from 0.75rem */
+  }
+
+  /* Decrease padding in border options container */
+  .table-border-options-container {
+    padding: 0.25rem !important; /* Decreased from 0.375rem */
+  }
+
+  /* Reduce input width in rows and columns options for smaller screens (1024px and above) */
+  .table-rows-columns-options-container .table-structure-input {
+    width: 45px !important;
+    min-width: 45px !important;
+    max-width: 45px !important;
+  }
+
+  /* Prevent overflow but keep spinner buttons visible */
+  .table-rows-columns-options-container {
+    overflow: hidden !important;
+  }
+
+  .table-rows-columns-options-container .table-header-second-row {
+    overflow: visible !important;
+  }
+
+  /* Decrease padding in table icons header row containers - perfect wrap */
+  .table-icons-row-container {
+    padding: 0.25rem !important; /* Reduced to fit buttons perfectly */
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  /* Decrease padding in table icons header row - remove extra space */
+  .table-header-icons-row {
+    padding: 0 !important;
+    margin-bottom: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+
+  /* Decrease table icon button heights */
+  .table-header-icon-btn {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+  }
+
+  .table-header-icon-btn svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  /* Table style grid - consistent for 1024px and above */
+  .table-style-grid-inline {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+
+  .table-style-preview-inline {
+    padding: 0.5rem !important;
+  }
+
+  .table-style-preview-inline .table-preview {
+    min-height: auto !important;
+    height: auto !important;
+  }
+
+  .table-style-preview-inline .table-preview-row {
+    height: 7px !important; /* Slightly decreased from 8px */
+  }
+
+  .table-style-preview-inline .table-preview-header {
+    height: 9px !important; /* Slightly decreased from 10px */
+  }
+
+  /* Increase gap between table option containers to match chart options */
+  .right-toolbar-section .table-structure-container,
+  .right-toolbar-section .table-styling-container,
+  .right-toolbar-section .table-styles-container {
+    margin-bottom: 1.05rem !important; /* Match chart options gap */
   }
 }
 
@@ -2109,7 +2355,8 @@ body.dark .action-button-icon.danger:hover svg {
 }
 
 /* Responsive adjustments for table styling tabs */
-@media (max-width: 1024px) {
+/* Table styling adjustments for screens below 1024px */
+@media (max-width: 1023px) {
   .table-styling-tab {
     padding: 0.4rem 0.5rem;
     font-size: 0.7rem;
@@ -2230,6 +2477,19 @@ body.dark .action-button-icon.danger:hover svg {
   min-width: 0;
   width: 100%;
   justify-content: space-evenly;
+  height: 28px;
+}
+
+/* Ensure consistent height for all elements in table-header-second-row */
+.table-header-second-row .table-font-family-dropdown-wrapper .dropdown-trigger,
+.table-header-second-row .table-fontsize-input,
+.table-header-second-row .table-header-font-color-btn,
+.table-header-second-row .table-header-font-color-btn-inner,
+.table-header-second-row .table-header-color-icon,
+.table-header-second-row .table-header-bg-color-icon {
+  height: 28px;
+  display: flex;
+  align-items: center;
 }
 
 /* Table Input Styling with Curved Edges */

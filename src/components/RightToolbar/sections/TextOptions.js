@@ -13,7 +13,8 @@ const TextOptions = ({
   sendBackward,
   sendToBack,
   updateSlide,
-  currentSlide
+  currentSlide,
+  deleteElement
 }) => {
   const backgroundColorButtonRef = useRef(null);
   const borderColorButtonRef = useRef(null);
@@ -193,17 +194,17 @@ const TextOptions = ({
         </div>
       </div>
 
-      <SectionTitle icon={<FiDroplet />} text="Stroke colour" />
+      <SectionTitle icon={<FiDroplet />} text="Stroke colour & width" />
       <div className="option-group">
         <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
-          {/* Quick Colors Grid - 2 rows */}
+          {/* Quick Colors Grid - 1 row only (6 colors) */}
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(6, 1fr)', 
             gap: '4px',
             flex: 1
           }}>
-            {borderColors.map((color, idx) => (
+            {borderColors.slice(0, 6).map((color, idx) => (
               <div
                 key={idx}
                 className="color-swatch-small"
@@ -319,8 +320,8 @@ const TextOptions = ({
           </div>
         </div>
 
-        {/* Stroke width slider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
+        {/* Stroke width slider - compact, replacing second row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
           <input
             type="range"
             onClick={(e) => e.stopPropagation()}
@@ -331,35 +332,43 @@ const TextOptions = ({
               e.stopPropagation();
               updateSlideElement(selectedElement.id, { strokeWidth: parseInt(e.target.value) });
             }}
-            style={{ flex: 1 }}
+            style={{ 
+              flex: 1,
+              height: '4px',
+              cursor: 'pointer'
+            }}
           />
           <div style={{
-            minWidth: '32px',
+            minWidth: '28px',
             textAlign: 'center',
-            fontSize: '12px',
+            fontSize: '11px',
             fontWeight: '600',
             color: '#374151',
-            padding: '4px 8px',
+            padding: '2px 6px',
             background: '#ffffff',
             borderRadius: '4px',
-            border: '1px solid #e5e7eb'
+            border: '1px solid #e5e7eb',
+            height: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}>
             {selectedElement.strokeWidth || 0}px
           </div>
         </div>
       </div>
 
-      <SectionTitle icon={<FiDroplet />} text="Border color" />
+      <SectionTitle icon={<FiDroplet />} text="Border colour & width" />
       <div className="option-group">
         <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
-          {/* Quick Colors Grid - 2 rows */}
+          {/* Quick Colors Grid - 1 row only (6 colors) */}
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(6, 1fr)', 
             gap: '4px',
             flex: 1
           }}>
-            {borderColors.map((color, idx) => (
+            {borderColors.slice(0, 6).map((color, idx) => (
               <div
                 key={idx}
                 className="color-swatch-small"
@@ -469,8 +478,8 @@ const TextOptions = ({
           </div>
         </div>
 
-        {/* Border width slider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
+        {/* Border width slider - compact, replacing second row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
           <input
             type="range"
             onClick={(e) => e.stopPropagation()}
@@ -481,18 +490,26 @@ const TextOptions = ({
               e.stopPropagation();
               updateSlideElement(selectedElement.id, { borderWidth: parseInt(e.target.value) });
             }}
-            style={{ flex: 1 }}
+            style={{ 
+              flex: 1,
+              height: '4px',
+              cursor: 'pointer'
+            }}
           />
           <div style={{
-            minWidth: '32px',
+            minWidth: '28px',
             textAlign: 'center',
-            fontSize: '12px',
+            fontSize: '11px',
             fontWeight: '600',
             color: '#374151',
-            padding: '4px 8px',
+            padding: '2px 6px',
             background: '#ffffff',
             borderRadius: '4px',
-            border: '1px solid #e5e7eb'
+            border: '1px solid #e5e7eb',
+            height: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}>
             {selectedElement.borderWidth || 0}px
           </div>
@@ -509,6 +526,7 @@ const TextOptions = ({
           sendBackward={sendBackward}
           sendToBack={sendToBack}
           updateSlide={updateSlide}
+          deleteElement={deleteElement}
         />
       </div>
     </div>

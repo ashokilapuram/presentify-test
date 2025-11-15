@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import LayerActions from '../shared/LayerActions';
 import ModernColorPicker from '../shared/ModernColorPicker';
 import FontFamilyDropdown from '../../Toolbar/components/FontFamilyDropdown';
-import { FiAlignLeft, FiAlignCenter, FiAlignRight, FiBold, FiItalic, FiUnderline, FiDroplet } from 'react-icons/fi';
+import { FiAlignLeft, FiAlignCenter, FiAlignRight, FiBold, FiItalic, FiUnderline } from 'react-icons/fi';
+import { Palette } from 'lucide-react';
 
 const TableOptions = ({
   selectedElement,
@@ -12,7 +13,8 @@ const TableOptions = ({
   sendBackward,
   sendToBack,
   updateSlide,
-  currentSlide
+  currentSlide,
+  deleteElement
 }) => {
   // Get current cell data or default (using first cell as reference)
   const getCellData = (row = 0, col = 0) => {
@@ -34,12 +36,79 @@ const TableOptions = ({
     return selectedElement.data[row][col];
   };
 
+  // Table style definitions
+  const getTableStyles = () => ({
+    orange: {
+      header: { bgColor: "#FF6B35", textColor: "#ffffff", borderColor: "#FFFFFF", fontWeight: "bold" },
+      row1: { bgColor: "#FFE5D9", textColor: "#000000", borderColor: "#FFFFFF" },
+      row2: { bgColor: "#FFF0E6", textColor: "#000000", borderColor: "#FFFFFF" },
+      row3: { bgColor: "#FFE5D9", textColor: "#000000", borderColor: "#FFFFFF" }
+    },
+    grey: {
+      header: { bgColor: "#6C757D", textColor: "#ffffff", borderColor: "#FFFFFF", fontWeight: "bold" },
+      row1: { bgColor: "#E9ECEF", textColor: "#000000", borderColor: "#FFFFFF" },
+      row2: { bgColor: "#F5F6F7", textColor: "#000000", borderColor: "#FFFFFF" },
+      row3: { bgColor: "#E9ECEF", textColor: "#000000", borderColor: "#FFFFFF" }
+    },
+    yellow: {
+      header: { bgColor: "#FFC000", textColor: "#000000", borderColor: "#FFFFFF", fontWeight: "bold" },
+      row1: { bgColor: "#FFF2CC", textColor: "#000000", borderColor: "#FFFFFF" },
+      row2: { bgColor: "#FFF9E6", textColor: "#000000", borderColor: "#FFFFFF" },
+      row3: { bgColor: "#FFF2CC", textColor: "#000000", borderColor: "#FFFFFF" }
+    },
+    blue: {
+      header: { bgColor: "#2196F3", textColor: "#ffffff", borderColor: "#FFFFFF", fontWeight: "bold" },
+      row1: { bgColor: "#BBDEFB", textColor: "#000000", borderColor: "#FFFFFF" },
+      row2: { bgColor: "#E3F2FD", textColor: "#000000", borderColor: "#FFFFFF" },
+      row3: { bgColor: "#BBDEFB", textColor: "#000000", borderColor: "#FFFFFF" }
+    }
+  });
+
+  // Check if colors match a table style pattern
+  const checkIfStyleMatches = (rowIndex, cell, styleName) => {
+    const styles = getTableStyles();
+    const style = styles[styleName];
+    if (!style) return false;
+
+    let expectedStyle;
+    if (rowIndex === 0) {
+      expectedStyle = style.header;
+    } else if (rowIndex === 1) {
+      expectedStyle = style.row1;
+    } else if (rowIndex === 2) {
+      expectedStyle = style.row2;
+    } else {
+      expectedStyle = (rowIndex % 2 === 1) ? style.row1 : style.row2;
+    }
+
+    return cell.bgColor === expectedStyle.bgColor &&
+           cell.textColor === expectedStyle.textColor &&
+           cell.borderColor === expectedStyle.borderColor;
+  };
+
   // Update all cells (formatting applies to entire table)
   const updateAllCells = (updates) => {
     if (!selectedElement.data) return;
     const newData = selectedElement.data.map(row =>
       row.map(cell => ({ ...cell, ...updates }))
     );
+    
+    // If color is being changed manually, check if it breaks the style pattern
+    if (updates.bgColor || updates.textColor || updates.borderColor) {
+      const currentStyle = selectedElement.tableStyle;
+      if (currentStyle) {
+        // Check if any cell doesn't match the style pattern
+        const styleBroken = newData.some((row, rowIndex) =>
+          row.some(cell => !checkIfStyleMatches(rowIndex, cell, currentStyle))
+        );
+        if (styleBroken) {
+          // Remove style reference if pattern is broken
+          updateSlideElement(selectedElement.id, { data: newData, tableStyle: undefined });
+          return;
+        }
+      }
+    }
+    
     updateSlideElement(selectedElement.id, { data: newData });
   };
 
@@ -53,6 +122,21 @@ const TableOptions = ({
       }
       return row;
     });
+    
+    // If color is being changed manually, check if it breaks the style pattern
+    if (updates.bgColor || updates.textColor || updates.borderColor) {
+      const currentStyle = selectedElement.tableStyle;
+      if (currentStyle) {
+        // Check if header row doesn't match the style pattern
+        const styleBroken = newData[0].some(cell => !checkIfStyleMatches(0, cell, currentStyle));
+        if (styleBroken) {
+          // Remove style reference if pattern is broken
+          updateSlideElement(selectedElement.id, { data: newData, tableStyle: undefined });
+          return;
+        }
+      }
+    }
+    
     updateSlideElement(selectedElement.id, { data: newData });
   };
 
@@ -67,6 +151,24 @@ const TableOptions = ({
       // Update all data rows (non-header rows)
       return row.map(cell => ({ ...cell, ...updates }));
     });
+    
+    // If color is being changed manually, check if it breaks the style pattern
+    if (updates.bgColor || updates.textColor || updates.borderColor) {
+      const currentStyle = selectedElement.tableStyle;
+      if (currentStyle) {
+        // Check if any data row doesn't match the style pattern
+        const styleBroken = newData.some((row, rowIndex) => {
+          if (rowIndex === 0) return false; // Skip header
+          return row.some(cell => !checkIfStyleMatches(rowIndex, cell, currentStyle));
+        });
+        if (styleBroken) {
+          // Remove style reference if pattern is broken
+          updateSlideElement(selectedElement.id, { data: newData, tableStyle: undefined });
+          return;
+        }
+      }
+    }
+    
     updateSlideElement(selectedElement.id, { data: newData });
   };
 
@@ -74,10 +176,42 @@ const TableOptions = ({
   const addRow = () => {
     const cols = selectedElement.cols || 4;
     const data = selectedElement.data || [];
+    const currentStyle = selectedElement.tableStyle;
+    const styles = getTableStyles();
     
-    // Determine the color pattern for the new row based on existing rows
+    // Determine the color pattern for the new row
     let newRowStyle;
-    if (data.length === 0) {
+    const newRowIndex = data.length; // Index of the new row (0-based)
+    
+    if (currentStyle && styles[currentStyle]) {
+      // Use table style pattern
+      const style = styles[currentStyle];
+      let cellStyle;
+      if (newRowIndex === 0) {
+        cellStyle = style.header;
+      } else if (newRowIndex === 1) {
+        cellStyle = style.row1;
+      } else if (newRowIndex === 2) {
+        cellStyle = style.row2;
+      } else {
+        // For rows beyond 2, alternate between row1 and row2
+        cellStyle = (newRowIndex % 2 === 1) ? style.row1 : style.row2;
+      }
+      
+      newRowStyle = {
+        text: "",
+        bgColor: cellStyle.bgColor,
+        textColor: cellStyle.textColor,
+        borderColor: cellStyle.borderColor,
+        borderWidth: 2,
+        fontSize: 14,
+        fontFamily: "Arial",
+        fontWeight: newRowIndex === 0 ? (cellStyle.fontWeight || "bold") : "normal",
+        fontStyle: "normal",
+        textDecoration: "none",
+        align: "left"
+      };
+    } else if (data.length === 0) {
       // No existing data, use default
       newRowStyle = {
         text: "",
@@ -148,17 +282,17 @@ const TableOptions = ({
       } else {
         // Fallback to default
         newRowStyle = {
-      text: "",
-      bgColor: "#ffffff",
-      textColor: "#000000",
-      borderColor: "#cccccc",
-      borderWidth: 1,
-      fontSize: 14,
-      fontFamily: "Arial",
-      fontWeight: "normal",
-      fontStyle: "normal",
-      textDecoration: "none",
-      align: "left"
+          text: "",
+          bgColor: "#ffffff",
+          textColor: "#000000",
+          borderColor: "#cccccc",
+          borderWidth: 1,
+          fontSize: 14,
+          fontFamily: "Arial",
+          fontWeight: "normal",
+          fontStyle: "normal",
+          textDecoration: "none",
+          align: "left"
         };
       }
     }
@@ -239,6 +373,8 @@ const TableOptions = ({
     const cols = selectedElement.cols || 4;
     const data = selectedElement.data || [];
     const cellHeight = selectedElement.cellHeight || 40;
+    const currentStyle = selectedElement.tableStyle;
+    const styles = getTableStyles();
     
     let newData = [...data];
     
@@ -247,7 +383,37 @@ const TableOptions = ({
       for (let i = currentRows; i < newRowCount; i++) {
         // Determine the color pattern for the new row
         let newRowStyle;
-        if (newData.length === 0) {
+        const newRowIndex = i; // Index of the new row (0-based)
+        
+        if (currentStyle && styles[currentStyle]) {
+          // Use table style pattern
+          const style = styles[currentStyle];
+          let cellStyle;
+          if (newRowIndex === 0) {
+            cellStyle = style.header;
+          } else if (newRowIndex === 1) {
+            cellStyle = style.row1;
+          } else if (newRowIndex === 2) {
+            cellStyle = style.row2;
+          } else {
+            // For rows beyond 2, alternate between row1 and row2
+            cellStyle = (newRowIndex % 2 === 1) ? style.row1 : style.row2;
+          }
+          
+          newRowStyle = {
+            text: "",
+            bgColor: cellStyle.bgColor,
+            textColor: cellStyle.textColor,
+            borderColor: cellStyle.borderColor,
+            borderWidth: 2,
+            fontSize: 14,
+            fontFamily: "Arial",
+            fontWeight: newRowIndex === 0 ? (cellStyle.fontWeight || "bold") : "normal",
+            fontStyle: "normal",
+            textDecoration: "none",
+            align: "left"
+          };
+        } else if (newData.length === 0) {
           newRowStyle = {
             text: "",
             bgColor: "#ffffff",
@@ -415,64 +581,214 @@ const TableOptions = ({
 
   return (
     <div className="right-toolbar-section">
-      <div className="section-title">Table Structure</div>
-      <div className="option-group">
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <label className="option-label" style={{ fontSize: '0.75rem', whiteSpace: 'nowrap' }}>Rows</label>
-            <input
-              type="number"
-              min="1"
-              max="50"
-              value={selectedElement.rows || selectedElement.data?.length || 4}
-              onChange={(e) => {
-                const newRows = Math.max(1, parseInt(e.target.value) || 1);
-                updateRows(newRows);
-              }}
-              className="toolbar-input table-structure-input"
-            style={{ width: '60px' }}
-            />
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <label className="option-label" style={{ fontSize: '0.75rem', whiteSpace: 'nowrap' }}>Columns</label>
-            <input
-              type="number"
-              min="1"
-              max="50"
-              value={selectedElement.cols || 4}
-              onChange={(e) => {
-                const newCols = Math.max(1, parseInt(e.target.value) || 1);
-                updateColumns(newCols);
-              }}
-              className="toolbar-input table-structure-input"
-            style={{ width: '60px' }}
-            />
+      {/* Table Structure Container */}
+      <div className="option-group table-structure-container" style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '0.75rem',
+        padding: '0.75rem'
+      }}>
+        <div className="table-structure-label" style={{
+          fontSize: '0.875rem',
+          fontWeight: '600',
+          color: '#404040',
+          marginBottom: '0.25rem'
+        }}>
+          Table Structure
+        </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {/* Rows and Columns Input */}
+            <div className="table-rows-columns-options-container" style={{
+              padding: '0.375rem',
+              background: '#f3f4f6',
+              borderRadius: '0.5rem',
+              border: 'none'
+            }}>
+              <div className="table-header-second-row" style={{ height: '28px', alignItems: 'center' }}>
+                <label className="table-rows-label" style={{ fontSize: '0.75rem', whiteSpace: 'nowrap', marginRight: '4px' }}>Rows :</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="50"
+                  value={selectedElement.rows || selectedElement.data?.length || 4}
+                  onChange={(e) => {
+                    const newRows = Math.max(1, parseInt(e.target.value) || 1);
+                    updateRows(newRows);
+                  }}
+                  className="toolbar-input table-structure-input"
+                  style={{ width: '60px', height: '28px', marginRight: '12px' }}
+                />
+                <label className="table-columns-label" style={{ fontSize: '0.75rem', whiteSpace: 'nowrap', marginRight: '4px' }}>Columns :</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="50"
+                  value={selectedElement.cols || 4}
+                  onChange={(e) => {
+                    const newCols = Math.max(1, parseInt(e.target.value) || 1);
+                    updateColumns(newCols);
+                  }}
+                  className="toolbar-input table-structure-input"
+                  style={{ width: '60px', height: '28px' }}
+                />
+              </div>
+            </div>
+          
+          {/* Border Width and Border Color */}
+          <div className="table-border-options-container" style={{
+            padding: '0.375rem',
+            background: '#f3f4f6',
+            borderRadius: '0.5rem',
+            border: 'none'
+          }}>
+            <div className="table-header-second-row" style={{ height: '28px', alignItems: 'center' }}>
+              <label className="table-border-label" style={{ fontSize: '0.75rem', whiteSpace: 'nowrap', marginRight: '4px' }}>Border :</label>
+              <label className="table-border-width-label" style={{ fontSize: '0.75rem', whiteSpace: 'nowrap', marginRight: '4px' }}>width</label>
+              <input
+                type="number"
+                min="0"
+                max="10"
+                value={currentCell.borderWidth || 1}
+                onChange={(e) => {
+                  const borderWidth = Math.max(0, parseInt(e.target.value) || 1);
+                  updateAllCells({ borderWidth });
+                }}
+                className="toolbar-input table-border-input"
+                placeholder="Size"
+              />
+              <label className="table-border-color-label" style={{ fontSize: '0.75rem', whiteSpace: 'nowrap', marginRight: '4px', marginLeft: '8px' }}>color</label>
+              <div className="table-header-color-icon" style={{ position: 'relative' }}>
+                <div style={{ position: 'absolute', top: 0, left: 0, width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+                  <ModernColorPicker
+                    value={currentCell.borderColor || "#cccccc"}
+                    onColorSelect={(color) => {
+                      updateAllCells({ borderColor: color });
+                    }}
+                    defaultColor="#cccccc"
+                    compact={true}
+                    quickColors={[]}
+                    buttonSize="0px"
+                    buttonStyle={{
+                      display: 'none',
+                      opacity: 0,
+                      position: 'absolute',
+                      pointerEvents: 'none',
+                      width: 0,
+                      height: 0
+                    }}
+                  />
+                </div>
+                <div 
+                  ref={borderColorButtonRef}
+                  className="table-header-bg-color-icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const mcpButton = e.currentTarget.parentElement.querySelector('.modern-color-picker > div');
+                    if (mcpButton) {
+                      if (borderColorButtonRef.current) {
+                        const rect = borderColorButtonRef.current.getBoundingClientRect();
+                        mcpButton.setAttribute('data-actual-left', rect.left.toString());
+                        mcpButton.setAttribute('data-actual-top', rect.top.toString());
+                        mcpButton.setAttribute('data-actual-bottom', rect.bottom.toString());
+                        mcpButton.setAttribute('data-actual-width', rect.width.toString());
+                      }
+                      mcpButton.click();
+                    }
+                  }}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <Palette size={16} />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Tab Switch Container for Header/Cell Styling */}
-      <div className="table-styling-tabs-container">
-        <div className="table-styling-tabs">
+      {/* Header/Cell Styling Container */}
+      <div className="option-group table-styling-container" style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '0.5rem',
+        padding: '0.75rem'
+      }}>
+        {/* Tabs */}
+        <div style={{
+          display: 'flex',
+          gap: 0,
+          borderBottom: '1px solid #e5e7eb',
+          marginBottom: '0.25rem'
+        }}>
           <button
-            className={`table-styling-tab ${activeTab === 'header' ? 'active' : ''}`}
             onClick={() => setActiveTab('header')}
+            style={{
+              flex: 1,
+              padding: '0.5rem 0.75rem',
+              background: 'transparent',
+              border: 'none',
+              color: activeTab === 'header' ? '#000000' : '#6b7280',
+              fontSize: '0.875rem',
+              fontWeight: activeTab === 'header' ? '600' : '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              borderBottom: activeTab === 'header' ? '2px solid #000000' : '2px solid transparent',
+              marginBottom: '-1px'
+            }}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'header') {
+                e.currentTarget.style.color = '#374151';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'header') {
+                e.currentTarget.style.color = '#6b7280';
+              }
+            }}
           >
             Header Styling
           </button>
           <button
-            className={`table-styling-tab ${activeTab === 'cell' ? 'active' : ''}`}
             onClick={() => setActiveTab('cell')}
+            style={{
+              flex: 1,
+              padding: '0.5rem 0.75rem',
+              background: 'transparent',
+              border: 'none',
+              color: activeTab === 'cell' ? '#000000' : '#6b7280',
+              fontSize: '0.875rem',
+              fontWeight: activeTab === 'cell' ? '600' : '500',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              borderBottom: activeTab === 'cell' ? '2px solid #000000' : '2px solid transparent',
+              marginBottom: '-1px'
+            }}
+            onMouseEnter={(e) => {
+              if (activeTab !== 'cell') {
+                e.currentTarget.style.color = '#374151';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== 'cell') {
+                e.currentTarget.style.color = '#6b7280';
+              }
+            }}
           >
-            Cell Formatting
+            Cell Styling
           </button>
-      </div>
+        </div>
 
-        <div className="table-styling-content">
+        {/* Tab Content */}
+        <div>
           {activeTab === 'header' && (
-            <div className="option-group">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {/* First Row: 6 icons side by side (Bold, Italic, Underline, Align Left, Center, Right) */}
-              <div className="table-header-icons-row">
+              <div className="table-icons-row-container" style={{
+                padding: '0.5rem',
+                background: '#f3f4f6',
+                borderRadius: '0.5rem',
+                border: 'none'
+              }}>
+                <div className="table-header-icons-row">
                 <div
               onClick={() => {
                 const newWeight = headerCell.fontWeight === 'bold' ? 'normal' : 'bold';
@@ -530,10 +846,17 @@ const TableOptions = ({
             >
                   <FiAlignRight size={18} />
           </div>
-        </div>
+                </div>
+              </div>
 
               {/* Second Row: Font Style, Font Size, Text Color, Background Color - Single Row */}
-              <div className="table-header-second-row">
+              <div style={{
+                padding: '0.375rem',
+                background: '#f3f4f6',
+                borderRadius: '0.5rem',
+                border: 'none'
+              }}>
+                <div className="table-header-second-row" style={{ height: '28px', alignItems: 'center' }}>
                 {/* Font Family Dropdown */}
                 <div className="table-font-family-dropdown-wrapper">
                   <FontFamilyDropdown
@@ -654,17 +977,24 @@ const TableOptions = ({
                     }}
                     style={{ cursor: 'pointer' }}
                   >
-                    <FiDroplet size={18} />
+                    <Palette size={16} />
                   </div>
                 </div>
+                </div>
               </div>
-        </div>
+            </div>
           )}
 
           {activeTab === 'cell' && (
-            <div className="option-group">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {/* First Row: 6 icons side by side (Bold, Italic, Underline, Align Left, Center, Right) */}
-              <div className="table-header-icons-row">
+              <div className="table-icons-row-container" style={{
+                padding: '0.5rem',
+                background: '#f3f4f6',
+                borderRadius: '0.5rem',
+                border: 'none'
+              }}>
+                <div className="table-header-icons-row">
                 <div
               onClick={() => {
                 const newWeight = currentCell.fontWeight === 'bold' ? 'normal' : 'bold';
@@ -722,10 +1052,17 @@ const TableOptions = ({
             >
                   <FiAlignRight size={18} />
                 </div>
+                </div>
               </div>
 
               {/* Second Row: Font Style, Font Size, Text Color, Background Color - Single Row */}
-              <div className="table-header-second-row">
+              <div style={{
+                padding: '0.375rem',
+                background: '#f3f4f6',
+                borderRadius: '0.5rem',
+                border: 'none'
+              }}>
+                <div className="table-header-second-row" style={{ height: '28px', alignItems: 'center' }}>
                 {/* Font Family Dropdown */}
                 <div className="table-font-family-dropdown-wrapper">
                   <FontFamilyDropdown
@@ -846,77 +1183,24 @@ const TableOptions = ({
                     }}
                     style={{ cursor: 'pointer' }}
                   >
-                    <FiDroplet size={18} />
+                    <Palette size={16} />
                   </div>
+                </div>
                 </div>
               </div>
 
-              {/* Third Row: Border Width and Border Color */}
-              <div className="table-header-second-row" style={{ marginTop: '12px' }}>
-                <label className="table-border-label" style={{ fontSize: '0.75rem', whiteSpace: 'nowrap', marginRight: '4px' }}>Border</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="10"
-                  value={currentCell.borderWidth || 1}
-                  onChange={(e) => {
-                    const borderWidth = Math.max(0, parseInt(e.target.value) || 1);
-                    updateDataCells({ borderWidth });
-                  }}
-                  className="toolbar-input table-border-input"
-                  placeholder="Size"
-                />
-                <div className="table-header-color-icon" style={{ position: 'relative' }}>
-                  <div style={{ position: 'absolute', top: 0, left: 0, width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-                    <ModernColorPicker
-                      value={currentCell.borderColor || "#cccccc"}
-                      onColorSelect={(color) => {
-                        updateDataCells({ borderColor: color });
-                      }}
-                      defaultColor="#cccccc"
-                      compact={true}
-                      quickColors={[]}
-                      buttonSize="0px"
-                      buttonStyle={{
-                        display: 'none',
-                        opacity: 0,
-                        position: 'absolute',
-                        pointerEvents: 'none',
-                        width: 0,
-                        height: 0
-                      }}
-                    />
-                  </div>
-                  <div 
-                    ref={borderColorButtonRef}
-                    className="table-header-bg-color-icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const mcpButton = e.currentTarget.parentElement.querySelector('.modern-color-picker > div');
-                      if (mcpButton) {
-                        if (borderColorButtonRef.current) {
-                          const rect = borderColorButtonRef.current.getBoundingClientRect();
-                          mcpButton.setAttribute('data-actual-left', rect.left.toString());
-                          mcpButton.setAttribute('data-actual-top', rect.top.toString());
-                          mcpButton.setAttribute('data-actual-bottom', rect.bottom.toString());
-                          mcpButton.setAttribute('data-actual-width', rect.width.toString());
-                        }
-                        mcpButton.click();
-                      }
-                    }}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <FiDroplet size={18} />
-                  </div>
-                </div>
-              </div>
             </div>
           )}
         </div>
       </div>
 
-      <div className="section-title">Table Styles</div>
-      <div className="option-group">
+      {/* Table Styles Container */}
+      <div className="option-group table-styles-container" style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '0.75rem',
+        padding: '0.75rem'
+      }}>
         <div className="table-style-grid-inline">
           {[
             { style: 'orange', colors: { header: '#FF6B35', row1: '#FFE5D9', row2: '#FFF0E6' } },
@@ -929,33 +1213,7 @@ const TableOptions = ({
               className="table-style-preview-inline"
               onClick={() => {
                 // Apply the selected style to the table
-                const tableStyles = {
-                  orange: {
-                    header: { bgColor: "#FF6B35", textColor: "#ffffff", borderColor: "#FFFFFF", fontWeight: "bold" },
-                    row1: { bgColor: "#FFE5D9", textColor: "#000000", borderColor: "#FFFFFF" },
-                    row2: { bgColor: "#FFF0E6", textColor: "#000000", borderColor: "#FFFFFF" },
-                    row3: { bgColor: "#FFE5D9", textColor: "#000000", borderColor: "#FFFFFF" }
-                  },
-                  grey: {
-                    header: { bgColor: "#6C757D", textColor: "#ffffff", borderColor: "#FFFFFF", fontWeight: "bold" },
-                    row1: { bgColor: "#E9ECEF", textColor: "#000000", borderColor: "#FFFFFF" },
-                    row2: { bgColor: "#F5F6F7", textColor: "#000000", borderColor: "#FFFFFF" },
-                    row3: { bgColor: "#E9ECEF", textColor: "#000000", borderColor: "#FFFFFF" }
-                  },
-                  yellow: {
-                    header: { bgColor: "#FFC000", textColor: "#000000", borderColor: "#FFFFFF", fontWeight: "bold" },
-                    row1: { bgColor: "#FFF2CC", textColor: "#000000", borderColor: "#FFFFFF" },
-                    row2: { bgColor: "#FFF9E6", textColor: "#000000", borderColor: "#FFFFFF" },
-                    row3: { bgColor: "#FFF2CC", textColor: "#000000", borderColor: "#FFFFFF" }
-                  },
-                  blue: {
-                    header: { bgColor: "#2196F3", textColor: "#ffffff", borderColor: "#FFFFFF", fontWeight: "bold" },
-                    row1: { bgColor: "#BBDEFB", textColor: "#000000", borderColor: "#FFFFFF" },
-                    row2: { bgColor: "#E3F2FD", textColor: "#000000", borderColor: "#FFFFFF" },
-                    row3: { bgColor: "#BBDEFB", textColor: "#000000", borderColor: "#FFFFFF" }
-                  }
-                };
-
+                const tableStyles = getTableStyles();
                 const selectedStyle = tableStyles[tableStyle.style];
                 if (!selectedStyle || !selectedElement.data) return;
 
@@ -982,7 +1240,8 @@ const TableOptions = ({
                   }));
                 });
 
-                updateSlideElement(selectedElement.id, { data: newData });
+                // Store the selected table style name
+                updateSlideElement(selectedElement.id, { data: newData, tableStyle: tableStyle.style });
               }}
             >
               <div className="table-preview">
@@ -1040,6 +1299,7 @@ const TableOptions = ({
           sendBackward={sendBackward}
           sendToBack={sendToBack}
           updateSlide={updateSlide}
+          deleteElement={deleteElement}
         />
       </div>
     </div>

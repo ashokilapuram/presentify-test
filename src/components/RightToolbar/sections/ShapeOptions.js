@@ -13,7 +13,8 @@ const ShapeOptions = ({
   sendBackward,
   sendToBack,
   updateSlide,
-  currentSlide
+  currentSlide,
+  deleteElement
 }) => {
   const borderColorButtonRef = useRef(null);
   const fillColorButtonRef = useRef(null);
@@ -401,6 +402,7 @@ const ShapeOptions = ({
           sendBackward={sendBackward}
           sendToBack={sendToBack}
           updateSlide={updateSlide}
+          deleteElement={deleteElement}
         />
       </div>
     </div>

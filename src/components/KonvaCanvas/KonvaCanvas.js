@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Stage, Layer, Rect, Image as KonvaImage } from 'react-konva';
 import Konva from 'konva';
 import EditableTextBox from '../EditableTextBox/EditableTextBox';
@@ -7,6 +7,7 @@ import ImageBox from '../ImageBox/ImageBox';
 import ChartBox from '../ChartBox/ChartBox';
 import TableBox from '../TableBox/TableBox';
 import ContextMenu from '../ContextMenu/ContextMenu';
+import GradientBackground from './GradientBackground';
 
 const KonvaCanvas = ({
   slide,
@@ -17,8 +18,18 @@ const KonvaCanvas = ({
   updateSlide,
   onThumbnailUpdate,   // ✅ new prop
   onOpenDesignTab,
+  bringForward,
+  bringToFront,
+  sendBackward,
+  sendToBack,
+  copiedElement,
+  setCopiedElement,
   readOnly = false,
   zoom = 100,
+  currentSlideIndex,
+  duplicateSlide,
+  addSlideBefore,
+  addSlideAfter,
 }) => {
   const stageRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -133,6 +144,7 @@ const KonvaCanvas = ({
     closeContextMenu();
   }, [slide?.id]);
 
+
   // Load background image when slide backgroundImage changes
   useEffect(() => {
     if (slide?.backgroundImage) {
@@ -151,10 +163,106 @@ const KonvaCanvas = ({
     }
   }, [slide?.backgroundImage]);
 
+  // Convert screen coordinates to stage coordinates
+  // Uses Konva's internal coordinate system accounting for scale, position, and container offset
+  const screenToStage = useCallback((screenX, screenY) => {
+    const stage = stageRef.current;
+    if (!stage) return null;
+
+    try {
+      const container = stage.container();
+      if (!container) return null;
+
+      // Get the container's bounding rectangle (accounts for scroll, position, etc.)
+      const rect = container.getBoundingClientRect();
+      
+      // Get stage transform properties
+      const stagePos = stage.position();
+      const scaleX = stage.scaleX();
+      const scaleY = stage.scaleY();
+      
+      // Calculate relative position within container
+      const relativeX = screenX - rect.left;
+      const relativeY = screenY - rect.top;
+      
+      // Convert to stage coordinates: (relativePos - stagePos) / scale
+      // This is the inverse of stage-to-screen transformation
+      const x = (relativeX - (stagePos.x || 0)) / scaleX;
+      const y = (relativeY - (stagePos.y || 0)) / scaleY;
+      
+      // Validate coordinates
+      if (isNaN(x) || isNaN(y) || !isFinite(x) || !isFinite(y)) {
+        return null;
+      }
+      
+      return { x, y };
+    } catch (error) {
+      console.error('Error in screenToStage:', error);
+      return null;
+    }
+  }, []);
+
+  // Find element at stage coordinates
+  // Checks elements in reverse order (topmost first) and handles rotation
+  const findElementAtPosition = useCallback((stageX, stageY) => {
+    if (!slide?.elements || slide.elements.length === 0) return null;
+
+    // Check elements in reverse order (topmost first)
+    for (let i = slide.elements.length - 1; i >= 0; i--) {
+      const el = slide.elements[i];
+      const elX = el.x || 0;
+      const elY = el.y || 0;
+      const elWidth = el.width || 0;
+      const elHeight = el.height || 0;
+      
+      // Skip elements with invalid dimensions
+      if (elWidth <= 0 || elHeight <= 0) continue;
+      
+      // Check if point is within element bounds
+      if (!el.rotation || Math.abs(el.rotation) < 0.01) {
+        // Non-rotated element: simple bounding box check
+        if (
+          stageX >= elX &&
+          stageX <= elX + elWidth &&
+          stageY >= elY &&
+          stageY <= elY + elHeight
+        ) {
+          return el;
+        }
+      } else {
+        // Rotated element: transform point to element's local space
+        const centerX = elX + elWidth / 2;
+        const centerY = elY + elHeight / 2;
+        const angle = -el.rotation * Math.PI / 180; // Convert to radians, negate for Konva
+        
+        // Translate point relative to element center
+        const dx = stageX - centerX;
+        const dy = stageY - centerY;
+        
+        // Rotate point back (inverse rotation)
+        const cos = Math.cos(-angle);
+        const sin = Math.sin(-angle);
+        const localX = dx * cos - dy * sin;
+        const localY = dx * sin + dy * cos;
+        
+        // Check if point is within unrotated rectangle
+        if (
+          Math.abs(localX) <= elWidth / 2 &&
+          Math.abs(localY) <= elHeight / 2
+        ) {
+          return el;
+        }
+      }
+    }
+    
+    return null;
+  }, [slide]);
+
+
   // Handle element selection
-  const handleElementClick = (element) => {
+  const handleElementClick = useCallback((element) => {
     setSelectedElement(element);
-  };
+  }, []);
 
   // Handle element drag end
   const handleDragEnd = (element, e) => {
@@ -184,27 +292,22 @@ const KonvaCanvas = ({
         e.stopImmediatePropagation();
       }
 
-      const rect = container.getBoundingClientRect();
       const x = e.clientX;
       const y = e.clientY;
 
-      // Calculate relative position for Konva intersection check
-      const stageScale = stage.scaleX();
-      const relativeX = (x - rect.left) / stageScale;
-      const relativeY = (y - rect.top) / stageScale;
+      // Convert screen coordinates to stage coordinates
+      const pointerPos = screenToStage(x, y);
 
-      // Only open context menu when clicking on empty stage
-      const shape = stage.getIntersection({ x: relativeX, y: relativeY });
-      if (!shape) {
-        // Prevent duplicate menus
-        setContextMenu((prev) => {
-          if (prev.visible) return prev;
-          return { visible: true, position: { x, y } };
-        });
-      } else {
-        // Clicked on element → close
-        setContextMenu({ visible: false, position: null });
-      }
+      // Always show context menu on right-click
+      // The menu will show element options if selectedElement exists, otherwise background options
+      setContextMenu((prev) => {
+        if (prev.visible) return prev;
+        return { 
+          visible: true, 
+          position: { x, y },
+          stagePosition: pointerPos // Store stage coordinates for paste
+        };
+      });
     };
 
     content.addEventListener('contextmenu', handleContextMenu, { capture: true, passive: false });
@@ -212,7 +315,7 @@ const KonvaCanvas = ({
     return () => {
       content.removeEventListener('contextmenu', handleContextMenu, { capture: true });
     };
-  }, [slide, scale]); // Re-attach when slide or scale changes
+  }, [slide, scale, screenToStage, findElementAtPosition]); // Re-attach when slide or scale changes
 
 
   // Render slide elements
@@ -322,8 +425,9 @@ const KonvaCanvas = ({
         }}
         ref={stageRef}
         onClick={(e) => {
-          // Deselect if clicking on empty canvas area
-          if (e.target === e.target.getStage()) {
+          const clickedStage = e.target === e.target.getStage();
+          
+          if (clickedStage) {
             setSelectedElement(null);
             closeContextMenu();
           }
@@ -341,8 +445,17 @@ const KonvaCanvas = ({
               listening={false}
             />
           )}
-          {/* Background color (only if no background image) */}
-          {!backgroundImage && slide?.backgroundColor && (
+          {/* Background gradient (only if no background image) */}
+          {!backgroundImage && slide?.backgroundGradient && (
+            <GradientBackground
+              width={1024}
+              height={576}
+              type={slide.backgroundGradient.type || 'linear'}
+              colors={slide.backgroundGradient.colors || ['#ffffff']}
+            />
+          )}
+          {/* Background color (only if no background image or gradient) */}
+          {!backgroundImage && !slide?.backgroundGradient && slide?.backgroundColor && (
             <Rect
               x={0}
               y={0}
@@ -352,8 +465,8 @@ const KonvaCanvas = ({
               listening={false}
             />
           )}
-          {/* Default white background if no background color or image */}
-          {!backgroundImage && !slide?.backgroundColor && (
+          {/* Default white background if no background color, gradient, or image */}
+          {!backgroundImage && !slide?.backgroundGradient && !slide?.backgroundColor && (
             <Rect
               x={0}
               y={0}
@@ -369,10 +482,23 @@ const KonvaCanvas = ({
       <ContextMenu
         visible={contextMenu.visible}
         position={contextMenu.position}
+        stagePosition={contextMenu.stagePosition}
         onClose={closeContextMenu}
         currentSlide={slide}
         updateSlide={updateSlide}
         onOpenDesignTab={onOpenDesignTab}
+        selectedElement={selectedElement}
+        deleteElement={deleteElement}
+        bringForward={bringForward}
+        bringToFront={bringToFront}
+        sendBackward={sendBackward}
+        sendToBack={sendToBack}
+        copiedElement={copiedElement}
+        setCopiedElement={setCopiedElement}
+        currentSlideIndex={currentSlideIndex}
+        duplicateSlide={duplicateSlide}
+        addSlideBefore={addSlideBefore}
+        addSlideAfter={addSlideAfter}
       />
     </div>
   );

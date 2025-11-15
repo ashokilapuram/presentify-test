@@ -15,6 +15,7 @@ import { useSlideshow } from '../../hooks/useSlideshow';
 import { useUIState } from '../../hooks/useUIState';
 import { useFileManager } from '../../hooks/useFileManager';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
+import { getGlobalBackground } from '../../utils/globalBackground';
 
 function EditorApp() {
   // Initialize all custom hooks
@@ -50,6 +51,9 @@ function EditorApp() {
   // Zoom state
   const [zoom, setZoom] = useState(100);
 
+  // State for copied element (for paste functionality)
+  const [copiedElement, setCopiedElement] = useState(null);
+
   // Sync toolbar formatting with the currently selected text element
   useEffect(() => {
     if (slidesHook.selectedElement && slidesHook.selectedElement.type === 'text') {
@@ -66,19 +70,101 @@ function EditorApp() {
         textTransform: slidesHook.selectedElement.textTransform ?? prev.textTransform,
         listType: slidesHook.selectedElement.listType ?? prev.listType,
       }));
+    } else if (!slidesHook.selectedElement) {
+      // Reset text formatting when no element is selected
+      setTextFormatting({
+        fontSize: 16,
+        fontWeight: 'normal',
+        fontStyle: 'normal',
+        textDecoration: 'none',
+        textAlign: 'left',
+        color: '#000000',
+        letterSpacing: 0,
+        lineHeight: 1.2,
+        textTransform: 'none',
+        listType: 'none'
+      });
     }
   }, [slidesHook.selectedElement, setTextFormatting]);
 
   // Wrapper functions that include history snapshots
   const addSlideWithHistory = useCallback(() => {
     slidesHook.addSlide(historyHook.pushSnapshot);
-    // Force RightToolbar to show Insert tab
-    uiStateHook.setForceRightToolbarTab('Insert');
-  }, [slidesHook.addSlide, historyHook.pushSnapshot, uiStateHook.setForceRightToolbarTab]);
+    // Only force RightToolbar to show Insert tab if not currently in Design tab
+    if (uiStateHook.currentRightToolbarTab !== 'Design') {
+      uiStateHook.setForceRightToolbarTab('Insert');
+    }
+  }, [slidesHook.addSlide, historyHook.pushSnapshot, uiStateHook.setForceRightToolbarTab, uiStateHook.currentRightToolbarTab]);
 
   const duplicateSlideWithHistory = useCallback((slideIndex) => {
     slidesHook.duplicateSlide(slideIndex, historyHook.pushSnapshot);
   }, [slidesHook.duplicateSlide, historyHook.pushSnapshot]);
+
+  const addSlideBeforeWithHistory = useCallback(() => {
+    // Snapshot before
+    historyHook.pushSnapshot({ 
+      slides: slidesHook.slides, 
+      selectedElement: slidesHook.selectedElement, 
+      currentSlideIndex: slidesHook.currentSlideIndex 
+    });
+
+    // Check for global background
+    let globalBackground = null;
+    const bgState = getGlobalBackground();
+    if (bgState.isActive && bgState.background) {
+      globalBackground = bgState.background;
+    }
+
+    const newSlide = {
+      id: uuidv4(),
+      elements: [],
+      ...(globalBackground || {})
+    };
+
+    // Insert before current slide
+    slidesHook.setSlides(prev => {
+      const newSlides = [...prev];
+      newSlides.splice(slidesHook.currentSlideIndex, 0, newSlide);
+      return newSlides;
+    });
+
+    // Switch to the new slide
+    slidesHook.setCurrentSlideIndex(slidesHook.currentSlideIndex);
+    slidesHook.setSelectedElement(null);
+  }, [slidesHook, historyHook.pushSnapshot]);
+
+  const addSlideAfterWithHistory = useCallback(() => {
+    // Snapshot before
+    historyHook.pushSnapshot({ 
+      slides: slidesHook.slides, 
+      selectedElement: slidesHook.selectedElement, 
+      currentSlideIndex: slidesHook.currentSlideIndex 
+    });
+
+    // Check for global background
+    let globalBackground = null;
+    const bgState = getGlobalBackground();
+    if (bgState.isActive && bgState.background) {
+      globalBackground = bgState.background;
+    }
+
+    const newSlide = {
+      id: uuidv4(),
+      elements: [],
+      ...(globalBackground || {})
+    };
+
+    // Insert after current slide
+    slidesHook.setSlides(prev => {
+      const newSlides = [...prev];
+      newSlides.splice(slidesHook.currentSlideIndex + 1, 0, newSlide);
+      return newSlides;
+    });
+
+    // Switch to the new slide
+    slidesHook.setCurrentSlideIndex(slidesHook.currentSlideIndex + 1);
+    slidesHook.setSelectedElement(null);
+  }, [slidesHook, historyHook.pushSnapshot]);
 
   const deleteSlideWithHistory = useCallback((slideIndex) => {
     slidesHook.deleteSlide(slideIndex, historyHook.pushSnapshot);
@@ -95,6 +181,10 @@ function EditorApp() {
   const updateSlideWithHistory = useCallback((updates) => {
     slidesHook.updateSlide(updates, historyHook.pushSnapshot);
   }, [slidesHook.updateSlide, historyHook.pushSnapshot]);
+
+  const updateAllSlidesWithHistory = useCallback((updates) => {
+    slidesHook.updateAllSlides(updates, historyHook.pushSnapshot);
+  }, [slidesHook.updateAllSlides, historyHook.pushSnapshot]);
 
   const addTextBoxWithHistory = useCallback((textType = 'content') => {
     slidesHook.addTextBox(textType, textFormatting, historyHook.pushSnapshot);
@@ -378,20 +468,23 @@ function EditorApp() {
             updateSlideElement={updateSlideElementWithHistory}
             updateSlide={updateSlideWithHistory}
             deleteElement={deleteElementWithHistory}
+            bringForward={bringForwardWithHistory}
+            bringToFront={bringToFrontWithHistory}
+            sendBackward={sendBackwardWithHistory}
+            sendToBack={sendToBackWithHistory}
+            copiedElement={copiedElement}
+            setCopiedElement={setCopiedElement}
             textFormatting={textFormatting}
             isDarkMode={uiStateHook.isDarkMode}
             onToggleDarkMode={uiStateHook.handleToggleDarkMode}
             zoom={zoom}
+            currentSlideIndex={slidesHook.currentSlideIndex}
+            duplicateSlide={duplicateSlideWithHistory}
+            addSlideBefore={addSlideBeforeWithHistory}
+            addSlideAfter={addSlideAfterWithHistory}
             onOpenDesignTab={() => {
               uiStateHook.setForceRightToolbarTab('Design');
               slidesHook.setSelectedElement(null);
-              // Wait for DOM to update, then trigger color picker button
-              setTimeout(() => {
-                const colorPickerButton = document.querySelector('[data-design-section-color-picker="true"]');
-                if (colorPickerButton) {
-                  colorPickerButton.click();
-                }
-              }, 150);
             }}
             onThumbnailUpdate={(slideId, img) => {
               slidesHook.setSlides((prev) =>
@@ -417,10 +510,13 @@ function EditorApp() {
             bringToFront={bringToFrontWithHistory}
             sendBackward={sendBackwardWithHistory}
             sendToBack={sendToBackWithHistory}
+            deleteElement={deleteElementWithHistory}
             onTabChange={uiStateHook.handleTabChange}
             slides={slidesHook.slides}
             forceTab={uiStateHook.forceRightToolbarTab}
             onTabForced={() => uiStateHook.setForceRightToolbarTab(null)}
+            updateAllSlides={updateAllSlidesWithHistory}
+            onCurrentTabChange={uiStateHook.setCurrentRightToolbarTab}
           />
         </div>
         {templatesHook.showTemplates && (

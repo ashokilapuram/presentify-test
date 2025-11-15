@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 /**
  * Component for bar and line chart color palettes
  */
 const BarLineColorPalettes = ({ selectedElement, updateSlideElement }) => {
+  const [activeTab, setActiveTab] = useState('colorful');
   const colorfulPalettes = [
     ['#0ea5e9', '#f59e0b', '#10b981', '#8b5cf6', '#f43f5e', '#06b6d4'],
     ['#8b5cf6', '#f59e0b', '#f43f5e', '#06b6d4', '#84cc16', '#f97316'],
@@ -51,25 +52,84 @@ const BarLineColorPalettes = ({ selectedElement, updateSlideElement }) => {
   };
 
   return (
-    <>
-      <div className="section-title">Colour</div>
-      <div className="option-group" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {/* Colourful Palettes */}
-        <div>
-          <div style={{ 
-            fontSize: '11px', 
-            fontWeight: '600', 
-            color: '#6b7280', 
-            marginBottom: 6,
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px'
-          }}>
-            Colourful
-          </div>
+    <div className="option-group" style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      gap: '0.5rem',
+      padding: '0.75rem'
+    }}>
+      {/* Tabs */}
+      <div style={{
+        display: 'flex',
+        gap: 0,
+        borderBottom: '1px solid #e5e7eb',
+        marginBottom: '0.25rem'
+      }}>
+        <button
+          onClick={() => setActiveTab('colorful')}
+          style={{
+            flex: 1,
+            padding: '0.5rem 0.75rem',
+            background: 'transparent',
+            border: 'none',
+            color: activeTab === 'colorful' ? '#000000' : '#6b7280',
+            fontSize: '0.875rem',
+            fontWeight: activeTab === 'colorful' ? '600' : '500',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            borderBottom: activeTab === 'colorful' ? '2px solid #000000' : '2px solid transparent',
+            marginBottom: '-1px'
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== 'colorful') {
+              e.currentTarget.style.color = '#374151';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== 'colorful') {
+              e.currentTarget.style.color = '#6b7280';
+            }
+          }}
+        >
+          Colorful
+        </button>
+        <button
+          onClick={() => setActiveTab('monochromatic')}
+          style={{
+            flex: 1,
+            padding: '0.5rem 0.75rem',
+            background: 'transparent',
+            border: 'none',
+            color: activeTab === 'monochromatic' ? '#000000' : '#6b7280',
+            fontSize: '0.875rem',
+            fontWeight: activeTab === 'monochromatic' ? '600' : '500',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            borderBottom: activeTab === 'monochromatic' ? '2px solid #000000' : '2px solid transparent',
+            marginBottom: '-1px'
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== 'monochromatic') {
+              e.currentTarget.style.color = '#374151';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== 'monochromatic') {
+              e.currentTarget.style.color = '#6b7280';
+            }
+          }}
+        >
+          Monochromatic
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      <div>
+        {activeTab === 'colorful' && (
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(2, 1fr)', 
-            gap: 5,
+            gap: '0.375rem',
             width: '100%'
           }}>
             {colorfulPalettes.map((palette, paletteIndex) => (
@@ -79,10 +139,10 @@ const BarLineColorPalettes = ({ selectedElement, updateSlideElement }) => {
                 className="color-palette-item"
                 style={{
                   display: 'flex',
-                  gap: 1.5,
+                  gap: '0.25rem',
                   cursor: 'pointer',
-                  padding: '4px',
-                  borderRadius: 5,
+                  padding: '0.375rem',
+                  borderRadius: '0.5rem',
                   border: '2px solid transparent',
                   background: '#f9fafb',
                   transition: 'all 0.2s ease',
@@ -105,10 +165,10 @@ const BarLineColorPalettes = ({ selectedElement, updateSlideElement }) => {
                     key={colorIndex}
                     className="color-swatch-palette"
                     style={{
-                      width: '14px',
-                      height: '14px',
+                      width: '10px',
+                      height: '10px',
                       backgroundColor: color,
-                      borderRadius: 3,
+                      borderRadius: '0.25rem',
                       border: '1px solid rgba(0,0,0,0.08)',
                       flexShrink: 0,
                       boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
@@ -118,25 +178,13 @@ const BarLineColorPalettes = ({ selectedElement, updateSlideElement }) => {
               </div>
             ))}
           </div>
-        </div>
+        )}
 
-        {/* Monochromatic Palettes */}
-        <div>
-          <div style={{ 
-            fontSize: '11px', 
-            fontWeight: '600', 
-            color: '#6b7280', 
-            marginBottom: 6,
-            marginTop: 4,
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px'
-          }}>
-            Monochromatic
-          </div>
+        {activeTab === 'monochromatic' && (
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(2, 1fr)', 
-            gap: 5,
+            gap: '0.375rem',
             width: '100%'
           }}>
             {monochromePalettes.map((palette, paletteIndex) => (
@@ -146,10 +194,10 @@ const BarLineColorPalettes = ({ selectedElement, updateSlideElement }) => {
                 className="color-palette-item"
                 style={{
                   display: 'flex',
-                  gap: 1.5,
+                  gap: '0.25rem',
                   cursor: 'pointer',
-                  padding: '4px',
-                  borderRadius: 5,
+                  padding: '0.375rem',
+                  borderRadius: '0.5rem',
                   border: '2px solid transparent',
                   background: '#f9fafb',
                   transition: 'all 0.2s ease',
@@ -172,10 +220,10 @@ const BarLineColorPalettes = ({ selectedElement, updateSlideElement }) => {
                     key={colorIndex}
                     className="color-swatch-palette"
                     style={{
-                      width: '14px',
-                      height: '14px',
+                      width: '10px',
+                      height: '10px',
                       backgroundColor: color,
-                      borderRadius: 3,
+                      borderRadius: '0.25rem',
                       border: '1px solid rgba(0,0,0,0.08)',
                       flexShrink: 0,
                       boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
@@ -185,9 +233,9 @@ const BarLineColorPalettes = ({ selectedElement, updateSlideElement }) => {
               </div>
             ))}
           </div>
-        </div>
+        )}
       </div>
-    </>
+    </div>
   );
 };
 

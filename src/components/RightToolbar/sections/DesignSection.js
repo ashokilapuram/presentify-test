@@ -1,20 +1,15 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { FiImage, FiDroplet } from 'react-icons/fi';
 import { Palette, Trash2 } from 'lucide-react';
 import SectionTitle from '../shared/SectionTitle';
 import ModernColorPicker from '../shared/ModernColorPicker';
+import { getGlobalBackground, setGlobalBackground, getToggleState, setToggleState } from '../../../utils/globalBackground';
 
-const DesignSection = ({ updateSlide, currentSlide }) => {
+const DesignSection = ({ updateSlide, currentSlide, slides, updateAllSlides }) => {
   const colorPickerButtonRef = useRef(null);
-  
-  const themes = [
-    { id: 1, src: '/images/themes/theme1.jpg', alt: 'Theme 1' },
-    { id: 2, src: '/images/themes/theme2.jpg', alt: 'Theme 2' },
-    { id: 3, src: '/images/themes/theme3.jpg', alt: 'Theme 3' },
-    { id: 4, src: '/images/themes/theme4.jpg', alt: 'Theme 4' },
-    { id: 5, src: '/images/themes/theme5.jpg', alt: 'Theme 5' },
-    { id: 6, src: '/images/themes/theme6.jpg', alt: 'Theme 6' },
-  ];
+  // Initialize from global state to persist across remounts
+  const [applyToAllSlides, setApplyToAllSlides] = useState(() => getToggleState());
+  const prevToggleStateRef = useRef(false);
 
   const backgroundColors = [
     { color: '#ffffff', title: 'White' },
@@ -27,23 +22,229 @@ const DesignSection = ({ updateSlide, currentSlide }) => {
     { color: '#f43f5e', title: 'Rose' },
   ];
 
-  const applyTheme = (themeSrc) => {
-    updateSlide && updateSlide({
-      backgroundImage: themeSrc,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat'
-    });
+  const gradients = [
+    {
+      id: 'sunset',
+      name: 'Sunset',
+      type: 'linear',
+      colors: ['#ff6b6b', '#ffa500', '#ff4757']
+    },
+    {
+      id: 'ocean',
+      name: 'Ocean',
+      type: 'linear',
+      colors: ['#667eea', '#764ba2']
+    },
+    {
+      id: 'forest',
+      name: 'Forest',
+      type: 'linear',
+      colors: ['#134e5e', '#71b280']
+    },
+    {
+      id: 'lavender',
+      name: 'Lavender',
+      type: 'linear',
+      colors: ['#e0c3fc', '#8ec5fc']
+    },
+    {
+      id: 'peach',
+      name: 'Peach',
+      type: 'linear',
+      colors: ['#ffecd2', '#fcb69f']
+    },
+    {
+      id: 'midnight',
+      name: 'Midnight',
+      type: 'linear',
+      colors: ['#0c0c0c', '#1a1a2e']
+    },
+    {
+      id: 'aurora',
+      name: 'Aurora',
+      type: 'linear',
+      colors: ['#0f2027', '#203a43', '#2c5364', '#0f2027']
+    },
+    {
+      id: 'rose',
+      name: 'Rose Gold',
+      type: 'linear',
+      colors: ['#fbc2eb', '#a6c1ee']
+    },
+    {
+      id: 'tropical',
+      name: 'Tropical',
+      type: 'linear',
+      colors: ['#f093fb', '#f5576c']
+    },
+    {
+      id: 'emerald',
+      name: 'Emerald',
+      type: 'linear',
+      colors: ['#11998e', '#38ef7d']
+    },
+    {
+      id: 'purple',
+      name: 'Purple Dream',
+      type: 'linear',
+      colors: ['#667eea', '#764ba2']
+    },
+    {
+      id: 'cosmic',
+      name: 'Cosmic',
+      type: 'linear',
+      colors: ['#2e1a47', '#8b5cf6', '#1a0d2e']
+    },
+    {
+      id: 'blue-radial',
+      name: 'Blue Glow',
+      type: 'radial',
+      colors: ['#3a7bd5', '#00d2ff']
+    },
+    {
+      id: 'pink-radial',
+      name: 'Pink Glow',
+      type: 'radial',
+      colors: ['#ff9a9e', '#fad0c4']
+    },
+    {
+      id: 'sky',
+      name: 'Sky',
+      type: 'linear',
+      colors: ['#a1c4fd', '#c2e9fb', '#ffffff']
+    },
+    {
+      id: 'dark',
+      name: 'Dark Mode',
+      type: 'linear',
+      colors: ['#232526', '#414345']
+    },
+    {
+      id: 'blue-red',
+      name: 'Blue to Red',
+      type: 'linear',
+      colors: ['#1565C0', '#b92b27']
+    },
+    {
+      id: 'olive-grey',
+      name: 'Olive to Grey',
+      type: 'linear',
+      colors: ['#757519', '#CCCCB2']
+    },
+    {
+      id: 'gold-cream',
+      name: 'Gold to Cream',
+      type: 'linear',
+      colors: ['#f8b500', '#fceabb']
+    },
+    {
+      id: 'multicolor',
+      name: 'Multi-Color',
+      type: 'linear',
+      colors: ['#FFAF7B', '#D76D77', '#3A1C71']
+    }
+  ];
+
+  // Sync toggle state with global state whenever it changes
+  useEffect(() => {
+    const toggleJustTurnedOn = applyToAllSlides && !prevToggleStateRef.current;
+    const toggleJustTurnedOff = !applyToAllSlides && prevToggleStateRef.current;
+    
+    // Update global toggle state
+    setToggleState(applyToAllSlides);
+    
+    if (toggleJustTurnedOn && currentSlide) {
+      // Toggle just turned on - store current slide's background and apply to all if it exists
+      const background = {
+        backgroundColor: currentSlide.backgroundColor,
+        backgroundGradient: currentSlide.backgroundGradient,
+        backgroundImage: currentSlide.backgroundImage,
+        backgroundSize: currentSlide.backgroundSize,
+        backgroundPosition: currentSlide.backgroundPosition,
+        backgroundRepeat: currentSlide.backgroundRepeat
+      };
+      setGlobalBackground({
+        isActive: true,
+        background
+      });
+      // If there's a background on current slide, apply it to all slides
+      if (currentSlide.backgroundColor || currentSlide.backgroundGradient || currentSlide.backgroundImage) {
+        if (updateAllSlides) {
+          updateAllSlides(background);
+        }
+      }
+    } else if (toggleJustTurnedOff) {
+      // Toggle just turned off - clear global background state
+      setGlobalBackground({
+        isActive: false,
+        background: null
+      });
+    } else if (applyToAllSlides) {
+      // Toggle is on - just ensure global state reflects current toggle state
+      // Don't update background based on currentSlide changes to avoid unwanted updates
+      const bgState = getGlobalBackground();
+      if (!bgState.isActive) {
+        // If for some reason isActive is false but toggle is on, restore it
+        if (currentSlide) {
+          const background = {
+            backgroundColor: currentSlide.backgroundColor,
+            backgroundGradient: currentSlide.backgroundGradient,
+            backgroundImage: currentSlide.backgroundImage,
+            backgroundSize: currentSlide.backgroundSize,
+            backgroundPosition: currentSlide.backgroundPosition,
+            backgroundRepeat: currentSlide.backgroundRepeat
+          };
+          setGlobalBackground({
+            isActive: true,
+            background
+          });
+        }
+      }
+    }
+    
+    prevToggleStateRef.current = applyToAllSlides;
+  }, [applyToAllSlides, currentSlide, updateAllSlides]);
+
+  const applyBackgroundToAll = (updates) => {
+    if (applyToAllSlides && updateAllSlides) {
+      // Store the background for new slides
+      setGlobalBackground({
+        isActive: true,
+        background: updates
+      });
+      // Apply to all existing slides
+      updateAllSlides(updates);
+    } else if (updateSlide) {
+      // Apply only to current slide
+      updateSlide(updates);
+    }
   };
 
   const applyBackgroundColor = (color) => {
-    updateSlide && updateSlide({
+    const updates = {
       backgroundColor: color,
+      backgroundGradient: undefined,
       backgroundImage: null,
       backgroundSize: null,
       backgroundPosition: null,
       backgroundRepeat: null
-    });
+    };
+    applyBackgroundToAll(updates);
+  };
+
+  const applyGradient = (gradient) => {
+    const updates = {
+      backgroundGradient: {
+        type: gradient.type,
+        colors: gradient.colors
+      },
+      backgroundColor: undefined,
+      backgroundImage: null,
+      backgroundSize: null,
+      backgroundPosition: null,
+      backgroundRepeat: null
+    };
+    applyBackgroundToAll(updates);
   };
 
   const handleImageUpload = (e) => {
@@ -56,7 +257,12 @@ const DesignSection = ({ updateSlide, currentSlide }) => {
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (ev) => {
-        updateSlide && updateSlide({ backgroundImage: ev.target.result });
+        const updates = { 
+          backgroundImage: ev.target.result,
+          backgroundGradient: undefined,
+          backgroundColor: undefined
+        };
+        applyBackgroundToAll(updates);
       };
       reader.readAsDataURL(file);
     };
@@ -65,67 +271,149 @@ const DesignSection = ({ updateSlide, currentSlide }) => {
 
   const clearBackground = (e) => {
     e.stopPropagation();
-    updateSlide && updateSlide({
+    const updates = {
       backgroundColor: undefined,
+      backgroundGradient: undefined,
       backgroundImage: null,
       backgroundSize: null,
       backgroundPosition: null,
       backgroundRepeat: null
-    });
+    };
+    applyBackgroundToAll(updates);
   };
 
   return (
     <div className="right-toolbar-section">
-      <div className="section-title">Themes</div>
-      <div className="theme-images-grid">
-        {themes.map((theme) => (
-          <div
-            key={theme.id}
-            className="theme-image-placeholder"
-            onClick={() => applyTheme(theme.src)}
-          >
-            <img
-              src={theme.src}
-              alt={theme.alt}
-              className="theme-image"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'flex';
-              }}
-            />
-            <div className="theme-fallback" style={{ display: 'none' }}>
-              <FiImage style={{ fontSize: '2.5rem', color: '#9ca3af' }} />
-            </div>
-          </div>
-        ))}
-      </div>
-
       <SectionTitle icon={<FiDroplet />} text="Background" />
       <div className="option-group">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-          {/* Quick Colors Grid */}
-          <div className="quick-colors-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-            {backgroundColors.map(({ color, title }) => (
-              <div
-                key={color}
-                className="color-swatch-small"
-                style={{
-                  backgroundColor: color,
-                  ...(color === '#ffffff' && { border: '1.5px solid #e5e7eb' })
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  applyBackgroundColor(color);
-                }}
-                title={title}
-              />
-            ))}
+        {/* Apply to All Slides Toggle */}
+        <div style={{ 
+          marginBottom: '16px', 
+          padding: '12px',
+          background: '#f9fafb',
+          borderRadius: '8px',
+          border: '1px solid #e5e7eb'
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            cursor: 'pointer'
+          }}
+          onClick={() => setApplyToAllSlides(!applyToAllSlides)}
+          >
+            <div style={{ 
+              fontSize: '13px', 
+              fontWeight: 500, 
+              color: '#374151',
+              userSelect: 'none'
+            }}>
+              Apply to all slides
+            </div>
+            <div style={{
+              position: 'relative',
+              width: '44px',
+              height: '24px',
+              borderRadius: '12px',
+              background: applyToAllSlides ? '#000000' : '#d1d5db',
+              transition: 'background 0.2s ease',
+              cursor: 'pointer',
+              flexShrink: 0
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: '2px',
+                left: applyToAllSlides ? '22px' : '2px',
+                width: '20px',
+                height: '20px',
+                borderRadius: '50%',
+                background: '#ffffff',
+                transition: 'left 0.2s ease',
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
+              }} />
+            </div>
           </div>
+        </div>
+        <div style={{ marginBottom: '16px' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            Gradients
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+            {gradients.map((gradient) => {
+              const gradientStyle = gradient.type === 'linear'
+                ? `linear-gradient(135deg, ${gradient.colors.join(', ')})`
+                : `radial-gradient(circle, ${gradient.colors.join(', ')})`;
+              
+              const isSelected = currentSlide?.backgroundGradient?.type === gradient.type && 
+                JSON.stringify(currentSlide?.backgroundGradient?.colors) === JSON.stringify(gradient.colors);
+              
+              return (
+                <div
+                  key={gradient.id}
+                  style={{
+                    aspectRatio: '1',
+                    borderRadius: '8px',
+                    background: gradientStyle,
+                    cursor: 'pointer',
+                    border: isSelected ? '2px solid #000000' : '1px solid #e5e7eb',
+                    boxShadow: isSelected 
+                      ? '0 0 0 2px rgba(0, 0, 0, 0.1)' 
+                      : '0 1px 2px rgba(0, 0, 0, 0.05)',
+                    transition: 'all 0.2s ease',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    applyGradient(gradient);
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                      e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
+                    }
+                  }}
+                  title={gradient.name}
+                />
+              );
+            })}
+          </div>
+        </div>
+        
+        <div style={{ marginBottom: '16px' }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            Solid Colors
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            {/* Quick Colors Grid */}
+            <div className="quick-colors-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+              {backgroundColors.map(({ color, title }) => (
+                <div
+                  key={color}
+                  className="color-swatch-small"
+                  style={{
+                    backgroundColor: color,
+                    ...(color === '#ffffff' && { border: '1.5px solid #e5e7eb' })
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    applyBackgroundColor(color);
+                  }}
+                  title={title}
+                />
+              ))}
+            </div>
 
-          {/* Color Picker, Image Upload, and Delete */}
-          <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', alignItems: 'center' }}>
-            <div style={{ position: 'relative', width: '36px', height: '36px' }}>
-              <div style={{ position: 'absolute', top: 0, left: 0, width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+            {/* Color Picker, Image Upload, and Delete */}
+            <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', alignItems: 'center' }}>
+              <div style={{ position: 'relative', width: '36px', height: '36px' }}>
+                <div style={{ position: 'absolute', top: 0, left: 0, width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none' }}>
                 <ModernColorPicker
                   value={currentSlide?.backgroundColor || '#ffffff'}
                   onColorSelect={(color) => {
@@ -144,10 +432,10 @@ const DesignSection = ({ updateSlide, currentSlide }) => {
                     height: 0
                   }}
                 />
-              </div>
-              <div 
-                ref={colorPickerButtonRef}
-                data-design-section-color-picker="true"
+                </div>
+                <div 
+                  ref={colorPickerButtonRef}
+                  data-design-section-color-picker="true"
                 onClick={(e) => {
                   e.stopPropagation();
                   // Trigger the hidden ModernColorPicker button
@@ -177,71 +465,72 @@ const DesignSection = ({ updateSlide, currentSlide }) => {
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}
-                title="Pick custom color"
-              >
-                <Palette size={16} />
+                  title="Pick custom color"
+                >
+                  <Palette size={16} />
+                </div>
               </div>
+              <button
+                onClick={handleImageUpload}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  background: '#ffffff',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#374151',
+                  fontSize: '16px',
+                  transition: 'all 0.2s ease',
+                  flexShrink: 0,
+                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#f9fafb';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#ffffff';
+                  e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
+                }}
+                title="Upload background image"
+              >
+                <FiImage />
+              </button>
+              <button
+                onClick={clearBackground}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  background: '#ffffff',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#374151',
+                  fontSize: '16px',
+                  transition: 'all 0.2s ease',
+                  flexShrink: 0,
+                  boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#f9fafb';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#ffffff';
+                  e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
+                }}
+                title="Remove background"
+              >
+                <Trash2 size={18} />
+              </button>
             </div>
-            <button
-              onClick={handleImageUpload}
-              style={{
-                width: '36px',
-                height: '36px',
-                background: '#ffffff',
-                border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#374151',
-                fontSize: '16px',
-                transition: 'all 0.2s ease',
-                flexShrink: 0,
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#f9fafb';
-                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#ffffff';
-                e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
-              }}
-              title="Upload background image"
-            >
-              <FiImage />
-            </button>
-            <button
-              onClick={clearBackground}
-              style={{
-                width: '36px',
-                height: '36px',
-                background: '#ffffff',
-                border: '1px solid #e5e7eb',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#374151',
-                fontSize: '16px',
-                transition: 'all 0.2s ease',
-                flexShrink: 0,
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#f9fafb';
-                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#ffffff';
-                e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
-              }}
-              title="Remove background"
-            >
-              <Trash2 size={18} />
-            </button>
           </div>
         </div>
       </div>

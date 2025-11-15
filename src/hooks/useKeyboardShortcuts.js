@@ -93,7 +93,17 @@ export const useKeyboardShortcuts = ({
       }
       
       if (e.key === 'Delete' && selectedElement) {
-        deleteElement(selectedElement.id);
+        // Don't delete element if user is editing text inside a textarea or contentEditable
+        const activeElement = document.activeElement;
+        const isEditingText = activeElement && (
+          activeElement.tagName === 'TEXTAREA' ||
+          activeElement.tagName === 'INPUT' ||
+          activeElement.isContentEditable
+        );
+        
+        if (!isEditingText) {
+          deleteElement(selectedElement.id);
+        }
       }
     };
 

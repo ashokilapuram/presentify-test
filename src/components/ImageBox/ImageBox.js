@@ -76,11 +76,20 @@ const ImageBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
             "top-right",
             "bottom-left",
             "bottom-right",
+            "middle-left",
+            "middle-right",
+            "bottom-center"
           ]}
           boundBoxFunc={(oldBox, newBox) => {
             if (newBox.width < 40 || newBox.height < 40) return oldBox;
             return newBox;
           }}
+          anchorSize={8}
+          anchorStroke="#0ea5e9"
+          anchorFill="#ffffff"
+          anchorStrokeWidth={2}
+          borderStroke="#0ea5e9"
+          borderStrokeWidth={1}
         />
       )}
     </>

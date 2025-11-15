@@ -15,7 +15,8 @@ const ChartOptions = ({
   sendBackward,
   sendToBack,
   updateSlide,
-  currentSlide
+  currentSlide,
+  deleteElement
 }) => {
   const [isDataModalOpen, setIsDataModalOpen] = useState(false);
   const [modalInitialPosition, setModalInitialPosition] = useState(null);
@@ -78,6 +79,7 @@ const ChartOptions = ({
           sendBackward={sendBackward}
           sendToBack={sendToBack}
           updateSlide={updateSlide}
+          deleteElement={deleteElement}
         />
       </div>
 

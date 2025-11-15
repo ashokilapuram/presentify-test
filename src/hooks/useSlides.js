@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { getGlobalBackground } from '../utils/globalBackground';
 
 export const useSlides = () => {
   const [slides, setSlides] = useState([
@@ -16,9 +17,17 @@ export const useSlides = () => {
     // snapshot BEFORE
     onSnapshot({ slides, selectedElement, currentSlideIndex });
 
+    // Check for global background (from DesignSection)
+    let globalBackground = null;
+    const bgState = getGlobalBackground();
+    if (bgState.isActive && bgState.background) {
+      globalBackground = bgState.background;
+    }
+
     const newSlide = {
       id: uuidv4(),
-      elements: []
+      elements: [],
+      ...(globalBackground || {})
     };
     // Insert the new slide after the current slide
     setSlides(prev => {
@@ -121,6 +130,15 @@ export const useSlides = () => {
       return slide;
     }));
   }, [currentSlideIndex, slides, selectedElement]);
+
+  const updateAllSlides = useCallback((updates, onSnapshot) => {
+    // Save current state to undo stack
+    onSnapshot({ slides, selectedElement, currentSlideIndex });
+    
+    setSlides(prev => prev.map((slide) => {
+      return { ...slide, ...updates };
+    }));
+  }, [slides, selectedElement, currentSlideIndex]);
 
   const addTextBox = useCallback((textType = 'content', textFormatting, onSnapshot) => {
     onSnapshot({ slides, selectedElement, currentSlideIndex });
@@ -241,28 +259,49 @@ export const useSlides = () => {
           // snapshot BEFORE inserting the image
           onSnapshot({ slides, selectedElement, currentSlideIndex });
 
-          const newImage = {
-            id: uuidv4(),
-            type: 'image',
-            src: event.target.result,
-            x: 150,
-            y: 150,
-            width: 200,
-            height: 150
-          };
+          // Load image to get natural dimensions
+          const img = new window.Image();
+          img.onload = () => {
+            // Calculate dimensions preserving aspect ratio
+            // Use a max width/height to fit nicely on canvas
+            const maxWidth = 400;
+            const maxHeight = 300;
+            let width = img.naturalWidth;
+            let height = img.naturalHeight;
 
-          setSlides(prev => prev.map((slide, index) => {
-            if (index === currentSlideIndex) {
-              return {
-                ...slide,
-                elements: [...slide.elements, newImage]
-              };
+            // Scale down if image is too large
+            if (width > maxWidth || height > maxHeight) {
+              const widthRatio = maxWidth / width;
+              const heightRatio = maxHeight / height;
+              const ratio = Math.min(widthRatio, heightRatio);
+              width = width * ratio;
+              height = height * ratio;
             }
-            return slide;
-          }));
-          
-          // Automatically select the newly added element
-          setSelectedElement(newImage);
+
+            const newImage = {
+              id: uuidv4(),
+              type: 'image',
+              src: event.target.result,
+              x: 150,
+              y: 150,
+              width: Math.round(width),
+              height: Math.round(height)
+            };
+
+            setSlides(prev => prev.map((slide, index) => {
+              if (index === currentSlideIndex) {
+                return {
+                  ...slide,
+                  elements: [...slide.elements, newImage]
+                };
+              }
+              return slide;
+            }));
+            
+            // Automatically select the newly added element
+            setSelectedElement(newImage);
+          };
+          img.src = event.target.result;
         };
         reader.readAsDataURL(file);
       }
@@ -276,22 +315,103 @@ export const useSlides = () => {
     const screenWidth = window.innerWidth;
     const isSmallScreen = screenWidth >= 1024 && screenWidth <= 1150;
 
-    const newChart = {
-      id: uuidv4(),
-      type: 'chart',
-      chartType: chartType || 'bar',
-      x: 160,
-      y: 160,
-      width: isSmallScreen ? 192 : 360,
-      height: isSmallScreen ? 157 : 220,
-      labels: ['A', 'B', 'C', 'D'],
-      values: [12, 25, 9, 18],
-      color: '#0ea5e9',
-      backgroundColor: 'transparent',
-      barColors: (chartType === 'pie' || chartType === 'line')
-        ? ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b'] 
-        : ['#0ea5e9', '#0ea5e9', '#0ea5e9', '#0ea5e9']
-    };
+    // Third colorful palette option colors: ['#10b981', '#0ea5e9', '#f59e0b', '#f43f5e', '#8b5cf6', '#06b6d4']
+    const thirdColorfulPalette = ['#10b981', '#0ea5e9', '#f59e0b', '#f43f5e', '#8b5cf6', '#06b6d4'];
+
+    let newChart;
+    
+    if (chartType === 'line') {
+      // Line chart with specific initial properties
+      newChart = {
+        id: uuidv4(),
+        type: 'chart',
+        chartType: 'line',
+        x: 160,
+        y: 160,
+        width: 360, // Always use bigger size, not small
+        height: 220, // Always use bigger size, not small
+        labels: ['A', 'B', 'C', 'D'],
+        chartName: 'chart name', // Initial chart name
+        backgroundColor: '#ffffff', // White initially
+        showXAxis: true, // X lines ON
+        showYAxis: true, // Y lines ON
+        // New series format for line charts
+        series: [
+          {
+            name: 'Series 1',
+            values: [12, 16, 9, 18],
+            barColors: [12, 16, 9, 18].map(() => thirdColorfulPalette[0]) // First color from third palette
+          },
+          {
+            name: 'Series 2',
+            values: [9, 13, 14, 22],
+            barColors: [9, 13, 14, 22].map(() => thirdColorfulPalette[1]) // Second color from third palette
+          }
+        ]
+      };
+    } else if (chartType === 'bar') {
+      // Bar chart with specific initial properties
+      newChart = {
+        id: uuidv4(),
+        type: 'chart',
+        chartType: 'bar',
+        x: 160,
+        y: 160,
+        width: 360, // Always use bigger size, not small
+        height: 220, // Always use bigger size, not small
+        labels: ['A', 'B', 'C', 'D'],
+        chartName: 'chart name', // Initial chart name
+        backgroundColor: '#ffffff', // White initially
+        showXAxis: true, // X line ON
+        showYAxis: false, // Y line OFF (not specified, default false)
+        // New series format for bar charts
+        series: [
+          {
+            name: 'Series 1',
+            values: [12, 25, 9, 18],
+            barColors: [12, 25, 9, 18].map(() => thirdColorfulPalette[0]) // First color from third palette for all bars in series 1
+          },
+          {
+            name: 'Series 2',
+            values: [9, 22, 15, 13],
+            barColors: [9, 22, 15, 13].map(() => thirdColorfulPalette[1]) // Second color from third palette for all bars in series 2
+          }
+        ]
+      };
+    } else if (chartType === 'pie') {
+      // Pie chart with specific initial properties
+      newChart = {
+        id: uuidv4(),
+        type: 'chart',
+        chartType: 'pie',
+        x: 160,
+        y: 160,
+        width: isSmallScreen ? 192 : 360,
+        height: isSmallScreen ? 157 : 220,
+        labels: ['A', 'B', 'C', 'D', 'E'],
+        values: [12, 67, 9, 24, 12],
+        chartName: 'chart name', // Initial chart name
+        backgroundColor: '#ffffff', // White initially
+        color: '#0ea5e9',
+        barColors: ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b', '#f43f5e'] // 5 colors for 5 data points
+      };
+    } else {
+      // Default/fallback for other chart types
+      newChart = {
+        id: uuidv4(),
+        type: 'chart',
+        chartType: chartType || 'bar',
+        x: 160,
+        y: 160,
+        width: isSmallScreen ? 192 : 360,
+        height: isSmallScreen ? 157 : 220,
+        labels: ['A', 'B', 'C', 'D'],
+        values: [12, 25, 9, 18],
+        color: '#0ea5e9',
+        backgroundColor: 'transparent',
+        barColors: ['#0ea5e9', '#8b5cf6', '#10b981', '#f59e0b']
+      };
+    }
 
     setSlides(prev => prev.map((slide, index) => {
       if (index === currentSlideIndex) {
@@ -307,7 +427,7 @@ export const useSlides = () => {
     setSelectedElement(newChart);
   }, [slides, selectedElement, currentSlideIndex]);
 
-  const addTable = useCallback((onSnapshot, style = 'default') => {
+  const addTable = useCallback((onSnapshot, style = 'blue') => {
     onSnapshot({ slides, selectedElement, currentSlideIndex });
 
     const rows = 4; // 1 header + 3 data rows
@@ -367,8 +487,8 @@ export const useSlides = () => {
           // Second data row
           cellStyle = selectedStyle.row2;
         } else {
-          // Third data row
-          cellStyle = selectedStyle.row3;
+          // For rows beyond 2, alternate between row1 and row2
+          cellStyle = (rowIndex % 2 === 1) ? selectedStyle.row1 : selectedStyle.row2;
         }
 
         return {
@@ -398,7 +518,8 @@ export const useSlides = () => {
       cols,
       cellWidth,
       cellHeight,
-      data: initialData
+      data: initialData,
+      tableStyle: style // Store the selected table style
     };
 
     setSlides(prev => prev.map((slide, index) => {
@@ -492,6 +613,7 @@ export const useSlides = () => {
     reorderSlides,
     updateSlideElement,
     updateSlide,
+    updateAllSlides,
     addTextBox,
     deleteElement,
     addShape,

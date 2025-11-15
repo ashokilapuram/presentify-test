@@ -16,6 +16,20 @@ const FullScreenSlideshow = ({
   const [showCounter, setShowCounter] = useState(true);
   const counterTimerRef = useRef(null);
 
+  // Auto-advance timer (5 seconds per slide)
+  const autoAdvanceTimerRef = useRef(null);
+
+  // Function to reset the auto-advance timer
+  const resetAutoAdvanceTimer = useCallback(() => {
+    if (autoAdvanceTimerRef.current) {
+      clearInterval(autoAdvanceTimerRef.current);
+    }
+    autoAdvanceTimerRef.current = setInterval(() => {
+      setSlideshowSlideIndex(prev => (prev + 1) % slides.length);
+      showCounterBriefly();
+    }, 5000);
+  }, [slides.length]);
+
   // Function to show counter and auto-hide after delay
   const showCounterBriefly = useCallback(() => {
     setShowCounter(true);
@@ -44,24 +58,27 @@ const FullScreenSlideshow = ({
     setSlideshowSlideIndex((prev) => (prev + 1) % slides.length);
     // Show counter when slide changes
     showCounterBriefly();
-  }, [slides.length, showCounterBriefly]);
+    // Reset auto-advance timer
+    resetAutoAdvanceTimer();
+  }, [slides.length, showCounterBriefly, resetAutoAdvanceTimer]);
 
   const prevSlide = useCallback(() => {
     setSlideshowSlideIndex((prev) => (prev - 1 + slides.length) % slides.length);
     // Show counter when slide changes
     showCounterBriefly();
-  }, [slides.length, showCounterBriefly]);
+    // Reset auto-advance timer
+    resetAutoAdvanceTimer();
+  }, [slides.length, showCounterBriefly, resetAutoAdvanceTimer]);
 
-  // Auto-advance timer (5 seconds per slide)
+  // Set up auto-advance timer
   useEffect(() => {
-    const autoAdvanceTimer = setInterval(() => {
-      nextSlide();
-    }, 5000);
-
+    resetAutoAdvanceTimer();
     return () => {
-      clearInterval(autoAdvanceTimer);
+      if (autoAdvanceTimerRef.current) {
+        clearInterval(autoAdvanceTimerRef.current);
+      }
     };
-  }, [nextSlide]);
+  }, [resetAutoAdvanceTimer]);
 
   // Keyboard navigation
   useEffect(() => {

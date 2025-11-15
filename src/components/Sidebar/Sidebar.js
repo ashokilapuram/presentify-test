@@ -221,7 +221,13 @@ const Sidebar = ({
                   className="slide-thumbnail"
                   style={{
                     backgroundColor: slide.backgroundColor || '#ffffff',
-                    backgroundImage: slide.backgroundImage ? `url(${slide.backgroundImage})` : 'none',
+                    backgroundImage: slide.backgroundImage 
+                      ? `url(${slide.backgroundImage})` 
+                      : slide.backgroundGradient
+                        ? slide.backgroundGradient.type === 'radial'
+                          ? `radial-gradient(circle, ${slide.backgroundGradient.colors.join(', ')})`
+                          : `linear-gradient(135deg, ${slide.backgroundGradient.colors.join(', ')})`
+                        : 'none',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     position: 'relative',

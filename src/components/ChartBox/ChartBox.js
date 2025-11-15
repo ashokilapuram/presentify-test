@@ -16,6 +16,11 @@ const ChartBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
   const chartW = element.width || 360;
   const chartH = element.height || 240;
   const padding = 35;
+  // Add extra top spacing when chart name exists
+  // For pie charts, reserve more space for title to prevent overflow
+  const titleSpacing = element.chartName 
+    ? (element.chartType === "pie" ? 30 : 20)
+    : 0;
 
   // Process chart data
   const {
@@ -95,7 +100,11 @@ const ChartBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
 
   // Calculate legend height for background wrapping
   const legendHeight = calculateLegendHeight(seriesData, element.chartType, chartW, chartH, padding, labels, xScale);
-  const backgroundHeight = chartH + legendHeight + extraLabelSpace;
+  // For pie charts with title, background should include title space (title is at top, content offset by titleSpacing)
+  // For other charts, title is inside chartH, so don't add extra height
+  const backgroundHeight = element.chartType === "pie" && element.chartName
+    ? chartH + titleSpacing + legendHeight + extraLabelSpace
+    : chartH + legendHeight + extraLabelSpace;
 
   return (
     <>
@@ -132,102 +141,108 @@ const ChartBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
         {element.chartName && (
           <Text
             text={element.chartName}
-            x={element.chartType === "pie" ? padding : chartW / 2}
+            x={chartW / 2}
             y={8}
             fontSize={Math.max(10, Math.min(18, chartW / 25))}
             fontStyle="bold"
             fill={element.chartNameColor || "#111827"}
-            align={element.chartType === "pie" ? "left" : "center"}
+            align="center"
+            width={chartW}
+            offsetX={chartW / 2}
           />
         )}
 
-        {/* Horizontal grid lines at Y-axis values */}
-        <ChartGrid
-          chartType={element.chartType}
-          chartW={chartW}
-          chartH={chartH}
-          padding={padding}
-          yScale={yScale}
-          hasNegativeValues={hasNegativeValues}
-          minVal={minVal}
-          maxVal={maxVal}
-        />
-
-        {/* Axis lines */}
-        <AxisLines
-          chartType={element.chartType}
-          showXAxis={element.showXAxis}
-          showYAxis={element.showYAxis}
-          chartW={chartW}
-          chartH={chartH}
-          padding={padding}
-          yScale={yScale}
-          hasNegativeValues={hasNegativeValues}
-        />
-
-        {/* Chart Rendering */}
-        {element.chartType === "bar" && (
-          <BarChart
-            seriesData={seriesData}
-            labels={labels}
-            xScale={xScale}
-            yScale={yScale}
-            barAnimations={barAnimations}
-            defaultColor={defaultColor}
-          />
-        )}
-        {element.chartType === "line" && (
-          <LineChart
-            seriesData={seriesData}
-            labels={labels}
-            xScale={xScale}
-            yScale={yScale}
-            animationProgress={animationProgress}
-          />
-        )}
-        {element.chartType === "pie" && (
-          <PieChart
-            data={data}
-            labels={labels}
+        {/* Chart Content - Wrapped in Group with offset when title exists */}
+        <Group y={titleSpacing}>
+          {/* Horizontal grid lines at Y-axis values */}
+          <ChartGrid
+            chartType={element.chartType}
             chartW={chartW}
             chartH={chartH}
-            animationProgress={animationProgress}
-            sliceColors={sliceColors}
-            element={element}
-          />
-        )}
-
-        {/* Labels */}
-        {element.chartType !== "pie" && (
-          <XAxisLabels
-            labels={labels}
-            xScale={xScale}
-            chartH={chartH}
             padding={padding}
-            labelsColor={element.labelsColor}
-          />
-        )}
-        {element.chartType !== "pie" && (
-          <YAxisValues
             yScale={yScale}
             hasNegativeValues={hasNegativeValues}
             minVal={minVal}
             maxVal={maxVal}
-            yAxisColor={element.yAxisColor}
           />
-        )}
-        
-        {/* Series Legend - Below X-axis labels, inside chart container */}
-        <ChartLegend
-          seriesData={seriesData}
-          chartType={element.chartType}
-          chartW={chartW}
-          chartH={chartH}
-          padding={padding}
-          labels={labels}
-          xScale={xScale}
-          labelsColor={element.labelsColor}
-        />
+
+          {/* Axis lines */}
+          <AxisLines
+            chartType={element.chartType}
+            showXAxis={element.showXAxis}
+            showYAxis={element.showYAxis}
+            chartW={chartW}
+            chartH={chartH}
+            padding={padding}
+            yScale={yScale}
+            hasNegativeValues={hasNegativeValues}
+          />
+
+          {/* Chart Rendering */}
+          {element.chartType === "bar" && (
+            <BarChart
+              seriesData={seriesData}
+              labels={labels}
+              xScale={xScale}
+              yScale={yScale}
+              barAnimations={barAnimations}
+              defaultColor={defaultColor}
+            />
+          )}
+          {element.chartType === "line" && (
+            <LineChart
+              seriesData={seriesData}
+              labels={labels}
+              xScale={xScale}
+              yScale={yScale}
+              animationProgress={animationProgress}
+            />
+          )}
+          {element.chartType === "pie" && (
+            <PieChart
+              data={data}
+              labels={labels}
+              chartW={chartW}
+              chartH={chartH}
+              animationProgress={animationProgress}
+              sliceColors={sliceColors}
+              element={element}
+              titleSpacing={titleSpacing}
+            />
+          )}
+
+          {/* Labels */}
+          {element.chartType !== "pie" && (
+            <XAxisLabels
+              labels={labels}
+              xScale={xScale}
+              chartH={chartH}
+              padding={padding}
+              labelsColor={element.labelsColor}
+            />
+          )}
+          {element.chartType !== "pie" && (
+            <YAxisValues
+              yScale={yScale}
+              hasNegativeValues={hasNegativeValues}
+              minVal={minVal}
+              maxVal={maxVal}
+              yAxisColor={element.yAxisColor}
+            />
+          )}
+          
+          {/* Series Legend - Below X-axis labels, inside chart container */}
+          <ChartLegend
+            seriesData={seriesData}
+            chartType={element.chartType}
+            chartW={chartW}
+            chartH={chartH}
+            padding={padding}
+            labels={labels}
+            xScale={xScale}
+            labelsColor={element.labelsColor}
+          />
+        </Group>
       </Group>
 
       {isSelected && !readOnly && (
