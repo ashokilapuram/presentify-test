@@ -315,6 +315,16 @@
 
 /* Responsive format-container for medium screens (1024px - 1365px) */
 @media (min-width: 1024px) and (max-width: 1365px) {
+  .toolbar-logo-icon {
+    height: 22px;
+    max-width: 22px;
+  }
+
+  .toolbar-logo-name {
+    height: 18px;
+    max-width: 150px;
+  }
+
   .format-container {
     gap: 0.3rem;
     padding: var(--space-2) 0.45rem;
@@ -499,6 +509,16 @@
 
 /* Large screen spacing improvements */
 @media (min-width: 1366px) {
+  .toolbar-logo-icon {
+    height: 24px;
+    max-width: 24px;
+  }
+
+  .toolbar-logo-name {
+    height: 20px;
+    max-width: 180px;
+  }
+
   .format-container {
     gap: 0.4rem;
     padding: 0.25rem 0.6rem;
@@ -603,6 +623,16 @@
 }
 
 @media (max-width: 768px) {
+  .toolbar-logo-icon {
+    height: 18px;
+    max-width: 18px;
+  }
+
+  .toolbar-logo-name {
+    height: 14px;
+    max-width: 120px;
+  }
+
   .formatting-separator {
     font-size: 0.55rem;
     margin: 0 0.2rem;
@@ -610,6 +640,16 @@
 }
 
 @media (max-width: 640px) {
+  .toolbar-logo-icon {
+    height: 16px;
+    max-width: 16px;
+  }
+
+  .toolbar-logo-name {
+    height: 12px;
+    max-width: 100px;
+  }
+
   .formatting-separator {
     font-size: 0.5rem;
     margin: 0 0.15rem;
@@ -617,6 +657,16 @@
 }
 
 @media (max-width: 480px) {
+  .toolbar-logo-icon {
+    height: 14px;
+    max-width: 14px;
+  }
+
+  .toolbar-logo-name {
+    height: 11px;
+    max-width: 80px;
+  }
+
   .formatting-separator {
     font-size: 0.45rem;
     margin: 0 0.1rem;
@@ -624,6 +674,16 @@
 }
 
 @media (max-width: 360px) {
+  .toolbar-logo-icon {
+    height: 12px;
+    max-width: 12px;
+  }
+
+  .toolbar-logo-name {
+    height: 10px;
+    max-width: 70px;
+  }
+
   .formatting-separator {
     font-size: 0.4rem;
     margin: 0 0.08rem;
@@ -632,6 +692,16 @@
 
 /* Tablet and medium screens: keep toolbar-top on one line and avoid collapse */
 @media (max-width: 1023px) {
+  .toolbar-logo-icon {
+    height: 20px;
+    max-width: 20px;
+  }
+
+  .toolbar-logo-name {
+    height: 16px;
+    max-width: 130px;
+  }
+
   .format-container {
     gap: 0.25rem;
     padding: 0.2rem 0.35rem;
@@ -705,23 +775,40 @@
     gap: 0.75rem; /* slightly tighter */
   }
 
+  .toolbar-logo-icon {
+    height: 16px;
+    max-width: 16px;
+  }
+
+  .toolbar-logo-name {
+    height: 12px;
+    max-width: 100px;
+  }
+
   .toolbar-logo {
     font-size: 1.25rem; /* shrink a touch */
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
   }
 
-  .toolbar-logo .logo-icon {
-    width: 24px;
-    height: 24px;
-    background: #1a1a1a;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
+  .toolbar-logo-icon {
+    height: 22px;
+    width: auto;
+    max-width: 22px;
+    display: block;
+    flex-shrink: 0;
+    object-fit: contain;
+  }
+
+  .toolbar-logo-name {
+    height: 18px;
+    width: auto;
+    max-width: 150px;
+    display: block;
+    flex-shrink: 0;
+    object-fit: contain;
   }
 
   .toolbar-tabs {
@@ -1339,7 +1426,17 @@ body.dark .toolbar-button.active {
 
   .toolbar-logo {
     font-size: 1.25rem;
-    gap: 8px;
+    gap: 5px;
+  }
+
+  .toolbar-logo-icon {
+    height: 18px;
+    max-width: 18px;
+  }
+
+  .toolbar-logo-name {
+    height: 14px;
+    max-width: 120px;
   }
 
   .toolbar-tabs {

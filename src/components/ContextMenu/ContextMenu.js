@@ -39,8 +39,12 @@ const ContextMenu = ({
   const menuRef = useRef(null);
   const addSlideRef = useRef(null);
   const submenuRef = useRef(null);
+  const backgroundRef = useRef(null);
+  const backgroundSubmenuRef = useRef(null);
   const [showAddSlideOptions, setShowAddSlideOptions] = useState(false);
+  const [showBackgroundOptions, setShowBackgroundOptions] = useState(false);
   const hideTimeoutRef = useRef(null);
+  const backgroundHideTimeoutRef = useRef(null);
 
   // Cleanup timeout on unmount or when menu closes
   useEffect(() => {
@@ -49,7 +53,12 @@ const ContextMenu = ({
         clearTimeout(hideTimeoutRef.current);
         hideTimeoutRef.current = null;
       }
+      if (backgroundHideTimeoutRef.current) {
+        clearTimeout(backgroundHideTimeoutRef.current);
+        backgroundHideTimeoutRef.current = null;
+      }
       setShowAddSlideOptions(false);
+      setShowBackgroundOptions(false);
     }
   }, [visible]);
 
@@ -186,10 +195,10 @@ const ContextMenu = ({
     });
 
     // Update when submenu appears
-    if (showAddSlideOptions) {
+    if (showAddSlideOptions || showBackgroundOptions) {
       setTimeout(updatePosition, 50);
     }
-  }, [visible, position, showAddSlideOptions, selectedElement]);
+  }, [visible, position, showAddSlideOptions, showBackgroundOptions, selectedElement]);
 
   if (!visible || !position) return null;
 
@@ -220,11 +229,52 @@ const ContextMenu = ({
     onClose();
   };
 
-  // Handle background click - open design section
+  // Check if any background styling is applied (color, gradient, or image)
+  const hasBackgroundStyling = currentSlide && (
+    (currentSlide.backgroundColor && 
+     currentSlide.backgroundColor !== 'transparent' && 
+     currentSlide.backgroundColor !== '') ||
+    (currentSlide.backgroundGradient && 
+     currentSlide.backgroundGradient.colors && 
+     currentSlide.backgroundGradient.colors.length > 0) ||
+    (currentSlide.backgroundImage && 
+     currentSlide.backgroundImage !== '' && 
+     currentSlide.backgroundImage !== null)
+  );
+
+  // Handle background click - open design section (only if no background styling exists)
   const handleBackgroundClick = (e) => {
+    e.stopPropagation();
+    // Only handle direct click if no background styling exists
+    if (!hasBackgroundStyling) {
+      if (onOpenDesignTab) {
+        onOpenDesignTab();
+      }
+      onClose();
+    }
+  };
+
+  // Handle background change - open design section
+  const handleBackgroundChange = (e) => {
     e.stopPropagation();
     if (onOpenDesignTab) {
       onOpenDesignTab();
+    }
+    onClose();
+  };
+
+  // Handle background delete - remove all background styling
+  const handleBackgroundDelete = (e) => {
+    e.stopPropagation();
+    if (currentSlide && updateSlide) {
+      updateSlide({
+        backgroundColor: undefined,
+        backgroundGradient: undefined,
+        backgroundImage: null,
+        backgroundSize: null,
+        backgroundPosition: null,
+        backgroundRepeat: null
+      });
     }
     onClose();
   };
@@ -447,15 +497,164 @@ const ContextMenu = ({
             </button>
           )}
           
-          {/* Background option */}
-          <button
-            onClick={handleBackgroundClick}
-            className="context-menu-option-item"
-            title="Open background options"
-          >
-            <Palette size={16} strokeWidth={2} />
-            <span>Background</span>
-          </button>
+          {/* Background option with submenu if any background styling exists */}
+          {hasBackgroundStyling ? (
+            <div
+              ref={backgroundRef}
+              style={{ 
+                position: 'relative',
+                width: '100%'
+              }}
+              onMouseEnter={() => {
+                if (backgroundHideTimeoutRef.current) {
+                  clearTimeout(backgroundHideTimeoutRef.current);
+                  backgroundHideTimeoutRef.current = null;
+                }
+                setShowBackgroundOptions(true);
+              }}
+              onMouseLeave={(e) => {
+                // Check if we're moving to the submenu
+                const relatedTarget = e.relatedTarget;
+                if (backgroundSubmenuRef.current && relatedTarget && relatedTarget instanceof Node && backgroundSubmenuRef.current.contains(relatedTarget)) {
+                  return; // Don't hide, we're moving to submenu
+                }
+                // Delay hiding to allow smooth transition to submenu
+                backgroundHideTimeoutRef.current = setTimeout(() => {
+                  setShowBackgroundOptions(false);
+                }, 150);
+              }}
+            >
+              <div
+                className="context-menu-option-item"
+                style={{ position: 'relative' }}
+              >
+                <Palette size={16} strokeWidth={2} />
+                <span>Background</span>
+                <ChevronRight size={14} strokeWidth={2} style={{ marginLeft: 'auto' }} />
+              </div>
+              {showBackgroundOptions && (
+                <div
+                  ref={(el) => {
+                    backgroundSubmenuRef.current = el;
+                    // Position submenu when it appears
+                    if (el && backgroundRef.current) {
+                      requestAnimationFrame(() => {
+                        // Check if refs are still valid
+                        if (!el || !backgroundRef.current) return;
+                        
+                        const canvasContainer = document.querySelector('.canvas-container');
+                        if (!canvasContainer) return;
+
+                        const containerRect = canvasContainer.getBoundingClientRect();
+                        const parentRect = backgroundRef.current.getBoundingClientRect();
+                        const submenuRect = el.getBoundingClientRect();
+                        
+                        const containerBounds = {
+                          left: containerRect.left,
+                          top: containerRect.top,
+                          right: containerRect.right,
+                          bottom: containerRect.bottom
+                        };
+
+                        const padding = 10;
+                        const margin = 4;
+
+                        // Default: position to the right
+                        let left = '100%';
+                        let right = 'auto';
+                        let marginLeft = '4px';
+                        let marginRight = '0';
+
+                        // Check if submenu would go off right edge
+                        const rightEdge = parentRect.right + (submenuRect.width || 140) + margin;
+                        if (rightEdge > containerBounds.right - padding) {
+                          // Position to the left instead
+                          left = 'auto';
+                          right = '100%';
+                          marginLeft = '0';
+                          marginRight = '4px';
+                        }
+
+                        // Check if submenu would go off bottom edge
+                        let top = '0';
+                        let bottom = 'auto';
+                        const bottomEdge = parentRect.bottom + (submenuRect.height || 100);
+                        if (bottomEdge > containerBounds.bottom - padding) {
+                          // Position above parent
+                          top = 'auto';
+                          bottom = '0';
+                        }
+
+                        el.style.left = left;
+                        el.style.right = right;
+                        el.style.top = top;
+                        el.style.bottom = bottom;
+                        el.style.marginLeft = marginLeft;
+                        el.style.marginRight = marginRight;
+                      });
+                    }
+                  }}
+                  className="context-menu-submenu"
+                  style={{
+                    position: 'absolute',
+                    left: '100%',
+                    top: 0,
+                    marginLeft: '4px',
+                    minWidth: '140px',
+                    background: 'rgba(255, 255, 255, 0.95)',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(0, 0, 0, 0.1)',
+                    borderRadius: '12px',
+                    boxShadow: '0 12px 48px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(0, 0, 0, 0.15)',
+                    padding: '4px',
+                    zIndex: 10000,
+                    pointerEvents: 'auto'
+                  }}
+                  onMouseEnter={() => {
+                    if (backgroundHideTimeoutRef.current) {
+                      clearTimeout(backgroundHideTimeoutRef.current);
+                      backgroundHideTimeoutRef.current = null;
+                    }
+                    setShowBackgroundOptions(true);
+                  }}
+                  onMouseLeave={(e) => {
+                    // Check if we're moving back to the parent
+                    const relatedTarget = e.relatedTarget;
+                    if (backgroundRef.current && relatedTarget && relatedTarget instanceof Node && backgroundRef.current.contains(relatedTarget)) {
+                      return; // Don't hide, we're moving back to parent
+                    }
+                    // Hide when leaving submenu
+                    setShowBackgroundOptions(false);
+                  }}
+                >
+                  <button
+                    onClick={handleBackgroundChange}
+                    className="context-menu-option-item"
+                    title="Change background color"
+                  >
+                    <span>Change</span>
+                  </button>
+                  <button
+                    onClick={handleBackgroundDelete}
+                    className="context-menu-option-item"
+                    title="Delete background color"
+                  >
+                    <span>Delete</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              onClick={handleBackgroundClick}
+              className="context-menu-option-item"
+              title="Open background options"
+            >
+              <Palette size={16} strokeWidth={2} />
+              <span>Background</span>
+            </button>
+          )}
 
           {/* Duplicate slide option */}
           <button
@@ -484,7 +683,7 @@ const ContextMenu = ({
             onMouseLeave={(e) => {
               // Check if we're moving to the submenu
               const relatedTarget = e.relatedTarget;
-              if (submenuRef.current && submenuRef.current.contains(relatedTarget)) {
+              if (submenuRef.current && relatedTarget && relatedTarget instanceof Node && submenuRef.current.contains(relatedTarget)) {
                 return; // Don't hide, we're moving to submenu
               }
               // Delay hiding to allow smooth transition to submenu
@@ -590,7 +789,7 @@ const ContextMenu = ({
                 onMouseLeave={(e) => {
                   // Check if we're moving back to the parent
                   const relatedTarget = e.relatedTarget;
-                  if (addSlideRef.current && addSlideRef.current.contains(relatedTarget)) {
+                  if (addSlideRef.current && relatedTarget && relatedTarget instanceof Node && addSlideRef.current.contains(relatedTarget)) {
                     return; // Don't hide, we're moving back to parent
                   }
                   // Hide when leaving submenu

@@ -15,7 +15,6 @@ const PieChartDataPoints = ({
 }) => {
   return (
     <>
-      <div className="section-title">Data points</div>
       <div className="option-group" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {(selectedElement.labels || []).map((label, index) => {
           const value = (selectedElement.values || [])[index] ?? 0;
