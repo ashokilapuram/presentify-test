@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import './ChartDataModal.css';
 import { useModalDrag } from './hooks/useModalDrag';
@@ -17,12 +17,49 @@ const ChartDataModal = ({ isOpen, onClose, element, onSave, initialPosition }) =
   // Initialize data from element
   const { labels, series, setLabels, setSeries } = useDataInitialization(isOpen, element);
 
+  // Calculate estimated position immediately for initial render (prevents center-to-button shift)
+  const estimatedPosition = useMemo(() => {
+    if (!initialPosition) return null;
+    
+    // Estimate modal dimensions based on CSS (max-width 600px, width 85%, height 320px)
+    const estimatedWidth = Math.min(600, window.innerWidth * 0.85);
+    const estimatedHeight = 320;
+    const padding = 16;
+    
+    // Calculate initial position (below the button)
+    let x = initialPosition.x - (estimatedWidth / 2) + (initialPosition.width / 2);
+    let y = initialPosition.y + initialPosition.height + 8; // 8px gap below button
+    
+    // Adjust position to stay within viewport
+    if (x + estimatedWidth > window.innerWidth - padding) {
+      x = window.innerWidth - estimatedWidth - padding;
+    }
+    if (x < padding) {
+      x = padding;
+    }
+    if (y + estimatedHeight > window.innerHeight - padding) {
+      if (initialPosition.y - estimatedHeight > padding) {
+        y = initialPosition.y - estimatedHeight - 8; // 8px gap above button
+      } else {
+        y = window.innerHeight - estimatedHeight - padding;
+      }
+    }
+    if (y < padding) {
+      y = padding;
+    }
+    
+    return { x, y };
+  }, [initialPosition]);
+
   // Handle modal dragging with initial position
   const { position, setPosition, isDragging, handleMouseDown } = useModalDrag(
     isOpen, 
     modalRef,
     initialPosition
   );
+  
+  // Use estimated position if position is not set yet (for initial render)
+  const displayPosition = position || estimatedPosition;
 
   // Handle modal resizing
   const { modalHeight, isResizing, handleResizeMouseDown, setIsResizing } = useModalResize(
@@ -67,16 +104,16 @@ const ChartDataModal = ({ isOpen, onClose, element, onSave, initialPosition }) =
       <div 
         ref={modalRef}
         className={`chart-data-modal ${isDragging ? 'dragging' : ''}`}
-        data-animate={!position ? 'true' : 'false'}
+        data-animate={!displayPosition ? 'true' : 'false'}
         onClick={(e) => e.stopPropagation()}
         style={{
-          position: position ? 'fixed' : 'absolute',
-          left: position ? `${position.x}px` : '50%',
-          top: position ? `${position.y}px` : '50%',
-          transform: position ? 'none' : 'translate(-50%, -50%)',
+          position: displayPosition ? 'fixed' : 'absolute',
+          left: displayPosition ? `${displayPosition.x}px` : '50%',
+          top: displayPosition ? `${displayPosition.y}px` : '50%',
+          transform: displayPosition ? 'none' : 'translate(-50%, -50%)',
           margin: 0,
           pointerEvents: 'auto',
-          opacity: position ? 1 : undefined,
+          opacity: displayPosition ? 1 : undefined,
           height: modalHeight ? `${modalHeight}px` : undefined
         }}
       >

@@ -1,5 +1,5 @@
 import React from 'react';
-import { List, ListOrdered } from 'lucide-react';
+import { List } from 'lucide-react';
 
 /**
  * List toggle button component
@@ -10,31 +10,24 @@ const ListToggle = ({
   onToggleList 
 }) => {
   const current = selectedElement?.listType || textFormatting.listType || 'none';
+  // Normalize 'number' to 'none' for display purposes
+  const normalizedCurrent = current === 'number' ? 'none' : current;
   
-  const getIcon = () => {
-    if (current === 'none' || current === 'bullet') {
-      return <List size={16} strokeWidth={2} />;
-    } else {
-      return <ListOrdered size={16} strokeWidth={2} />;
-    }
-  };
-
   const getTitle = () => {
-    if (current === 'none') return 'Bullet List';
-    if (current === 'bullet') return 'Numbered List';
+    if (normalizedCurrent === 'none') return 'Bullet List';
     return 'Turn Off List';
   };
 
   return (
     <button
-      className={`toolbar-button ${current !== 'none' ? 'active' : ''}`}
+      className={`toolbar-button ${normalizedCurrent !== 'none' ? 'active' : ''}`}
       title={getTitle()}
       onClick={(e) => {
         e.stopPropagation();
         onToggleList();
       }}
     >
-      {getIcon()}
+      <List size={16} strokeWidth={2} />
     </button>
   );
 };

@@ -11,7 +11,9 @@ const BarChart = ({
   xScale, 
   yScale, 
   barAnimations, 
-  defaultColor 
+  defaultColor,
+  onBarHover,
+  onBarLeave
 }) => {
   if (!labels || labels.length === 0 || seriesData.length === 0) {
     return null;
@@ -60,6 +62,33 @@ const BarChart = ({
       bars.push(
         <Shape
           key={`${labelIndex}-${seriesIndex}`}
+          listening={true}
+          onMouseEnter={(e) => {
+            if (onBarHover) {
+              const barCenterX = barX + actualBarWidth / 2;
+              const barTopY = barY;
+              onBarHover({
+                x: barCenterX,
+                y: barTopY,
+                value: value,
+                seriesName: series.name,
+                label: labels[labelIndex]
+              });
+            }
+            const stage = e.target.getStage();
+            if (stage) {
+              stage.container().style.cursor = 'pointer';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (onBarLeave) {
+              onBarLeave();
+            }
+            const stage = e.target.getStage();
+            if (stage) {
+              stage.container().style.cursor = 'default';
+            }
+          }}
           sceneFunc={(context, shape) => {
             context.save();
             
@@ -104,6 +133,30 @@ const BarChart = ({
             context.stroke();
             
             context.restore();
+            context.fillStrokeShape(shape);
+          }}
+          hitFunc={(context, shape) => {
+            // Define hit area for mouse events - use same shape as visual
+            context.beginPath();
+            if (isNegative) {
+              // Negative bar: rounded bottom corners
+              context.moveTo(x, y);
+              context.lineTo(x + width, y);
+              context.lineTo(x + width, y + height - radius);
+              context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+              context.lineTo(x + radius, y + height);
+              context.quadraticCurveTo(x, y + height, x, y + height - radius);
+              context.closePath();
+            } else {
+              // Positive bar: rounded top corners
+              context.moveTo(x, y + height);
+              context.lineTo(x + width, y + height);
+              context.lineTo(x + width, y + radius);
+              context.quadraticCurveTo(x + width, y, x + width - radius, y);
+              context.lineTo(x + radius, y);
+              context.quadraticCurveTo(x, y, x, y + radius);
+              context.closePath();
+            }
             context.fillStrokeShape(shape);
           }}
         />

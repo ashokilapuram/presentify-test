@@ -38,8 +38,8 @@ const TextSpacingDropdown = ({
               padding: '0',
             }}
           >
-            <span style={{ fontSize: '11px', marginBottom: '0px', padding: '0', lineHeight: '1', transform: 'translateY(2px)' }}>A</span>
-            <MoveHorizontal size={15} strokeWidth={2.2} style={{ margin: '0', padding: '0' }} />
+            <span style={{ fontSize: '13px', marginBottom: '-2px', padding: '0', lineHeight: '1', transform: 'translateY(2px)', fontFamily: 'Playfair Display, serif', fontWeight: 700 }}>T</span>
+            <MoveHorizontal size={22} strokeWidth={2.2} style={{ margin: '0', padding: '0', marginTop: '-2px' }} />
           </div>
         </button>
       </div>

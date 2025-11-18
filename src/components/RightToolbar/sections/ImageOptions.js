@@ -1,7 +1,5 @@
 import React, { useRef } from 'react';
-import { FiDroplet } from 'react-icons/fi';
 import { Palette, Trash2 } from 'lucide-react';
-import SectionTitle from '../shared/SectionTitle';
 import ModernColorPicker from '../shared/ModernColorPicker';
 import LayerActions from '../shared/LayerActions';
 
@@ -65,8 +63,20 @@ const ImageOptions = ({
 
   return (
     <div className="right-toolbar-section">
-      <SectionTitle icon={<FiDroplet />} text="Border color" />
-      <div className="option-group">
+      <div className="option-group" style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '0.75rem',
+        padding: '0.75rem'
+      }}>
+        <div style={{
+          fontSize: '0.875rem',
+          fontWeight: '600',
+          color: '#404040',
+          marginBottom: '0.25rem'
+        }}>
+          Border color
+        </div>
         <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
           {/* Quick Colors Grid - 2 rows */}
           <div style={{ 
@@ -186,7 +196,7 @@ const ImageOptions = ({
         </div>
 
         {/* Border width slider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
           <input
             type="range"
             onClick={(e) => e.stopPropagation()}
@@ -197,20 +207,155 @@ const ImageOptions = ({
               e.stopPropagation();
               updateSlideElement(selectedElement.id, { borderWidth: parseInt(e.target.value) });
             }}
-            style={{ flex: 1 }}
+            onInput={(e) => {
+              const value = e.target.value;
+              const min = e.target.min || 0;
+              const max = e.target.max || 10;
+              const percent = ((value - min) / (max - min)) * 100;
+              e.target.style.setProperty('--slider-value', `${percent}%`);
+            }}
+            style={{ 
+              flex: 1,
+              height: '4px',
+              cursor: 'pointer',
+              '--slider-value': `${((selectedElement.borderWidth || 0) / 10) * 100}%`
+            }}
           />
           <div style={{
-            minWidth: '32px',
+            minWidth: '28px',
             textAlign: 'center',
-            fontSize: '12px',
+            fontSize: '11px',
             fontWeight: '600',
             color: '#374151',
-            padding: '4px 8px',
+            padding: '2px 6px',
             background: '#ffffff',
             borderRadius: '4px',
-            border: '1px solid #e5e7eb'
+            border: '1px solid #e5e7eb',
+            height: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}>
             {selectedElement.borderWidth || 0}px
+          </div>
+        </div>
+      </div>
+
+      <div className="option-group" style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '0.75rem',
+        padding: '0.75rem'
+      }}>
+        <div style={{
+          fontSize: '0.875rem',
+          fontWeight: '600',
+          color: '#404040',
+          marginBottom: '0.25rem'
+        }}>
+          Opacity
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
+          <input
+            type="range"
+            onClick={(e) => e.stopPropagation()}
+            min="0"
+            max="100"
+            value={(selectedElement.opacity !== undefined ? selectedElement.opacity : 1) * 100}
+            onChange={(e) => {
+              e.stopPropagation();
+              const opacityValue = parseInt(e.target.value) / 100;
+              updateSlideElement(selectedElement.id, { opacity: opacityValue });
+            }}
+            onInput={(e) => {
+              const value = e.target.value;
+              const min = e.target.min || 0;
+              const max = e.target.max || 100;
+              const percent = ((value - min) / (max - min)) * 100;
+              e.target.style.setProperty('--slider-value', `${percent}%`);
+            }}
+            style={{ 
+              flex: 1,
+              height: '4px',
+              cursor: 'pointer',
+              '--slider-value': `${((selectedElement.opacity !== undefined ? selectedElement.opacity : 1) * 100)}%`
+            }}
+          />
+          <div style={{
+            minWidth: '28px',
+            textAlign: 'center',
+            fontSize: '11px',
+            fontWeight: '600',
+            color: '#374151',
+            padding: '2px 6px',
+            background: '#ffffff',
+            borderRadius: '4px',
+            border: '1px solid #e5e7eb',
+            height: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            {Math.round((selectedElement.opacity !== undefined ? selectedElement.opacity : 1) * 100)}%
+          </div>
+        </div>
+      </div>
+
+      <div className="option-group" style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '0.75rem',
+        padding: '0.75rem'
+      }}>
+        <div style={{
+          fontSize: '0.875rem',
+          fontWeight: '600',
+          color: '#404040',
+          marginBottom: '0.25rem'
+        }}>
+          Border radius
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
+          <input
+            type="range"
+            onClick={(e) => e.stopPropagation()}
+            min="0"
+            max="50"
+            value={selectedElement.cornerRadius !== undefined ? selectedElement.cornerRadius : 0}
+            onChange={(e) => {
+              e.stopPropagation();
+              updateSlideElement(selectedElement.id, { cornerRadius: parseInt(e.target.value) });
+            }}
+            onInput={(e) => {
+              const value = e.target.value;
+              const min = e.target.min || 0;
+              const max = e.target.max || 50;
+              const percent = ((value - min) / (max - min)) * 100;
+              e.target.style.setProperty('--slider-value', `${percent}%`);
+            }}
+            style={{
+              flex: 1,
+              height: '4px',
+              cursor: 'pointer',
+              '--slider-value': `${((selectedElement.cornerRadius !== undefined ? selectedElement.cornerRadius : 0) / 50) * 100}%`
+            }}
+          />
+          <div style={{
+            minWidth: '28px',
+            textAlign: 'center',
+            fontSize: '11px',
+            fontWeight: '600',
+            color: '#374151',
+            padding: '2px 6px',
+            background: '#ffffff',
+            borderRadius: '4px',
+            border: '1px solid #e5e7eb',
+            height: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            {selectedElement.cornerRadius !== undefined ? selectedElement.cornerRadius : 0}px
           </div>
         </div>
       </div>

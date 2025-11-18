@@ -316,6 +316,7 @@ const generatePresentationHTML = (slides) => {
               width: ${element.width}px;
               height: ${element.height}px;
               object-fit: contain;
+              opacity: ${element.opacity !== undefined ? element.opacity : 1};
             " />
           `;
         case 'chart':

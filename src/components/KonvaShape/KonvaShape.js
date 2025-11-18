@@ -114,7 +114,7 @@ const KonvaShape = ({ element, isSelected, onSelect, onChange, readOnly = false 
           y={element.y}
           width={element.width}
           height={element.height}
-          cornerRadius={4}
+          cornerRadius={element.cornerRadius !== undefined ? element.cornerRadius : 4}
           {...shapeProps}
           rotation={element.rotation || 0}
           draggable={!readOnly}

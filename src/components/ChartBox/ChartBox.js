@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Group, Rect, Text, Transformer } from "react-konva";
 import { useChartAnimations } from "./components/ChartAnimations";
 import { useChartDataProcessor } from "./components/ChartDataProcessor";
@@ -8,10 +8,12 @@ import PieChart from "./components/PieChart";
 import ChartGrid from "./components/ChartGrid";
 import { YAxisValues, XAxisLabels, AxisLines } from "./components/ChartAxes";
 import ChartLegend, { calculateLegendHeight } from "./components/ChartLegend";
+import ChartTooltip from "./components/ChartTooltip";
 
 const ChartBox = ({ element, isSelected, onSelect, onChange, readOnly = false }) => {
   const groupRef = useRef(null);
   const trRef = useRef(null);
+  const [tooltip, setTooltip] = useState(null);
 
   const chartW = element.width || 360;
   const chartH = element.height || 240;
@@ -178,40 +180,7 @@ const ChartBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
             hasNegativeValues={hasNegativeValues}
           />
 
-          {/* Chart Rendering */}
-          {element.chartType === "bar" && (
-            <BarChart
-              seriesData={seriesData}
-              labels={labels}
-              xScale={xScale}
-              yScale={yScale}
-              barAnimations={barAnimations}
-              defaultColor={defaultColor}
-            />
-          )}
-          {element.chartType === "line" && (
-            <LineChart
-              seriesData={seriesData}
-              labels={labels}
-              xScale={xScale}
-              yScale={yScale}
-              animationProgress={animationProgress}
-            />
-          )}
-          {element.chartType === "pie" && (
-            <PieChart
-              data={data}
-              labels={labels}
-              chartW={chartW}
-              chartH={chartH}
-              animationProgress={animationProgress}
-              sliceColors={sliceColors}
-              element={element}
-              titleSpacing={titleSpacing}
-            />
-          )}
-
-          {/* Labels */}
+          {/* Labels - Render first so they're behind chart elements */}
           {element.chartType !== "pie" && (
             <XAxisLabels
               labels={labels}
@@ -231,7 +200,7 @@ const ChartBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
             />
           )}
           
-          {/* Series Legend - Below X-axis labels, inside chart container */}
+          {/* Series Legend - Render before chart elements so it's behind them */}
           <ChartLegend
             seriesData={seriesData}
             chartType={element.chartType}
@@ -242,6 +211,54 @@ const ChartBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
             xScale={xScale}
             labelsColor={element.labelsColor}
           />
+
+          {/* Chart Rendering - Render last so bars/points are on top and can receive mouse events */}
+          {element.chartType === "bar" && (
+            <BarChart
+              seriesData={seriesData}
+              labels={labels}
+              xScale={xScale}
+              yScale={yScale}
+              barAnimations={barAnimations}
+              defaultColor={defaultColor}
+              onBarHover={(data) => setTooltip(data)}
+              onBarLeave={() => setTooltip(null)}
+            />
+          )}
+          {element.chartType === "line" && (
+            <LineChart
+              seriesData={seriesData}
+              labels={labels}
+              xScale={xScale}
+              yScale={yScale}
+              animationProgress={animationProgress}
+              onPointHover={(data) => setTooltip(data)}
+              onPointLeave={() => setTooltip(null)}
+            />
+          )}
+          {element.chartType === "pie" && (
+            <PieChart
+              data={data}
+              labels={labels}
+              chartW={chartW}
+              chartH={chartH}
+              animationProgress={animationProgress}
+              sliceColors={sliceColors}
+              element={element}
+              titleSpacing={titleSpacing}
+            />
+          )}
+          
+          {/* Tooltip - Render on top of everything */}
+          {tooltip && (element.chartType === "bar" || element.chartType === "line") && (
+            <ChartTooltip
+              x={tooltip.x}
+              y={tooltip.y}
+              value={tooltip.value}
+              seriesName={tooltip.seriesName}
+              visible={!!tooltip}
+            />
+          )}
         </Group>
       </Group>
 

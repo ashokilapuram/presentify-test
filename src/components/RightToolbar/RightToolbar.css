@@ -19,6 +19,9 @@
   z-index: 97;
   margin-top: 10px;
   margin-right: 10px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .right-toolbar-header {
@@ -45,25 +48,28 @@
   padding: 0.75rem 0.5rem;
   background: var(--neutral-50);
   border: 1px solid var(--neutral-200);
-  border-radius: var(--radius-md);
+  border-radius: 0;
   color: var(--neutral-700);
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .text-element-button:hover {
   background-color: white;
   border-color: var(--neutral-300);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: none;
+  box-shadow: none;
 }
 
 .text-element-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: none;
+  box-shadow: none;
 }
 
 .text-element-button svg {
@@ -86,23 +92,26 @@
   padding: 0.75rem;
   background: var(--neutral-50);
   border: 1px solid var(--neutral-200);
-  border-radius: var(--radius-md);
+  border-radius: 0;
   color: var(--neutral-700);
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .shape-icon-button:hover {
   background-color: white;
   border-color: var(--neutral-300);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: none;
+  box-shadow: none;
 }
 
 .shape-icon-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: none;
+  box-shadow: none;
 }
 
 .shape-icon-button svg {
@@ -149,25 +158,28 @@
   padding: 0.75rem 0.5rem;
   background: var(--neutral-50);
   border: 1px solid var(--neutral-200);
-  border-radius: var(--radius-md);
+  border-radius: 0;
   color: var(--neutral-700);
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .chart-element-button:hover {
   background-color: white;
   border-color: var(--neutral-300);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: none;
+  box-shadow: none;
 }
 
 .chart-element-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: none;
+  box-shadow: none;
 }
 
 .chart-element-button svg {
@@ -192,25 +204,28 @@
   padding: 0.75rem 0.5rem;
   background: var(--neutral-50);
   border: 1px solid var(--neutral-200);
-  border-radius: var(--radius-md);
+  border-radius: 0;
   color: var(--neutral-700);
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .media-element-button:hover {
   background-color: white;
   border-color: var(--neutral-300);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  transform: none;
+  box-shadow: none;
 }
 
 .media-element-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: none;
+  box-shadow: none;
 }
 
 .media-element-button svg {
@@ -233,11 +248,14 @@
   border: none;
   color: #6b7280;
   font-size: 0.8rem; /* Reduced font size */
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
   border-radius: 0.5rem 0.5rem 0 0;
   position: relative;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .right-toolbar-tab:hover {
@@ -284,6 +302,9 @@
   color: var(--neutral-700, #404040);
   margin-bottom: var(--space-3, 0.75rem);
   font-family: var(--font-sans, 'Inter', sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .section-title::after {
@@ -305,8 +326,8 @@
 .option-group {
   margin-bottom: var(--space-4, 1rem);
   padding: var(--space-3, 0.75rem);
-  background: #e5e7eb;
-  border: 1px solid #d1d5db;
+  background: var(--neutral-50);
+  border: 1px solid var(--neutral-200);
   border-radius: var(--radius-lg, 0.75rem);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
 }
@@ -379,7 +400,7 @@
   align-items: center;
   gap: var(--space-3, 0.75rem);
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   transition: all var(--transition-normal, 250ms ease);
   color: var(--neutral-700, #404040);
   margin-bottom: var(--space-2, 0.5rem);
@@ -387,6 +408,9 @@
   box-shadow: 
     0 4px 12px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .insert-button:hover {
@@ -592,8 +616,8 @@
 .background-container {
   margin-bottom: var(--space-4, 1rem);
   padding: var(--space-4, 1rem);
-  background: #e5e7eb;
-  border: 1px solid #d1d5db;
+  background: var(--neutral-50);
+  border: 1px solid var(--neutral-200);
   border-radius: var(--radius-lg, 0.75rem);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -803,6 +827,54 @@
   font-weight: 500;
   color: var(--neutral-600, #525252);
   text-align: center;
+}
+
+/* Right toolbar range input sliders - set thumb and track color to black */
+.right-toolbar-section .option-group input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  height: 4px;
+}
+
+.right-toolbar-section .option-group input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  background: linear-gradient(to right, #000000 0%, #000000 var(--slider-value, 0%), #ffffff var(--slider-value, 0%), #ffffff 100%);
+  border-radius: 2px;
+}
+
+.right-toolbar-section .option-group input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #000000;
+  border-radius: 50%;
+  cursor: pointer;
+  width: 12px;
+  height: 12px;
+  margin-top: -4px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.right-toolbar-section .option-group input[type="range"]::-moz-range-track {
+  height: 4px;
+  background: #ffffff;
+  border-radius: 2px;
+}
+
+.right-toolbar-section .option-group input[type="range"]::-moz-range-progress {
+  height: 4px;
+  background: #000000;
+  border-radius: 2px 0 0 2px;
+}
+
+.right-toolbar-section .option-group input[type="range"]::-moz-range-thumb {
+  background: #000000;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  width: 12px;
+  height: 12px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
 .color-input {
@@ -1331,6 +1403,50 @@ body.dark .view-button.active {
   
   .color-palette {
     grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Slider styling for 1024px to 1100px screens - make sliders compact */
+@media (min-width: 1024px) and (max-width: 1100px) {
+  /* Compact sliders - match textbox slider styling */
+  .option-group input[type="range"] {
+    height: 4px !important;
+    cursor: pointer !important;
+  }
+
+  /* Compact slider value displays - target all value display divs after range inputs */
+  .option-group input[type="range"] + div,
+  .option-group div:has(+ input[type="range"]) + div,
+  .option-group div[style*="minWidth"][style*="textAlign"] {
+    min-width: 28px !important;
+    font-size: 11px !important;
+    padding: 2px 6px !important;
+    height: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* Ensure slider containers have compact spacing - target flex containers with range inputs */
+  .option-group > div:has(input[type="range"]) {
+    gap: 6px !important;
+  }
+
+  /* Target slider containers with marginTop */
+  .option-group > div:has(input[type="range"])[style*="marginTop"] {
+    margin-top: 8px !important;
+  }
+
+  /* Reduce vertical padding in option-groups for TextOptions, ImageOptions, and ShapeOptions */
+  /* Target option-groups with flex-direction: column (these sections use inline styles with this property) */
+  .right-toolbar-section .option-group[style*="flex-direction: column"] {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    /* Keep horizontal padding same */
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    /* Increase vertical gap between option-groups */
+    margin-bottom: 1.25rem !important;
   }
 }
 

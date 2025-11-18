@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Undo, Redo, RotateCw } from 'lucide-react';
-import { FiPlay, FiDownload, FiMaximize2 } from 'react-icons/fi';
+import { FiPlay, FiDownload, FiMaximize2, FiChevronDown } from 'react-icons/fi';
 
 /**
  * General actions buttons component
@@ -12,7 +12,7 @@ const GeneralActions = ({
   onUndo, 
   onRedo, 
   onStartFullScreenSlideshow, 
-  onDownloadPresentation, 
+  onDownloadPresentation,
   onToggleFullscreen, 
   onReset,
   zoom,
@@ -20,6 +20,36 @@ const GeneralActions = ({
   onZoomOut,
   onResetZoom
 }) => {
+  const [showDownloadMenu, setShowDownloadMenu] = useState(false);
+  const downloadMenuRef = useRef(null);
+
+  // Close download menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (downloadMenuRef.current && !downloadMenuRef.current.contains(event.target)) {
+        setShowDownloadMenu(false);
+      }
+    };
+
+    if (showDownloadMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDownloadMenu]);
+
+  const handleDownloadClick = (e) => {
+    e.stopPropagation();
+    setShowDownloadMenu(!showDownloadMenu);
+  };
+
+  const handleDownloadPowerPoint = () => {
+    setShowDownloadMenu(false);
+    onDownloadPresentation();
+  };
+
   return (
     <>
       <button 
@@ -38,6 +68,56 @@ const GeneralActions = ({
       >
         <Redo size={16} />
       </button>
+      {/* Download button removed - code kept for future use */}
+      {/* <div className="download-button-wrapper" ref={downloadMenuRef} style={{ position: 'relative' }}>
+        <button 
+          className="toolbar-button"
+          onClick={handleDownloadClick}
+          title="Download Presentation"
+        >
+          <FiDownload size={16} />
+          <FiChevronDown size={12} style={{ marginLeft: '4px' }} />
+        </button>
+        {showDownloadMenu && (
+          <div className="download-menu" style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            marginTop: '4px',
+            backgroundColor: '#ffffff',
+            border: '1px solid #e5e7eb',
+            borderRadius: '6px',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            zIndex: 1000,
+            minWidth: '180px',
+            overflow: 'hidden'
+          }}>
+            <button
+              className="download-menu-item"
+              onClick={handleDownloadPowerPoint}
+              style={{
+                width: '100%',
+                padding: '10px 16px',
+                textAlign: 'left',
+                border: 'none',
+                backgroundColor: 'transparent',
+                cursor: 'pointer',
+                fontSize: '14px',
+                color: '#374151',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'background-color 0.15s'
+              }}
+              onMouseEnter={(e) => e.target.style.backgroundColor = '#f3f4f6'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+            >
+              <FiDownload size={16} />
+              <span>PowerPoint (.pptx)</span>
+            </button>
+          </div>
+        )}
+      </div> */}
       <button 
         className="toolbar-button primary"
         onClick={onStartFullScreenSlideshow}
@@ -45,13 +125,6 @@ const GeneralActions = ({
       >
         <FiPlay size={16} />
         Slideshow
-      </button>
-      <button 
-        className="toolbar-button"
-        onClick={onDownloadPresentation}
-        title="Download PowerPoint"
-      >
-        <FiDownload size={16} />
       </button>
       <button 
         className={`toolbar-button ${isFullscreen ? 'active' : ''}`}

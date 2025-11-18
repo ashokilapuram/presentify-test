@@ -101,11 +101,14 @@ function EditorApp() {
   }, [slidesHook.duplicateSlide, historyHook.pushSnapshot]);
 
   const addSlideBeforeWithHistory = useCallback(() => {
+    // Capture current index at execution time to ensure it's up-to-date
+    const currentIndex = slidesHook.currentSlideIndex;
+    
     // Snapshot before
     historyHook.pushSnapshot({ 
       slides: slidesHook.slides, 
       selectedElement: slidesHook.selectedElement, 
-      currentSlideIndex: slidesHook.currentSlideIndex 
+      currentSlideIndex: currentIndex 
     });
 
     // Check for global background
@@ -115,30 +118,44 @@ function EditorApp() {
       globalBackground = bgState.background;
     }
 
+    // Get current slide's background if no global background
+    const currentSlide = slidesHook.slides[currentIndex];
+    const slideBackground = globalBackground || (currentSlide ? {
+      backgroundColor: currentSlide.backgroundColor,
+      backgroundGradient: currentSlide.backgroundGradient,
+      backgroundImage: currentSlide.backgroundImage,
+      backgroundSize: currentSlide.backgroundSize,
+      backgroundPosition: currentSlide.backgroundPosition,
+      backgroundRepeat: currentSlide.backgroundRepeat
+    } : {});
+
     const newSlide = {
       id: uuidv4(),
       elements: [],
-      ...(globalBackground || {})
+      ...slideBackground
     };
 
     // Insert before current slide
     slidesHook.setSlides(prev => {
       const newSlides = [...prev];
-      newSlides.splice(slidesHook.currentSlideIndex, 0, newSlide);
+      newSlides.splice(currentIndex, 0, newSlide);
       return newSlides;
     });
 
-    // Switch to the new slide
-    slidesHook.setCurrentSlideIndex(slidesHook.currentSlideIndex);
+    // Switch to the new slide (which is now at currentIndex)
+    slidesHook.setCurrentSlideIndex(currentIndex);
     slidesHook.setSelectedElement(null);
   }, [slidesHook, historyHook.pushSnapshot]);
 
   const addSlideAfterWithHistory = useCallback(() => {
+    // Capture current index at execution time to ensure it's up-to-date
+    const currentIndex = slidesHook.currentSlideIndex;
+    
     // Snapshot before
     historyHook.pushSnapshot({ 
       slides: slidesHook.slides, 
       selectedElement: slidesHook.selectedElement, 
-      currentSlideIndex: slidesHook.currentSlideIndex 
+      currentSlideIndex: currentIndex 
     });
 
     // Check for global background
@@ -148,21 +165,32 @@ function EditorApp() {
       globalBackground = bgState.background;
     }
 
+    // Get current slide's background if no global background
+    const currentSlide = slidesHook.slides[currentIndex];
+    const slideBackground = globalBackground || (currentSlide ? {
+      backgroundColor: currentSlide.backgroundColor,
+      backgroundGradient: currentSlide.backgroundGradient,
+      backgroundImage: currentSlide.backgroundImage,
+      backgroundSize: currentSlide.backgroundSize,
+      backgroundPosition: currentSlide.backgroundPosition,
+      backgroundRepeat: currentSlide.backgroundRepeat
+    } : {});
+
     const newSlide = {
       id: uuidv4(),
       elements: [],
-      ...(globalBackground || {})
+      ...slideBackground
     };
 
     // Insert after current slide
     slidesHook.setSlides(prev => {
       const newSlides = [...prev];
-      newSlides.splice(slidesHook.currentSlideIndex + 1, 0, newSlide);
+      newSlides.splice(currentIndex + 1, 0, newSlide);
       return newSlides;
     });
 
-    // Switch to the new slide
-    slidesHook.setCurrentSlideIndex(slidesHook.currentSlideIndex + 1);
+    // Switch to the new slide (which is now at currentIndex + 1)
+    slidesHook.setCurrentSlideIndex(currentIndex + 1);
     slidesHook.setSelectedElement(null);
   }, [slidesHook, historyHook.pushSnapshot]);
 
@@ -404,6 +432,48 @@ function EditorApp() {
     slidesHook.setSelectedElement(null);
   }, [historyHook, slidesHook]);
 
+  // Handle loading presentation from JSON
+  const handleLoadPresentation = useCallback((jsonData) => {
+    try {
+      // Save current state to history before loading
+      historyHook.pushSnapshot({ 
+        slides: slidesHook.slides, 
+        selectedElement: slidesHook.selectedElement, 
+        currentSlideIndex: slidesHook.currentSlideIndex 
+      });
+
+      // Load slides from JSON
+      if (jsonData.slides && Array.isArray(jsonData.slides) && jsonData.slides.length > 0) {
+        // Ensure all slides have IDs
+        const loadedSlides = jsonData.slides.map(slide => ({
+          ...slide,
+          id: slide.id || uuidv4(),
+          elements: (slide.elements || []).map(element => ({
+            ...element,
+            id: element.id || uuidv4()
+          }))
+        }));
+
+        slidesHook.setSlides(loadedSlides);
+        
+        // Set current slide index if provided and valid
+        const targetIndex = jsonData.currentSlideIndex !== undefined 
+          ? Math.max(0, Math.min(jsonData.currentSlideIndex, loadedSlides.length - 1))
+          : 0;
+        slidesHook.setCurrentSlideIndex(targetIndex);
+        slidesHook.setSelectedElement(null);
+        
+        console.log('Presentation loaded successfully!');
+      } else {
+        throw new Error('Invalid presentation data: no slides found');
+      }
+    } catch (error) {
+      console.error('Error loading presentation:', error);
+      alert('Error loading presentation. Please make sure it is a valid JSON file exported from Presentify.');
+    }
+  }, [historyHook, slidesHook]);
+
+
   return (
     <div className="app" style={{ 
       opacity: slideshowHook.isTransitioning || slideshowHook.isSlideshowActive ? 0 : 1,
@@ -458,7 +528,10 @@ function EditorApp() {
             setSlides={slidesHook.setSlides}
             onSlideClick={() => {
               slidesHook.setSelectedElement(null);
-              uiStateHook.setForceRightToolbarTab('Insert');
+              // Only reset to Insert if not currently in Design tab
+              if (uiStateHook.currentRightToolbarTab !== 'Design') {
+                uiStateHook.setForceRightToolbarTab('Insert');
+              }
             }}
           />
           <KonvaCanvas 

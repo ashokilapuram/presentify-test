@@ -11,6 +11,9 @@
   height: fit-content;
   flex-shrink: 0;
   box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Reduce button sizes inside format-container */
@@ -19,6 +22,10 @@
   height: 24px;
   padding: 0.15rem 0.2rem;
   font-size: 0.75rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-weight: 600;
 }
 
 .format-container .toolbar-button svg {
@@ -40,6 +47,10 @@
   font-size: 0.75rem;
   min-width: 75px;
   height: 24px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-weight: 600;
 }
 
 /* Text spacing button - match width of other buttons */
@@ -1291,9 +1302,9 @@ body.dark .toolbar-button.active {
 }
 
 .spacing-controls button {
-  background: none;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: inherit;
+  background: var(--neutral-50);
+  border: 1px solid var(--neutral-200);
+  color: var(--neutral-700);
   width: 20px;
   height: 20px;
   line-height: 18px;
@@ -1308,7 +1319,8 @@ body.dark .toolbar-button.active {
 }
 
 .spacing-controls button:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--neutral-100);
+  border-color: var(--neutral-300);
 }
 
 .dropdown-menu .dropdown-item {

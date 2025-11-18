@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { FiImage, FiDroplet } from 'react-icons/fi';
+import { FiImage } from 'react-icons/fi';
 import { Palette, Trash2 } from 'lucide-react';
-import SectionTitle from '../shared/SectionTitle';
 import ModernColorPicker from '../shared/ModernColorPicker';
 import { getGlobalBackground, setGlobalBackground, getToggleState, setToggleState } from '../../../utils/globalBackground';
 
@@ -10,6 +9,45 @@ const DesignSection = ({ updateSlide, currentSlide, slides, updateAllSlides }) =
   // Initialize from global state to persist across remounts
   const [applyToAllSlides, setApplyToAllSlides] = useState(() => getToggleState());
   const prevToggleStateRef = useRef(false);
+
+  // Calculate if a color is light or dark to determine icon color
+  const getContrastColor = (color) => {
+    if (!color || color === 'transparent' || color === 'undefined') {
+      return '#374151'; // Default dark gray
+    }
+    
+    // Convert hex to RGB
+    let r, g, b;
+    if (color.startsWith('#')) {
+      const hex = color.slice(1);
+      if (hex.length === 3) {
+        r = parseInt(hex[0] + hex[0], 16);
+        g = parseInt(hex[1] + hex[1], 16);
+        b = parseInt(hex[2] + hex[2], 16);
+      } else {
+        r = parseInt(hex.slice(0, 2), 16);
+        g = parseInt(hex.slice(2, 4), 16);
+        b = parseInt(hex.slice(4, 6), 16);
+      }
+    } else if (color.startsWith('rgb')) {
+      const matches = color.match(/\d+/g);
+      if (matches && matches.length >= 3) {
+        r = parseInt(matches[0]);
+        g = parseInt(matches[1]);
+        b = parseInt(matches[2]);
+      } else {
+        return '#374151';
+      }
+    } else {
+      return '#374151';
+    }
+    
+    // Calculate relative luminance
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    
+    // Return black for light colors, white for dark colors
+    return luminance > 0.5 ? '#000000' : '#ffffff';
+  };
 
   const backgroundColors = [
     { color: '#ffffff', title: 'White' },
@@ -284,56 +322,7 @@ const DesignSection = ({ updateSlide, currentSlide, slides, updateAllSlides }) =
 
   return (
     <div className="right-toolbar-section">
-      <SectionTitle icon={<FiDroplet />} text="Background" />
       <div className="option-group">
-        {/* Apply to All Slides Toggle */}
-        <div style={{ 
-          marginBottom: '16px', 
-          padding: '12px',
-          background: '#f9fafb',
-          borderRadius: '8px',
-          border: '1px solid #e5e7eb'
-        }}>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between',
-            cursor: 'pointer'
-          }}
-          onClick={() => setApplyToAllSlides(!applyToAllSlides)}
-          >
-            <div style={{ 
-              fontSize: '13px', 
-              fontWeight: 500, 
-              color: '#374151',
-              userSelect: 'none'
-            }}>
-              Apply to all slides
-            </div>
-            <div style={{
-              position: 'relative',
-              width: '44px',
-              height: '24px',
-              borderRadius: '12px',
-              background: applyToAllSlides ? '#000000' : '#d1d5db',
-              transition: 'background 0.2s ease',
-              cursor: 'pointer',
-              flexShrink: 0
-            }}>
-              <div style={{
-                position: 'absolute',
-                top: '2px',
-                left: applyToAllSlides ? '22px' : '2px',
-                width: '20px',
-                height: '20px',
-                borderRadius: '50%',
-                background: '#ffffff',
-                transition: 'left 0.2s ease',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
-              }} />
-            </div>
-          </div>
-        </div>
         <div style={{ marginBottom: '16px' }}>
           <div style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
             Gradients
@@ -467,7 +456,7 @@ const DesignSection = ({ updateSlide, currentSlide, slides, updateAllSlides }) =
                 }}
                   title="Pick custom color"
                 >
-                  <Palette size={16} />
+                  <Palette size={16} style={{ color: getContrastColor(currentSlide?.backgroundColor || '#ffffff') }} />
                 </div>
               </div>
               <button

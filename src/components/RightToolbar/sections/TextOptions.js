@@ -1,7 +1,5 @@
 import React, { useRef } from 'react';
-import { FiDroplet } from 'react-icons/fi';
 import { Palette, Trash2 } from 'lucide-react';
-import SectionTitle from '../shared/SectionTitle';
 import ModernColorPicker from '../shared/ModernColorPicker';
 import LayerActions from '../shared/LayerActions';
 
@@ -22,8 +20,7 @@ const TextOptions = ({
 
   const backgroundColors = [
     '#ffffff', '#f8f9fa', '#0ea5e9', '#8b5cf6',
-    '#10b981', '#f59e0b', '#f43f5e', '#06b6d4',
-    '#84cc16', '#a855f7', '#f97316', '#64748b'
+    '#10b981', '#f59e0b'
   ];
 
   const borderColors = [
@@ -73,8 +70,20 @@ const TextOptions = ({
 
   return (
     <div className="right-toolbar-section">
-      <SectionTitle icon={<FiDroplet />} text="Textbox Background" />
-      <div className="option-group">
+      <div className="option-group" style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '0.75rem',
+        padding: '0.75rem'
+      }}>
+        <div style={{
+          fontSize: '0.875rem',
+          fontWeight: '600',
+          color: '#404040',
+          marginBottom: '0.25rem'
+        }}>
+          Textbox Background
+        </div>
         <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
           {/* Quick Colors Grid - 2 rows */}
           <div style={{ 
@@ -192,10 +201,71 @@ const TextOptions = ({
             </button>
           </div>
         </div>
+
+        {/* Opacity slider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', width: '100%', minWidth: 0 }}>
+          <span style={{ fontSize: '12px', color: '#6b7280', flexShrink: 0, whiteSpace: 'nowrap' }}>Opacity</span>
+          <input
+            type="range"
+            onClick={(e) => e.stopPropagation()}
+            min="0"
+            max="100"
+            value={selectedElement.textOpacity !== undefined ? selectedElement.textOpacity * 100 : 100}
+            onChange={(e) => {
+              e.stopPropagation();
+              updateSlideElement(selectedElement.id, { textOpacity: parseFloat(e.target.value) / 100 });
+            }}
+            onInput={(e) => {
+              const value = e.target.value;
+              const min = e.target.min || 0;
+              const max = e.target.max || 100;
+              const percent = ((value - min) / (max - min)) * 100;
+              e.target.style.setProperty('--slider-value', `${percent}%`);
+            }}
+            style={{ 
+              flex: 1,
+              minWidth: 0,
+              height: '4px',
+              cursor: 'pointer',
+              '--slider-value': `${((selectedElement.textOpacity !== undefined ? selectedElement.textOpacity * 100 : 100) / 100) * 100}%`
+            }}
+          />
+          <div style={{
+            flexShrink: 0,
+            minWidth: '32px',
+            textAlign: 'center',
+            fontSize: '11px',
+            fontWeight: '600',
+            color: '#374151',
+            padding: '2px 4px',
+            background: '#ffffff',
+            borderRadius: '4px',
+            border: '1px solid #e5e7eb',
+            height: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            whiteSpace: 'nowrap'
+          }}>
+            {Math.round((selectedElement.textOpacity !== undefined ? selectedElement.textOpacity * 100 : 100))}%
+          </div>
+        </div>
       </div>
 
-      <SectionTitle icon={<FiDroplet />} text="Stroke colour & width" />
-      <div className="option-group">
+      <div className="option-group" style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '0.75rem',
+        padding: '0.75rem'
+      }}>
+        <div style={{
+          fontSize: '0.875rem',
+          fontWeight: '600',
+          color: '#404040',
+          marginBottom: '0.25rem'
+        }}>
+          Stroke colour & width
+        </div>
         <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
           {/* Quick Colors Grid - 1 row only (6 colors) */}
           <div style={{ 
@@ -332,10 +402,18 @@ const TextOptions = ({
               e.stopPropagation();
               updateSlideElement(selectedElement.id, { strokeWidth: parseInt(e.target.value) });
             }}
+            onInput={(e) => {
+              const value = e.target.value;
+              const min = e.target.min || 0;
+              const max = e.target.max || 10;
+              const percent = ((value - min) / (max - min)) * 100;
+              e.target.style.setProperty('--slider-value', `${percent}%`);
+            }}
             style={{ 
               flex: 1,
               height: '4px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              '--slider-value': `${((selectedElement.strokeWidth || 0) / 10) * 100}%`
             }}
           />
           <div style={{
@@ -358,8 +436,20 @@ const TextOptions = ({
         </div>
       </div>
 
-      <SectionTitle icon={<FiDroplet />} text="Border colour & width" />
-      <div className="option-group">
+      <div className="option-group" style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '0.75rem',
+        padding: '0.75rem'
+      }}>
+        <div style={{
+          fontSize: '0.875rem',
+          fontWeight: '600',
+          color: '#404040',
+          marginBottom: '0.25rem'
+        }}>
+          Border colour & width
+        </div>
         <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
           {/* Quick Colors Grid - 1 row only (6 colors) */}
           <div style={{ 
@@ -478,24 +568,32 @@ const TextOptions = ({
           </div>
         </div>
 
-        {/* Border width slider - compact, replacing second row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
-          <input
-            type="range"
-            onClick={(e) => e.stopPropagation()}
-            min="0"
-            max="10"
-            value={selectedElement.borderWidth || 0}
-            onChange={(e) => {
-              e.stopPropagation();
-              updateSlideElement(selectedElement.id, { borderWidth: parseInt(e.target.value) });
-            }}
-            style={{ 
-              flex: 1,
-              height: '4px',
-              cursor: 'pointer'
-            }}
-          />
+            {/* Border width slider - compact, replacing second row */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
+              <input
+                type="range"
+                onClick={(e) => e.stopPropagation()}
+                min="0"
+                max="10"
+                value={selectedElement.borderWidth || 0}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  updateSlideElement(selectedElement.id, { borderWidth: parseInt(e.target.value) });
+                }}
+                onInput={(e) => {
+                  const value = e.target.value;
+                  const min = e.target.min || 0;
+                  const max = e.target.max || 10;
+                  const percent = ((value - min) / (max - min)) * 100;
+                  e.target.style.setProperty('--slider-value', `${percent}%`);
+                }}
+                style={{
+                  flex: 1,
+                  height: '4px',
+                  cursor: 'pointer',
+                  '--slider-value': `${((selectedElement.borderWidth || 0) / 10) * 100}%`
+                }}
+              />
           <div style={{
             minWidth: '28px',
             textAlign: 'center',

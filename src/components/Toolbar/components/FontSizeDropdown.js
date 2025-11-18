@@ -9,7 +9,7 @@ const FontSizeDropdown = ({
   dropdownPos, 
   onApplyFormat 
 }) => {
-  const fontSizes = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60, 80, 120, 200];
+  const fontSizes = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60, 80, 120, 150, 170, 200];
 
   return (
     <>

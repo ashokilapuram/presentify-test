@@ -33,7 +33,7 @@ const Toolbar = ({
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
   const [activeDropdown, setActiveDropdown] = useState(null);
 
-  const fontSizes = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60, 80, 120, 200];
+  const fontSizes = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60, 80, 120, 150, 170, 200];
 
   // 🔄 Keep toolbar in sync when a new textbox is selected
   useEffect(() => {
@@ -100,9 +100,11 @@ const Toolbar = ({
 
   // List type toggle
   const toggleListType = () => {
-    const order = ['none', 'bullet', 'number'];
+    const order = ['none', 'bullet'];
     const current = selectedElement?.listType || textFormatting.listType || 'none';
-    const next = order[(order.indexOf(current) + 1) % order.length];
+    // If current is 'number', treat it as 'none' to transition away from numbered lists
+    const normalizedCurrent = current === 'number' ? 'none' : current;
+    const next = order[(order.indexOf(normalizedCurrent) + 1) % order.length];
     
     if (selectedElement?.id) {
       updateSlideElement(selectedElement.id, { listType: next });

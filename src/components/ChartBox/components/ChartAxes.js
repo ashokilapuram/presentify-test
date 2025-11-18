@@ -26,6 +26,7 @@ export const YAxisValues = ({
     return (
       <Shape
         key={i}
+        listening={false}
         sceneFunc={(context, shape) => {
           context.save();
           
@@ -104,6 +105,7 @@ export const XAxisLabels = ({
     return (
       <Shape
         key={i}
+        listening={false}
         sceneFunc={(context, shape) => {
           context.save();
           
@@ -175,6 +177,11 @@ export const AxisLines = ({
   yScale,
   hasNegativeValues 
 }) => {
+  // Use lighter axis lines for line charts for a more professional look
+  const isLineChart = chartType === "line";
+  const axisColor = isLineChart ? "#e5e7eb" : "#9ca3af";
+  const axisWidth = isLineChart ? 1.5 : 2;
+  
   return (
     <>
       {/* Zero line for negative values */}
@@ -192,8 +199,8 @@ export const AxisLines = ({
       {showXAxis && chartType !== "pie" && (
         <Line
           points={[padding, yScale(0), chartW - padding, yScale(0)]}
-          stroke="#9ca3af"
-          strokeWidth={2}
+          stroke={axisColor}
+          strokeWidth={axisWidth}
           listening={false}
         />
       )}
@@ -202,8 +209,8 @@ export const AxisLines = ({
       {showYAxis && chartType !== "pie" && (
         <Line
           points={[padding, padding, padding, chartH - padding]}
-          stroke="#9ca3af"
-          strokeWidth={2}
+          stroke={axisColor}
+          strokeWidth={axisWidth}
           listening={false}
         />
       )}

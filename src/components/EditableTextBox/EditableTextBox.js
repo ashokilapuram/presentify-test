@@ -49,6 +49,48 @@ function stripListMarkers(text) {
     .join('\n');
 }
 
+// Convert hex to rgba with opacity
+function hexToRgba(hex, opacity = 1) {
+  if (!hex || hex === 'transparent') return `rgba(0, 0, 0, ${opacity})`;
+  
+  let r, g, b;
+  if (hex.startsWith('#')) {
+    const colorHex = hex.slice(1);
+    if (colorHex.length === 3) {
+      r = parseInt(colorHex[0] + colorHex[0], 16);
+      g = parseInt(colorHex[1] + colorHex[1], 16);
+      b = parseInt(colorHex[2] + colorHex[2], 16);
+    } else {
+      r = parseInt(colorHex.slice(0, 2), 16);
+      g = parseInt(colorHex.slice(2, 4), 16);
+      b = parseInt(colorHex.slice(4, 6), 16);
+    }
+  } else if (hex.startsWith('rgba')) {
+    // If already rgba, extract rgb and use new opacity
+    const matches = hex.match(/\d+\.?\d*/g);
+    if (matches && matches.length >= 3) {
+      r = parseInt(matches[0]);
+      g = parseInt(matches[1]);
+      b = parseInt(matches[2]);
+    } else {
+      return hex;
+    }
+  } else if (hex.startsWith('rgb')) {
+    const matches = hex.match(/\d+/g);
+    if (matches && matches.length >= 3) {
+      r = parseInt(matches[0]);
+      g = parseInt(matches[1]);
+      b = parseInt(matches[2]);
+    } else {
+      return hex;
+    }
+  } else {
+    return hex;
+  }
+  
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+}
+
 const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = false }) => {
   const textRef = useRef();
   const backgroundRef = useRef();
@@ -568,6 +610,18 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
     originalRotationRef.current = null;
   };
 
+  // Calculate opacity and colors based on whether background exists
+  const hasBackground = element.backgroundColor && element.backgroundColor !== 'transparent';
+  const textOpacity = element.textOpacity !== undefined ? element.textOpacity : 1;
+  
+  // If background exists, apply opacity to both background and text
+  // If no background, apply opacity only to text color
+  const textColor = hasBackground 
+    ? (textOpacity < 1 ? hexToRgba(element.color, textOpacity) : element.color)
+    : (textOpacity < 1 ? hexToRgba(element.color, textOpacity) : element.color);
+  
+  const backgroundOpacity = hasBackground ? textOpacity : 1;
+
   return (
     <>
       {/* Background rectangle for background color */}
@@ -578,7 +632,9 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
           y={element.y}
           width={element.width}
           height={element.height}
-          fill={element.backgroundColor || 'transparent'}
+          fill={hasBackground && backgroundOpacity < 1 
+            ? hexToRgba(element.backgroundColor, backgroundOpacity) 
+            : (element.backgroundColor || 'transparent')}
           stroke={element.borderColor || 'transparent'}
           strokeWidth={element.borderWidth || 0}
           rotation={element.rotation || 0}
@@ -610,7 +666,7 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
         fontSize={element.fontSize}
         fontFamily={element.fontFamily || "Arial"}
         fontStyle={`${element.fontStyle === 'italic' ? 'italic ' : ''}${element.fontWeight === 'bold' ? 'bold' : 'normal'}`.trim()}
-        fill={element.color}
+        fill={textColor}
         stroke={element.strokeColor}
         strokeWidth={element.strokeWidth || 0}
         textDecoration={element.textDecoration || 'none'}
@@ -783,7 +839,7 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
               minHeight: Math.max(100, Math.ceil(textRef.current?.height?.() || element.height)),
               fontSize: element.fontSize,
               fontFamily: element.fontFamily || "Arial",
-              color: element.color,
+              color: textColor,
               fontWeight: element.fontWeight || "normal",
               fontStyle: element.fontStyle || "normal",
               textDecoration: element.textDecoration || "none",
@@ -794,7 +850,9 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
               borderWidth: element.borderWidth > 0 ? `${element.borderWidth}px` : "0px !important",
               borderStyle: element.borderWidth > 0 ? "solid" : "none !important",
               borderColor: element.borderWidth > 0 ? (element.borderColor || "#000000") : "transparent !important",
-              background: element.backgroundColor || "transparent",
+              background: hasBackground && backgroundOpacity < 1 
+                ? hexToRgba(element.backgroundColor, backgroundOpacity) 
+                : (element.backgroundColor || "transparent"),
               outline: "none",
               resize: "none",
               overflow: "hidden",
