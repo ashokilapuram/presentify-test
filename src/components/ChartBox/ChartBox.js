@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Group, Rect, Text, Transformer } from "react-konva";
+import { RotationIndicator } from "../shared/RotationIndicator";
 import { useChartAnimations } from "./components/ChartAnimations";
 import { useChartDataProcessor } from "./components/ChartDataProcessor";
 import BarChart from "./components/BarChart";
@@ -14,6 +15,8 @@ const ChartBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
   const groupRef = useRef(null);
   const trRef = useRef(null);
   const [tooltip, setTooltip] = useState(null);
+  const [currentRotation, setCurrentRotation] = useState(element.rotation || 0);
+  const [isRotating, setIsRotating] = useState(false);
 
   const chartW = element.width || 360;
   const chartH = element.height || 240;
@@ -58,6 +61,20 @@ const ChartBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
     }
   }, [element.x, element.y, element.width, element.height, isSelected]);
 
+  // Sync rotation state when element changes
+  useEffect(() => {
+    setCurrentRotation(element.rotation || 0);
+  }, [element.rotation]);
+
+  const handleTransform = () => {
+    const node = groupRef.current;
+    if (node) {
+      const rotation = node.rotation();
+      setCurrentRotation(rotation);
+      setIsRotating(true);
+    }
+  };
+
   const handleTransformEnd = () => {
     const node = groupRef.current;
     const scaleX = node.scaleX();
@@ -69,13 +86,17 @@ const ChartBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
     const minWidth = element.chartType === "pie" ? 140 : 120;
     const minHeight = element.chartType === "pie" ? 140 : 100;
     
+    const finalRotation = node.rotation();
+    setCurrentRotation(finalRotation);
+    setIsRotating(false);
+    
     onChange({
       ...element,
       x: node.x(),
       y: node.y(),
       width: Math.max(minWidth, chartW * scaleX),
       height: Math.max(minHeight, chartH * scaleY),
-      rotation: node.rotation(),
+      rotation: finalRotation,
     });
   };
 
@@ -127,6 +148,7 @@ const ChartBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
         onDragEnd={(e) =>
           onChange({ ...element, x: e.target.x(), y: e.target.y() })
         }
+        onTransform={handleTransform}
         onTransformEnd={handleTransformEnd}
       >
         {/* Background - extends to include legend */}
@@ -283,6 +305,16 @@ const ChartBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
             if (newBox.width < minWidth || newBox.height < minHeight) return oldBox;
             return newBox;
           }}
+        />
+      )}
+      {isSelected && isRotating && (
+        <RotationIndicator
+          rotation={currentRotation}
+          x={element.x}
+          y={element.y}
+          width={element.width}
+          height={element.height}
+          isVisible={isRotating}
         />
       )}
     </>

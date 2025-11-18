@@ -1,10 +1,13 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Image, Transformer, Group, Rect } from "react-konva";
+import { RotationIndicator } from "../shared/RotationIndicator";
 
 const ImageBox = ({ element, isSelected, onSelect, onChange, readOnly = false }) => {
   const imageRef = useRef();
   const trRef = useRef();
   const [imgObj, setImgObj] = useState(null);
+  const [currentRotation, setCurrentRotation] = useState(element.rotation || 0);
+  const [isRotating, setIsRotating] = useState(false);
 
   // Load image
   useEffect(() => {
@@ -12,6 +15,11 @@ const ImageBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
     img.src = element.src;
     img.onload = () => setImgObj(img);
   }, [element.src]);
+
+  // Sync rotation state when element changes
+  useEffect(() => {
+    setCurrentRotation(element.rotation || 0);
+  }, [element.rotation]);
 
   // Handle selection transformer
   const groupRef = useRef();
@@ -23,6 +31,13 @@ const ImageBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
     }
   }, [isSelected, imgObj, element.cornerRadius]);
 
+  const handleTransform = () => {
+    const node = element.cornerRadius !== undefined && element.cornerRadius > 0 ? groupRef.current : imageRef.current;
+    const rotation = node.rotation();
+    setCurrentRotation(rotation);
+    setIsRotating(true);
+  };
+
   const handleTransformEnd = () => {
     const node = element.cornerRadius !== undefined && element.cornerRadius > 0 ? groupRef.current : imageRef.current;
     const scaleX = node.scaleX();
@@ -30,13 +45,17 @@ const ImageBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
     node.scaleX(1);
     node.scaleY(1);
 
+    const finalRotation = node.rotation();
+    setCurrentRotation(finalRotation);
+    setIsRotating(false);
+
     onChange({
       ...element,
       x: node.x(),
       y: node.y(),
       width: Math.max(40, node.width() * scaleX),
       height: Math.max(40, node.height() * scaleY),
-      rotation: node.rotation(),
+      rotation: finalRotation,
     });
   };
 
@@ -68,6 +87,7 @@ const ImageBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
           onDragEnd={(e) =>
             onChange({ ...element, x: e.target.x(), y: e.target.y() })
           }
+          onTransform={handleTransform}
           onTransformEnd={handleTransformEnd}
           clipFunc={(ctx) => {
             const width = element.width;
@@ -135,6 +155,16 @@ const ImageBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
             borderStrokeWidth={1}
           />
         )}
+        {isSelected && isRotating && (
+          <RotationIndicator
+            rotation={currentRotation}
+            x={element.x}
+            y={element.y}
+            width={element.width}
+            height={element.height}
+            isVisible={isRotating}
+          />
+        )}
       </>
     );
   }
@@ -165,6 +195,7 @@ const ImageBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
         onDragEnd={(e) =>
           onChange({ ...element, x: e.target.x(), y: e.target.y() })
         }
+        onTransform={handleTransform}
         onTransformEnd={handleTransformEnd}
         shadowBlur={2}
       />
@@ -191,6 +222,16 @@ const ImageBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
           anchorStrokeWidth={2}
           borderStroke="#0ea5e9"
           borderStrokeWidth={1}
+        />
+      )}
+      {isSelected && isRotating && (
+        <RotationIndicator
+          rotation={currentRotation}
+          x={element.x}
+          y={element.y}
+          width={element.width}
+          height={element.height}
+          isVisible={isRotating}
         />
       )}
     </>

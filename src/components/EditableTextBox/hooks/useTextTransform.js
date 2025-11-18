@@ -3,6 +3,8 @@ import { calculateMinWidth } from '../utils/transformUtils';
 
 export function useTextTransform(element, textRef, strokeRef, backgroundRef, onChange) {
   const [isTransforming, setIsTransforming] = useState(false);
+  const [isRotating, setIsRotating] = useState(false);
+  const [currentRotation, setCurrentRotation] = useState(element.rotation || 0);
   const originalYPositionRef = useRef(null);
   const originalRotationRef = useRef(null);
 
@@ -19,6 +21,9 @@ export function useTextTransform(element, textRef, strokeRef, backgroundRef, onC
     
     // Check if rotation has changed (user is rotating, not just resizing)
     const rotationChanged = Math.abs(node.rotation() - originalRotationRef.current) > 0.01;
+    const rotation = node.rotation();
+    setCurrentRotation(rotation);
+    setIsRotating(rotationChanged);
     
     const minWidth = calculateMinWidth(element);
     const newWidth = Math.max(minWidth, node.width() * scaleX);
@@ -102,10 +107,14 @@ export function useTextTransform(element, textRef, strokeRef, backgroundRef, onC
     // Reset the stored positions after transform ends
     originalYPositionRef.current = null;
     originalRotationRef.current = null;
+    setIsRotating(false);
+    setCurrentRotation(node.rotation());
   }, [element, textRef, strokeRef, backgroundRef, onChange]);
 
   return {
     isTransforming,
+    isRotating,
+    currentRotation,
     handleTransform,
     handleTransformEnd,
   };

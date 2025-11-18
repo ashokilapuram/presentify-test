@@ -6,6 +6,7 @@ import { TextStroke } from "./components/TextStroke";
 import { TextFill } from "./components/TextFill";
 import { TextTransformer } from "./components/TextTransformer";
 import { TextEditor } from "./components/TextEditor";
+import { RotationIndicator } from "../shared/RotationIndicator";
 
 // Hooks
 import { useTextEditing } from "./hooks/useTextEditing";
@@ -39,7 +40,7 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
   const { trRef, forceTransformerRefresh } = useTransformer(isSelected, textRef);
 
   // Text transform handlers
-  const { isTransforming, handleTransform, handleTransformEnd } = useTextTransform(
+  const { isTransforming, isRotating, currentRotation, handleTransform, handleTransformEnd } = useTextTransform(
     element,
     textRef,
     strokeRef,
@@ -121,6 +122,17 @@ const EditableTextBox = ({ element, isSelected, onSelect, onChange, readOnly = f
         forceTransformerRefresh={forceTransformerRefresh}
         onSelect={onSelect}
       />
+
+      {isSelected && isRotating && (
+        <RotationIndicator
+          rotation={currentRotation}
+          x={element.x}
+          y={element.y}
+          width={element.width}
+          height={element.height}
+          isVisible={isRotating}
+        />
+      )}
     </>
   );
 };

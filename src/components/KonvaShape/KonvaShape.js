@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Rect, Circle, RegularPolygon, Star, Transformer, Group } from "react-konva";
+import { RotationIndicator } from "../shared/RotationIndicator";
 
 // Convert hex to rgba with opacity
 const hexToRgba = (hex, opacity = 1) => {
@@ -46,6 +47,8 @@ const hexToRgba = (hex, opacity = 1) => {
 const KonvaShape = ({ element, isSelected, onSelect, onChange, readOnly = false }) => {
   const shapeRef = useRef();
   const trRef = useRef();
+  const [currentRotation, setCurrentRotation] = useState(element.rotation || 0);
+  const [isRotating, setIsRotating] = useState(false);
 
   useEffect(() => {
     if (isSelected && trRef.current && shapeRef.current) {
@@ -53,6 +56,20 @@ const KonvaShape = ({ element, isSelected, onSelect, onChange, readOnly = false 
       trRef.current.getLayer().batchDraw();
     }
   }, [isSelected]);
+
+  // Sync rotation state when element changes
+  useEffect(() => {
+    setCurrentRotation(element.rotation || 0);
+  }, [element.rotation]);
+
+  const handleTransform = () => {
+    const node = shapeRef.current;
+    if (node) {
+      const rotation = node.rotation();
+      setCurrentRotation(rotation);
+      setIsRotating(true);
+    }
+  };
 
   const handleTransformEnd = () => {
     const node = shapeRef.current;
@@ -64,13 +81,17 @@ const KonvaShape = ({ element, isSelected, onSelect, onChange, readOnly = false 
     const newWidth = Math.max(30, node.width() * scaleX);
     const newHeight = Math.max(30, node.height() * scaleY);
 
+    const finalRotation = node.rotation();
+    setCurrentRotation(finalRotation);
+    setIsRotating(false);
+
     onChange({
       ...element,
       x: node.x(),
       y: node.y(),
       width: newWidth,
       height: newHeight,
-      rotation: node.rotation(),
+      rotation: finalRotation,
     });
   };
 
@@ -95,6 +116,7 @@ const KonvaShape = ({ element, isSelected, onSelect, onChange, readOnly = false 
     },
     onDragEnd: (e) =>
       onChange({ ...element, x: e.target.x(), y: e.target.y() }),
+    onTransform: handleTransform,
     onTransformEnd: handleTransformEnd,
     ref: shapeRef,
   };
@@ -125,6 +147,7 @@ const KonvaShape = ({ element, isSelected, onSelect, onChange, readOnly = false 
           onDragEnd={(e) =>
             onChange({ ...element, x: e.target.x(), y: e.target.y() })
           }
+          onTransform={handleTransform}
           onTransformEnd={handleTransformEnd}
           ref={shapeRef}
         />
@@ -249,6 +272,16 @@ const KonvaShape = ({ element, isSelected, onSelect, onChange, readOnly = false 
           anchorStrokeWidth={2}
           borderStroke="#0ea5e9"
           borderStrokeWidth={1}
+        />
+      )}
+      {isSelected && isRotating && (
+        <RotationIndicator
+          rotation={currentRotation}
+          x={element.x}
+          y={element.y}
+          width={element.width}
+          height={element.height}
+          isVisible={isRotating}
         />
       )}
     </>
