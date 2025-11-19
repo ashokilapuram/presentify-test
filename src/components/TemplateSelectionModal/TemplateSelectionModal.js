@@ -5,37 +5,37 @@ const TemplateSelectionModal = ({ isOpen, onClose, onSelectTemplate, showCreateN
   const templates = [
     {
       id: 'sample_1',
-      name: 'Sample 1',
+      name: 'Bold Pitch Deck Cover',
       thumbnail: '/images/templates/sample_1.png',
       jsonFile: '/templates/sample_1.json'
     },
     {
       id: 'sample_2', 
-      name: 'Sample 2',
+      name: 'Creative Startup Deck',
       thumbnail: '/images/templates/sample_2.png',
       jsonFile: '/templates/sample_2.json'
     },
     {
       id: 'sample_3',
-      name: 'Sample 3',
+      name: 'Modern Music Theme',
       thumbnail: '/images/templates/sample_3.png',
       jsonFile: '/templates/sample_3.json'
     },
     {
       id: 'sample_4',
-      name: 'Sample 4',
+      name: 'Corporate Business Blueprint',
       thumbnail: '/images/templates/sample_4.png',
       jsonFile: '/templates/sample_4.json'
     },
     {
       id: 'sample_5',
-      name: 'Sample 5',
+      name: 'Digital Transformation Strategy',
       thumbnail: '/images/templates/sample_5.png',
       jsonFile: '/templates/sample_5.json'
     },
     {
       id: 'sample_6',
-      name: 'Sample 6',
+      name: 'AI Innovation Cover Slide',
       thumbnail: '/images/templates/sample_6.png',
       jsonFile: '/templates/sample_6.json'
     }

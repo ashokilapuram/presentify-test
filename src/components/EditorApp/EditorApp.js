@@ -1,4 +1,5 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { v4 as uuidv4 } from 'uuid';
 import Sidebar from '../Sidebar/Sidebar';
 import Toolbar from '../Toolbar/Toolbar';
@@ -33,6 +34,12 @@ function EditorApp() {
   );
   const uiStateHook = useUIState(slidesHook.setSelectedElement);
   const fileManagerHook = useFileManager();
+  
+  // Store chart exporters for PPT download
+  const chartExportersRef = useRef({});
+  
+  // Loading state for PPT download
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // Text formatting state
   const [textFormatting, setTextFormatting] = useState({
@@ -493,7 +500,15 @@ function EditorApp() {
           onStartFullScreenSlideshow={handleStartSlideshow}
           onToggleFullscreen={handleToggleFullscreen}
           isFullscreen={isFullscreen}
-          onDownloadPresentation={() => fileManagerHook.handleDownloadPresentation(slidesHook.slides, slidesHook.currentSlideIndex)}
+          onDownloadPresentation={async () => {
+            setIsDownloading(true);
+            try {
+              await fileManagerHook.handleDownloadPresentation(slidesHook.slides, slidesHook.currentSlideIndex, chartExportersRef.current);
+            } finally {
+              setIsDownloading(false);
+            }
+          }}
+          isDownloading={isDownloading}
           onUndo={undo}
           onRedo={redo}
           canUndo={historyHook.undoStack.length > 0}
@@ -565,6 +580,9 @@ function EditorApp() {
                   s.id === slideId ? { ...s, thumbnail: img } : s
                 )
               );
+            }}
+            onChartExportReady={(exporters) => {
+              chartExportersRef.current = exporters;
             }}
           />
           <RightToolbar 
@@ -646,6 +664,7 @@ function EditorApp() {
             </div>
           </div>
         )}
+        
       </div>
   );
 }

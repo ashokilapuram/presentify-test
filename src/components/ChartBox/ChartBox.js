@@ -11,12 +11,28 @@ import { YAxisValues, XAxisLabels, AxisLines } from "./components/ChartAxes";
 import ChartLegend, { calculateLegendHeight } from "./components/ChartLegend";
 import ChartTooltip from "./components/ChartTooltip";
 
-const ChartBox = ({ element, isSelected, onSelect, onChange, readOnly = false }) => {
+const ChartBox = ({ element, isSelected, onSelect, onChange, readOnly = false, onExport }) => {
   const groupRef = useRef(null);
   const trRef = useRef(null);
   const [tooltip, setTooltip] = useState(null);
   const [currentRotation, setCurrentRotation] = useState(element.rotation || 0);
   const [isRotating, setIsRotating] = useState(false);
+  
+  // Expose chart export function
+  useEffect(() => {
+    if (onExport) {
+      onExport(async () => {
+        if (groupRef.current) {
+          return groupRef.current.toDataURL({ 
+            pixelRatio: 2,
+            mimeType: 'image/png',
+            quality: 1
+          });
+        }
+        return null;
+      });
+    }
+  }, [onExport, element.id, element.width, element.height, element.rotation]);
 
   const chartW = element.width || 360;
   const chartH = element.height || 240;

@@ -1,6 +1,7 @@
 import html2canvas from 'html2canvas';
+import { renderChartToImage } from './renderChartToImage';
 
-export const downloadPresentation = async (slides, currentSlideIndex) => {
+export const downloadPresentation = async (slides, currentSlideIndex, chartExporters = {}) => {
   try {
     // Dynamically import PptxGenJS to avoid webpack issues
     const { default: PptxGenJS } = await import('pptxgenjs');
@@ -18,6 +19,12 @@ export const downloadPresentation = async (slides, currentSlideIndex) => {
     pptx.title = 'Presentation';
     pptx.subject = 'Created with Presentify';
     
+    // Canvas dimensions (matching KonvaCanvas base dimensions)
+    const CANVAS_WIDTH = 1024;
+    const CANVAS_HEIGHT = 576;
+    const PPT_WIDTH = 10; // inches
+    const PPT_HEIGHT = 5.625; // inches
+    
     // Process each slide
     for (let i = 0; i < slides.length; i++) {
       const slide = slides[i];
@@ -25,21 +32,75 @@ export const downloadPresentation = async (slides, currentSlideIndex) => {
       // Create a new slide
       const pptxSlide = pptx.addSlide();
       
-      // Set slide background
-      if (slide.backgroundColor) {
+      // Handle background gradient by converting to image
+      if (slide.backgroundGradient && !slide.backgroundImage) {
+        try {
+          // Create a canvas to render the gradient
+          const canvas = document.createElement('canvas');
+          canvas.width = 1920; // High resolution for quality
+          canvas.height = 1080; // 16:9 aspect ratio
+          const ctx = canvas.getContext('2d');
+          
+          const gradientType = slide.backgroundGradient.type || 'linear';
+          const colors = slide.backgroundGradient.colors || ['#ffffff'];
+          
+          let gradient;
+          if (gradientType === 'radial') {
+            // Radial gradient
+            gradient = ctx.createRadialGradient(
+              canvas.width / 2, canvas.height / 2, 0,
+              canvas.width / 2, canvas.height / 2, Math.max(canvas.width, canvas.height) / 2
+            );
+          } else {
+            // Linear gradient (default: diagonal from top-left to bottom-right)
+            gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+          }
+          
+          // Add color stops
+          const step = colors.length > 1 ? 1 / (colors.length - 1) : 0;
+          colors.forEach((color, i) => {
+            gradient.addColorStop(i * step, color);
+          });
+          
+          // Fill canvas with gradient
+          ctx.fillStyle = gradient;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          
+          // Convert to data URL
+          const gradientImageData = canvas.toDataURL('image/png', 1.0);
+          
+          // Add gradient as background image
+          pptxSlide.addImage({
+            data: gradientImageData,
+            x: 0,
+            y: 0,
+            w: PPT_WIDTH,
+            h: PPT_HEIGHT
+          });
+        } catch (error) {
+          console.warn('Could not render gradient as image, using first color:', error);
+          // Fallback to first gradient color as solid background
+          const fallbackColor = slide.backgroundGradient.colors?.[0] || slide.backgroundColor || '#ffffff';
+          pptxSlide.background = { fill: fallbackColor };
+        }
+      } else if (slide.backgroundColor && !slide.backgroundImage && !slide.backgroundGradient) {
+        // Set slide background color (only if no background image or gradient)
         pptxSlide.background = { fill: slide.backgroundColor };
       }
       
+      // Add background image as a regular image at the back (position 0,0 with full slide size)
+      // Background image takes priority over gradient
       if (slide.backgroundImage) {
         try {
-          pptxSlide.background = { 
-            fill: { 
-              type: 'picture', 
-              data: slide.backgroundImage 
-            } 
-          };
+          pptxSlide.addImage({
+            data: slide.backgroundImage,
+            x: 0,
+            y: 0,
+            w: PPT_WIDTH,
+            h: PPT_HEIGHT
+          });
         } catch (error) {
-          console.warn('Could not set background image:', error);
+          console.warn('Could not add background image:', error);
         }
       }
       
@@ -58,13 +119,13 @@ export const downloadPresentation = async (slides, currentSlideIndex) => {
                 .replace(/&quot;/g, '"') // Replace &quot; with "
                 .trim();
               
-              // Add text element
+              // Add text element with exact position and size
               pptxSlide.addText(cleanContent, {
-                x: (element.x / 800) * 10, // Convert to inches (assuming 800px width)
-                y: (element.y / 450) * 5.625, // Convert to inches (assuming 450px height)
-                w: (element.width / 800) * 10,
-                h: (element.height / 450) * 5.625,
-                fontSize: Math.max(8, (element.fontSize || 16) * 0.75), // Scale down font size
+                x: (element.x / CANVAS_WIDTH) * PPT_WIDTH,
+                y: (element.y / CANVAS_HEIGHT) * PPT_HEIGHT,
+                w: (element.width / CANVAS_WIDTH) * PPT_WIDTH,
+                h: (element.height / CANVAS_HEIGHT) * PPT_HEIGHT,
+                fontSize: (element.fontSize || 16) * (PPT_HEIGHT / CANVAS_HEIGHT) * 72, // Convert to points (72 points per inch)
                 fontFace: element.fontFamily || 'Arial',
                 color: element.color || '#000000',
                 bold: element.fontWeight === 'bold',
@@ -101,14 +162,14 @@ export const downloadPresentation = async (slides, currentSlideIndex) => {
               }
               
               const shapeProps = {
-                x: (element.x / 800) * 10,
-                y: (element.y / 450) * 5.625,
-                w: (element.width / 800) * 10,
-                h: (element.height / 450) * 5.625,
+                x: (element.x / CANVAS_WIDTH) * PPT_WIDTH,
+                y: (element.y / CANVAS_HEIGHT) * PPT_HEIGHT,
+                w: (element.width / CANVAS_WIDTH) * PPT_WIDTH,
+                h: (element.height / CANVAS_HEIGHT) * PPT_HEIGHT,
                 fill: { color: fillColor },
                 line: { 
                   color: element.borderColor || '#1e7bb8', 
-                  width: Math.max(0.1, (element.borderWidth || 2) * 0.1) // Convert px to inches
+                  width: Math.max(0.01, (element.borderWidth || 2) * (PPT_WIDTH / CANVAS_WIDTH)) // Convert px to inches
                 }
               };
               
@@ -128,23 +189,23 @@ export const downloadPresentation = async (slides, currentSlideIndex) => {
               break;
               
             case 'image':
-              // Add image element
+              // Add image element with exact position and size
               try {
                 pptxSlide.addImage({
                   data: element.src,
-                  x: (element.x / 800) * 10,
-                  y: (element.y / 450) * 5.625,
-                  w: (element.width / 800) * 10,
-                  h: (element.height / 450) * 5.625
+                  x: (element.x / CANVAS_WIDTH) * PPT_WIDTH,
+                  y: (element.y / CANVAS_HEIGHT) * PPT_HEIGHT,
+                  w: (element.width / CANVAS_WIDTH) * PPT_WIDTH,
+                  h: (element.height / CANVAS_HEIGHT) * PPT_HEIGHT
                 });
               } catch (error) {
                 console.warn('Could not add image:', error);
                 // Add placeholder text instead
                 pptxSlide.addText('Image', {
-                  x: (element.x / 800) * 10,
-                  y: (element.y / 450) * 5.625,
-                  w: (element.width / 800) * 10,
-                  h: (element.height / 450) * 5.625,
+                  x: (element.x / CANVAS_WIDTH) * PPT_WIDTH,
+                  y: (element.y / CANVAS_HEIGHT) * PPT_HEIGHT,
+                  w: (element.width / CANVAS_WIDTH) * PPT_WIDTH,
+                  h: (element.height / CANVAS_HEIGHT) * PPT_HEIGHT,
                   fontSize: 12,
                   color: '#666666',
                   align: 'center',
@@ -155,19 +216,54 @@ export const downloadPresentation = async (slides, currentSlideIndex) => {
               break;
               
             case 'chart':
-              // Add chart element (simplified representation)
-              pptxSlide.addText(`Chart: ${element.chartType || 'bar'}`, {
-                x: (element.x / 800) * 10,
-                y: (element.y / 450) * 5.625,
-                w: (element.width / 800) * 10,
-                h: (element.height / 450) * 5.625,
-                fontSize: 14,
-                color: '#6b7280',
-                align: 'center',
-                valign: 'middle',
-                fill: { color: '#f3f4f6' },
-                line: { color: '#9ca3af', width: 0.1, dashType: 'dash' }
-              });
+              // All charts (bar, line, pie): render to image using off-screen Konva stage
+              // This works for charts on any slide, not just the active one (like gradients)
+              try {
+                const chartX = (element.x / CANVAS_WIDTH) * PPT_WIDTH;
+                const chartY = (element.y / CANVAS_HEIGHT) * PPT_HEIGHT;
+                const chartW = (element.width / CANVAS_WIDTH) * PPT_WIDTH;
+                const chartH = (element.height / CANVAS_HEIGHT) * PPT_HEIGHT;
+                
+                // Render chart to image using off-screen Konva stage
+                // This works for any slide, just like gradients
+                const chartImageData = await renderChartToImage(element);
+                
+                if (chartImageData && 
+                    typeof chartImageData === 'string' && 
+                    chartImageData.startsWith('data:image') &&
+                    chartImageData.length > 100) {
+                  // Add chart as image with exact position and size
+                  pptxSlide.addImage({
+                    data: chartImageData,
+                    x: chartX,
+                    y: chartY,
+                    w: chartW,
+                    h: chartH
+                  });
+                  console.log(`✓ Chart ${element.id} (${element.chartType}) exported successfully`);
+                } else {
+                  throw new Error(`Failed to render chart ${element.id} to image`);
+                }
+              } catch (error) {
+                console.warn(`Could not render chart ${element.id} (${element.chartType}):`, error);
+                // Fallback to placeholder
+                const chartX = (element.x / CANVAS_WIDTH) * PPT_WIDTH;
+                const chartY = (element.y / CANVAS_HEIGHT) * PPT_HEIGHT;
+                const chartW = (element.width / CANVAS_WIDTH) * PPT_WIDTH;
+                const chartH = (element.height / CANVAS_HEIGHT) * PPT_HEIGHT;
+                pptxSlide.addText(`Chart: ${element.chartType || 'bar'}`, {
+                  x: chartX,
+                  y: chartY,
+                  w: chartW,
+                  h: chartH,
+                  fontSize: 14,
+                  color: '#6b7280',
+                  align: 'center',
+                  valign: 'middle',
+                  fill: { color: '#f3f4f6' },
+                  line: { color: '#9ca3af', width: 0.1, dashType: 'dash' }
+                });
+              }
               break;
               
             case 'table':
@@ -189,10 +285,10 @@ export const downloadPresentation = async (slides, currentSlideIndex) => {
                   );
                   
                   pptxSlide.addTable(tableData, {
-                    x: (element.x / 800) * 10,
-                    y: (element.y / 450) * 5.625,
-                    w: (element.width / 800) * 10,
-                    h: (element.height / 450) * 5.625,
+                    x: (element.x / CANVAS_WIDTH) * PPT_WIDTH,
+                    y: (element.y / CANVAS_HEIGHT) * PPT_HEIGHT,
+                    w: (element.width / CANVAS_WIDTH) * PPT_WIDTH,
+                    h: (element.height / CANVAS_HEIGHT) * PPT_HEIGHT,
                     border: { type: 'solid', color: '#cccccc', pt: 1 }
                   });
                 }
@@ -200,10 +296,10 @@ export const downloadPresentation = async (slides, currentSlideIndex) => {
                 console.warn('Could not add table:', error);
                 // Add placeholder text instead
                 pptxSlide.addText('Table', {
-                  x: (element.x / 800) * 10,
-                  y: (element.y / 450) * 5.625,
-                  w: (element.width / 800) * 10,
-                  h: (element.height / 450) * 5.625,
+                  x: (element.x / CANVAS_WIDTH) * PPT_WIDTH,
+                  y: (element.y / CANVAS_HEIGHT) * PPT_HEIGHT,
+                  w: (element.width / CANVAS_WIDTH) * PPT_WIDTH,
+                  h: (element.height / CANVAS_HEIGHT) * PPT_HEIGHT,
                   fontSize: 12,
                   color: '#666666',
                   align: 'center',

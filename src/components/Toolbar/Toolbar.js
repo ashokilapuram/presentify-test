@@ -14,6 +14,7 @@ const Toolbar = ({
   onActiveTabChange,
   onStartFullScreenSlideshow,
   onDownloadPresentation,
+  isDownloading = false,
   onUndo,
   onRedo,
   canUndo,
@@ -226,6 +227,7 @@ const Toolbar = ({
             onRedo={onRedo}
             onStartFullScreenSlideshow={onStartFullScreenSlideshow}
             onDownloadPresentation={onDownloadPresentation}
+            isDownloading={isDownloading}
             onToggleFullscreen={onToggleFullscreen}
             onReset={onReset}
             zoom={zoom}

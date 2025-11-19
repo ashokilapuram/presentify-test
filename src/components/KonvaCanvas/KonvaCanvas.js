@@ -30,6 +30,7 @@ const KonvaCanvas = ({
   duplicateSlide,
   addSlideBefore,
   addSlideAfter,
+  onChartExportReady,  // ✅ new prop for chart export
 }) => {
   const stageRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -37,6 +38,7 @@ const KonvaCanvas = ({
   const [isFullscreenMode, setIsFullscreenMode] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [contextMenu, setContextMenu] = useState({ visible: false, position: null });
+  const chartExporters = useRef({}); // Store chart export functions
 
   // Responsive scaling logic with zoom
   useEffect(() => {
@@ -381,6 +383,13 @@ const KonvaCanvas = ({
             onSelect={() => handleElementClick(element)}
             onChange={(updates) => updateSlideElement(element.id, updates)}
             readOnly={readOnly}
+            onExport={(exportFn) => {
+              chartExporters.current[element.id] = exportFn;
+              // Notify parent that chart exporter is ready
+              if (onChartExportReady) {
+                onChartExportReady(chartExporters.current);
+              }
+            }}
           />
         );
       }

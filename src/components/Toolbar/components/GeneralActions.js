@@ -13,6 +13,7 @@ const GeneralActions = ({
   onRedo, 
   onStartFullScreenSlideshow, 
   onDownloadPresentation,
+  isDownloading = false,
   onToggleFullscreen, 
   onReset,
   zoom,
@@ -125,6 +126,35 @@ const GeneralActions = ({
       >
         <FiPlay size={16} />
         Slideshow
+      </button>
+      <button 
+        className="toolbar-button"
+        onClick={onDownloadPresentation}
+        title="Download as PowerPoint (.pptx)"
+        disabled={isDownloading}
+        style={isDownloading ? { 
+          backgroundColor: '#000000',
+          cursor: 'wait'
+        } : {}}
+      >
+        {isDownloading ? (
+          <div style={{
+            width: '16px',
+            height: '16px',
+            border: '2px solid rgba(255, 255, 255, 0.3)',
+            borderTop: '2px solid #ffffff',
+            borderRadius: '50%',
+            animation: 'spin 0.8s linear infinite'
+          }}></div>
+        ) : (
+          <FiDownload size={16} />
+        )}
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
       </button>
       <button 
         className={`toolbar-button ${isFullscreen ? 'active' : ''}`}
