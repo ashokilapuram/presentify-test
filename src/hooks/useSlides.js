@@ -309,6 +309,59 @@ export const useSlides = () => {
     input.click();
   }, [slides, selectedElement, currentSlideIndex]);
 
+  const addClipart = useCallback((imageUrl, imageName, onSnapshot) => {
+    // snapshot BEFORE inserting the clipart
+    onSnapshot({ slides, selectedElement, currentSlideIndex });
+
+    // Load image to get natural dimensions
+    const img = new window.Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      // Calculate dimensions preserving aspect ratio
+      // Use a max width/height to fit nicely on canvas
+      const maxWidth = 200;
+      const maxHeight = 200;
+      let width = img.naturalWidth;
+      let height = img.naturalHeight;
+
+      // Scale down if image is too large
+      if (width > maxWidth || height > maxHeight) {
+        const widthRatio = maxWidth / width;
+        const heightRatio = maxHeight / height;
+        const ratio = Math.min(widthRatio, heightRatio);
+        width = width * ratio;
+        height = height * ratio;
+      }
+
+      const newImage = {
+        id: uuidv4(),
+        type: 'image',
+        src: imageUrl,
+        x: 150,
+        y: 150,
+        width: Math.round(width),
+        height: Math.round(height)
+      };
+
+      setSlides(prev => prev.map((slide, index) => {
+        if (index === currentSlideIndex) {
+          return {
+            ...slide,
+            elements: [...slide.elements, newImage]
+          };
+        }
+        return slide;
+      }));
+      
+      // Automatically select the newly added element
+      setSelectedElement(newImage);
+    };
+    img.onerror = () => {
+      console.error('Failed to load clipart image:', imageUrl);
+    };
+    img.src = imageUrl;
+  }, [slides, selectedElement, currentSlideIndex]);
+
   const addChart = useCallback((chartType, onSnapshot) => {
     onSnapshot({ slides, selectedElement, currentSlideIndex });
 
@@ -618,6 +671,7 @@ export const useSlides = () => {
     deleteElement,
     addShape,
     addImage,
+    addClipart,
     addChart,
     addTable,
     

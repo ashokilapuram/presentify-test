@@ -313,8 +313,8 @@
   font-size: 12px;
 }
 
-/* Responsive format-container for medium screens (1024px - 1365px) */
-@media (min-width: 1024px) and (max-width: 1365px) {
+/* Responsive format-container for medium screens (1024px - 1364px) */
+@media (min-width: 1024px) and (max-width: 1364px) {
   .toolbar-logo-icon {
     height: 22px;
     max-width: 22px;
@@ -393,8 +393,8 @@
   }
 }
 
-/* Keep small size for medium screens (1024px - 1365px) */
-@media (min-width: 1024px) and (max-width: 1365px) {
+/* Keep small size for medium screens (1024px - 1364px) */
+@media (min-width: 1024px) and (max-width: 1364px) {
   .toolbar-formatting {
     gap: 0.5rem;
     padding: 0.4rem 0.6rem;
@@ -507,8 +507,8 @@
   }
 }
 
-/* Large screen spacing improvements */
-@media (min-width: 1366px) {
+/* Large screen spacing improvements - includes 1365px */
+@media (min-width: 1365px) {
   .toolbar-logo-icon {
     height: 24px;
     max-width: 24px;
@@ -1316,7 +1316,7 @@ body.dark .toolbar-button.active {
   }
 }
 
-@media (min-width: 1366px) {
+@media (min-width: 1365px) {
   .dropdown-trigger {
     min-width: 120px;
     max-width: 150px;

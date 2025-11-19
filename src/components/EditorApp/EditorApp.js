@@ -237,6 +237,10 @@ function EditorApp() {
     slidesHook.addImage(historyHook.pushSnapshot);
   }, [slidesHook.addImage, historyHook.pushSnapshot]);
 
+  const addClipartWithHistory = useCallback((imageUrl, imageName) => {
+    slidesHook.addClipart(imageUrl, imageName, historyHook.pushSnapshot);
+  }, [slidesHook.addClipart, historyHook.pushSnapshot]);
+
   const addChartWithHistory = useCallback((chartType) => {
     slidesHook.addChart(chartType, historyHook.pushSnapshot);
   }, [slidesHook.addChart, historyHook.pushSnapshot]);
@@ -595,6 +599,7 @@ function EditorApp() {
             addTextBox={addTextBoxWithHistory}
             addShape={addShapeWithHistory}
             addImage={addImageWithHistory}
+            addClipart={addClipartWithHistory}
             addChart={addChartWithHistory}
             addTable={addTableWithHistory}
             bringForward={bringForwardWithHistory}

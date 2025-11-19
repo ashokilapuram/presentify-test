@@ -8,6 +8,7 @@ import ShapeOptions from './sections/ShapeOptions';
 import ImageOptions from './sections/ImageOptions';
 import ChartOptions from './sections/ChartOptions';
 import TableOptions from './sections/TableOptions';
+import ClipartOptions from './sections/ClipartOptions';
 
 const RightToolbar = ({ 
   selectedElement, 
@@ -19,6 +20,7 @@ const RightToolbar = ({
   addTextBox,
   addShape,
   addImage,
+  addClipart,
   addChart,
   addTable,
   bringForward,
@@ -35,6 +37,7 @@ const RightToolbar = ({
   onCurrentTabChange,
 }) => {
   const [activeTab, setActiveTab] = useState('Insert');
+  const [showClipartOptions, setShowClipartOptions] = useState(false);
   
   // Sliding highlight indicator state
   const tabsContainerRef = useRef(null);
@@ -53,10 +56,17 @@ const RightToolbar = ({
 
   // Notify parent of current tab when it changes (for preservation)
   useEffect(() => {
-    if (onCurrentTabChange && !selectedElement) {
+    if (onCurrentTabChange && !selectedElement && !showClipartOptions) {
       onCurrentTabChange(activeTab);
     }
-  }, [activeTab, onCurrentTabChange, selectedElement]);
+  }, [activeTab, onCurrentTabChange, selectedElement, showClipartOptions]);
+
+  // Close clipart options when element is selected
+  useEffect(() => {
+    if (selectedElement) {
+      setShowClipartOptions(false);
+    }
+  }, [selectedElement]);
 
   const updateIndicator = () => {
     const container = tabsContainerRef.current;
@@ -90,6 +100,21 @@ const RightToolbar = ({
   };
 
   const renderContent = () => {
+    // Clipart options take priority when active
+    if (showClipartOptions) {
+      return (
+        <ClipartOptions
+          addClipart={(imageUrl, imageName) => {
+            if (addClipart) {
+              addClipart(imageUrl, imageName);
+            }
+            setShowClipartOptions(false);
+          }}
+          onClose={() => setShowClipartOptions(false)}
+        />
+      );
+    }
+
     // Element-specific options take priority
     if (selectedElement && selectedElement.type === 'text') {
       return (
@@ -184,6 +209,7 @@ const RightToolbar = ({
             addShape={addShape}
             addChart={addChart}
             addImage={addImage}
+            onClipartClick={() => setShowClipartOptions(true)}
             addTable={addTable}
           />
         );
@@ -204,8 +230,8 @@ const RightToolbar = ({
     <div className="right-toolbar">
       <div className="right-toolbar-header">
         <div className="right-toolbar-tabs" ref={tabsContainerRef} style={{ position: 'relative' }}>
-          {/* Sliding highlight - only show when no element is selected */}
-          {!selectedElement && (
+          {/* Sliding highlight - only show when no element is selected and clipart options not shown */}
+          {!selectedElement && !showClipartOptions && (
             <div
               style={{
                 position: 'absolute',
@@ -227,8 +253,11 @@ const RightToolbar = ({
             <button
               key={tab}
               ref={(el) => { tabRefs.current[tab] = el; }}
-              className={`right-toolbar-tab ${!selectedElement && activeTab === tab ? 'active' : ''}`}
-              onClick={() => handleTabChange(tab)}
+              className={`right-toolbar-tab ${!selectedElement && !showClipartOptions && activeTab === tab ? 'active' : ''}`}
+              onClick={() => {
+                handleTabChange(tab);
+                setShowClipartOptions(false);
+              }}
               style={{ position: 'relative', zIndex: 1, background: 'transparent' }}
             >
               {tab}

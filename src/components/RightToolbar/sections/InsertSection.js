@@ -10,10 +10,11 @@ import {
   FiPieChart,
   FiImage,
   FiChevronDown,
-  FiGrid
+  FiGrid,
+  FiSmile
 } from 'react-icons/fi';
 
-const InsertSection = ({ addTextBox, addShape, addChart, addImage, addTable }) => {
+const InsertSection = ({ addTextBox, addShape, addChart, addImage, onClipartClick, addTable }) => {
   const [showMoreShapes, setShowMoreShapes] = useState(false);
 
   // SVG icons for pentagon and hexagon
@@ -167,6 +168,10 @@ const InsertSection = ({ addTextBox, addShape, addChart, addImage, addTable }) =
         <button className="media-element-button" onClick={addImage}>
           <FiImage />
           <span>Image</span>
+        </button>
+        <button className="media-element-button" onClick={onClipartClick}>
+          <FiSmile />
+          <span>Clipart</span>
         </button>
       </div>
 

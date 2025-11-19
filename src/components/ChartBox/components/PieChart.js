@@ -55,6 +55,10 @@ const PieChart = ({
     const labelY = Math.max(topPadding + 15, 35) + (i * labelSpacing); // Responsive vertical spacing
     const dotRadius = Math.max(4, Math.min(6, chartW / 60)); // Responsive dot size
     const fontSize = Math.max(8, Math.min(12, chartW / 40)); // More responsive font size
+    
+    // Calculate proper spacing between dot and text
+    const dotCenterX = labelX + dotRadius;
+    const textStartX = dotCenterX + dotRadius + 6; // 6px gap between dot and text
 
     // base color and d3 color helper
     const baseColor = sliceColors[i];
@@ -101,8 +105,8 @@ const PieChart = ({
 
         {/* Color indicator dot */}
         <Circle
-          x={labelX + dotRadius + 2}
-          y={labelY - 2}
+          x={dotCenterX}
+          y={labelY}
           radius={dotRadius}
           fill={sliceColors[i]}
           listening={false}
@@ -112,14 +116,14 @@ const PieChart = ({
         <Shape
           sceneFunc={(context, shape) => {
             const text = labels[i];
-            const x = labelX + (dotRadius * 2) + 8;
+            const x = textStartX;
             const y = labelY;
 
             context.save();
 
             // Enable better text rendering
             context.textAlign = 'left';
-            context.textBaseline = 'top';
+            context.textBaseline = 'middle';
             context.font = `bold ${fontSize}px Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
 
             // Draw text with rich color

@@ -191,15 +191,74 @@ export const downloadPresentation = async (slides, currentSlideIndex, chartExpor
             case 'image':
               // Add image element with exact position and size
               try {
-                pptxSlide.addImage({
-                  data: element.src,
-                  x: (element.x / CANVAS_WIDTH) * PPT_WIDTH,
-                  y: (element.y / CANVAS_HEIGHT) * PPT_HEIGHT,
-                  w: (element.width / CANVAS_WIDTH) * PPT_WIDTH,
-                  h: (element.height / CANVAS_HEIGHT) * PPT_HEIGHT
-                });
+                let imageData = element.src;
+                
+                // If the image src is a URL (not base64), convert it to base64
+                if (imageData && !imageData.startsWith('data:image') && !imageData.startsWith('data:application')) {
+                  try {
+                    // For local files (clipart), use a canvas-based approach to avoid CORS issues
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    
+                    imageData = await new Promise((resolve, reject) => {
+                      img.onload = () => {
+                        try {
+                          // Create a canvas to convert the image to base64
+                          const canvas = document.createElement('canvas');
+                          canvas.width = img.naturalWidth;
+                          canvas.height = img.naturalHeight;
+                          const ctx = canvas.getContext('2d');
+                          ctx.drawImage(img, 0, 0);
+                          const base64 = canvas.toDataURL('image/png');
+                          resolve(base64);
+                        } catch (canvasError) {
+                          // Fallback to fetch if canvas fails
+                          fetch(element.src)
+                            .then(response => response.blob())
+                            .then(blob => {
+                              const reader = new FileReader();
+                              reader.onloadend = () => resolve(reader.result);
+                              reader.onerror = reject;
+                              reader.readAsDataURL(blob);
+                            })
+                            .catch(reject);
+                        }
+                      };
+                      img.onerror = () => {
+                        // Fallback to fetch if image load fails
+                        fetch(element.src)
+                          .then(response => response.blob())
+                          .then(blob => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result);
+                            reader.onerror = reject;
+                            reader.readAsDataURL(blob);
+                          })
+                          .catch(reject);
+                      };
+                      img.src = element.src;
+                    });
+                  } catch (fetchError) {
+                    console.warn('Could not convert image to base64:', fetchError, 'Image src:', imageData);
+                    // If conversion fails, try to use the original src (might work for some formats)
+                    // But PPTXGenJS typically needs base64, so this might fail
+                  }
+                }
+                
+                // Only add image if we have valid base64 data
+                if (imageData && imageData.startsWith('data:image')) {
+                  pptxSlide.addImage({
+                    data: imageData,
+                    x: (element.x / CANVAS_WIDTH) * PPT_WIDTH,
+                    y: (element.y / CANVAS_HEIGHT) * PPT_HEIGHT,
+                    w: (element.width / CANVAS_WIDTH) * PPT_WIDTH,
+                    h: (element.height / CANVAS_HEIGHT) * PPT_HEIGHT
+                  });
+                } else {
+                  throw new Error('Invalid image data format - must be base64 data URL');
+                }
               } catch (error) {
-                console.warn('Could not add image:', error);
+                console.warn('Could not add image:', error, 'Element:', element);
                 // Add placeholder text instead
                 pptxSlide.addText('Image', {
                   x: (element.x / CANVAS_WIDTH) * PPT_WIDTH,
