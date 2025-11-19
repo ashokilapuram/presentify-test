@@ -301,65 +301,6 @@ const ImageOptions = ({
         </div>
       </div>
 
-      <div className="option-group" style={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        gap: '0.75rem',
-        padding: '0.75rem'
-      }}>
-        <div style={{
-          fontSize: '0.875rem',
-          fontWeight: '600',
-          color: '#404040',
-          marginBottom: '0.25rem'
-        }}>
-          Border radius
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
-          <input
-            type="range"
-            onClick={(e) => e.stopPropagation()}
-            min="0"
-            max="50"
-            value={selectedElement.cornerRadius !== undefined ? selectedElement.cornerRadius : 0}
-            onChange={(e) => {
-              e.stopPropagation();
-              updateSlideElement(selectedElement.id, { cornerRadius: parseInt(e.target.value) });
-            }}
-            onInput={(e) => {
-              const value = e.target.value;
-              const min = e.target.min || 0;
-              const max = e.target.max || 50;
-              const percent = ((value - min) / (max - min)) * 100;
-              e.target.style.setProperty('--slider-value', `${percent}%`);
-            }}
-            style={{
-              flex: 1,
-              height: '4px',
-              cursor: 'pointer',
-              '--slider-value': `${((selectedElement.cornerRadius !== undefined ? selectedElement.cornerRadius : 0) / 50) * 100}%`
-            }}
-          />
-          <div style={{
-            minWidth: '28px',
-            textAlign: 'center',
-            fontSize: '11px',
-            fontWeight: '600',
-            color: '#374151',
-            padding: '2px 6px',
-            background: '#ffffff',
-            borderRadius: '4px',
-            border: '1px solid #e5e7eb',
-            height: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            {selectedElement.cornerRadius !== undefined ? selectedElement.cornerRadius : 0}px
-          </div>
-        </div>
-      </div>
-
       <div className="section-title">Element Actions</div>
       <div className="option-group">
         <LayerActions
