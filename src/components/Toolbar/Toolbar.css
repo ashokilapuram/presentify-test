@@ -690,8 +690,30 @@
   }
 }
 
+/* Fix logo sizes specifically for 1023px screen */
+@media (min-width: 1023px) and (max-width: 1023px) {
+  .toolbar-logo-icon {
+    height: 18px;
+    max-width: 18px;
+    width: auto;
+    display: block;
+    flex-shrink: 0;
+    object-fit: contain;
+  }
+
+  .toolbar-logo-name {
+    height: 14px;
+    max-width: 120px;
+    width: auto;
+    display: block;
+    flex-shrink: 0;
+    object-fit: contain;
+  }
+}
+
 /* Tablet and medium screens: keep toolbar-top on one line and avoid collapse */
-@media (max-width: 1023px) {
+/* MOBILE/TABLET: 1px → 1023px */
+@media (max-width: 1024px) {
   .toolbar-logo-icon {
     height: 20px;
     max-width: 20px;
@@ -1537,3 +1559,5 @@ body.dark .toolbar-button.active {
 
 
 
+
+  

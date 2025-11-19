@@ -2430,6 +2430,19 @@ body.dark .toolbar-bottom {
   }
 }
 
+/* Move sidebar and right toolbar up for 1150px-1250px to close gap from decreased toolbar height */
+@media (min-width: 1150px) and (max-width: 1250px) {
+  .sidebar {
+    top: 64px !important; /* Move up to close gap */
+    margin-top: 0 !important;
+  }
+
+  .right-toolbar {
+    top: 64px !important; /* Move up to close gap */
+    margin-top: 0 !important;
+  }
+}
+
 /* Canvas alignment for 1200px to 1399px - expand to full available width */
 @media (min-width: 1200px) and (max-width: 1399px) {
   .canvas-container {
