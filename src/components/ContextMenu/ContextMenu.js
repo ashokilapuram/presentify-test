@@ -10,7 +10,10 @@ import {
   ArrowDownNarrowWide,
   Plus,
   ChevronRight,
-  Palette
+  Palette,
+  MoveUp,
+  MoveDown,
+  Settings2
 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import './ContextMenu.css';
@@ -34,7 +37,8 @@ const ContextMenu = ({
   currentSlideIndex,
   duplicateSlide,
   addSlideBefore,
-  addSlideAfter
+  addSlideAfter,
+  currentRightToolbarTab
 }) => {
   const menuRef = useRef(null);
   const addSlideRef = useRef(null);
@@ -628,18 +632,22 @@ const ContextMenu = ({
                     setShowBackgroundOptions(false);
                   }}
                 >
-                  <button
-                    onClick={handleBackgroundChange}
-                    className="context-menu-option-item"
-                    title="Change background color"
-                  >
-                    <span>Change</span>
-                  </button>
+                  {currentRightToolbarTab !== 'Design' && (
+                    <button
+                      onClick={handleBackgroundChange}
+                      className="context-menu-option-item"
+                      title="Edit background"
+                    >
+                      <Settings2 size={16} strokeWidth={2} />
+                      <span>Edit</span>
+                    </button>
+                  )}
                   <button
                     onClick={handleBackgroundDelete}
                     className="context-menu-option-item"
-                    title="Delete background color"
+                    title="Delete background"
                   >
+                    <Trash2 size={16} strokeWidth={2} />
                     <span>Delete</span>
                   </button>
                 </div>
@@ -801,6 +809,7 @@ const ContextMenu = ({
                   className="context-menu-option-item"
                   title="Add slide before"
                 >
+                  <MoveUp size={16} strokeWidth={2} />
                   <span>Before</span>
                 </button>
                 <button
@@ -808,6 +817,7 @@ const ContextMenu = ({
                   className="context-menu-option-item"
                   title="Add slide after"
                 >
+                  <MoveDown size={16} strokeWidth={2} />
                   <span>After</span>
                 </button>
               </div>

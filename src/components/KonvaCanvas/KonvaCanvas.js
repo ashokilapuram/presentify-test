@@ -31,6 +31,7 @@ const KonvaCanvas = ({
   addSlideBefore,
   addSlideAfter,
   onChartExportReady,  // ✅ new prop for chart export
+  currentRightToolbarTab,  // ✅ current tab state
 }) => {
   const stageRef = useRef(null);
   const [scale, setScale] = useState(1);
@@ -508,6 +509,7 @@ const KonvaCanvas = ({
         duplicateSlide={duplicateSlide}
         addSlideBefore={addSlideBefore}
         addSlideAfter={addSlideAfter}
+        currentRightToolbarTab={currentRightToolbarTab}
       />
     </div>
   );

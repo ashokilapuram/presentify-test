@@ -578,6 +578,7 @@ function EditorApp() {
               uiStateHook.setForceRightToolbarTab('Design');
               slidesHook.setSelectedElement(null);
             }}
+            currentRightToolbarTab={uiStateHook.currentRightToolbarTab}
             onThumbnailUpdate={(slideId, img) => {
               slidesHook.setSlides((prev) =>
                 prev.map((s) =>
