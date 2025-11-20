@@ -416,15 +416,9 @@ const TableBox = ({ element, isSelected, onSelect, onChange, readOnly = false })
                 });
                 onChange({ data: newData });
 
-                // Calculate next cell position
-                let nextRow = editingCell.row;
-                let nextCol = editingCell.col + 1;
-
-                // If we're at the end of the row, move to the next row
-                if (nextCol >= cols) {
-                  nextCol = 0;
-                  nextRow++;
-                }
+              // Calculate next cell position (move to next row in same column)
+              let nextRow = editingCell.row + 1;
+              const nextCol = editingCell.col;
 
                 // If we haven't reached the last cell of the table
                 if (nextRow < rows) {
