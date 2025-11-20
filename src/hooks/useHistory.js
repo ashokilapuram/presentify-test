@@ -16,7 +16,7 @@ export const useHistory = () => {
     if (now - lastSaveTime > 300) {
       setUndoStack(prev => {
         const newStack = [...prev, { slides, selectedElement, currentSlideIndex }];
-        return newStack.length > 50 ? newStack.slice(-50) : newStack;
+        return newStack.length > 100 ? newStack.slice(-100) : newStack;
       });
       setLastSaveTime(now);
     }
@@ -25,7 +25,7 @@ export const useHistory = () => {
   const pushSnapshot = useCallback((snapshot) => {
     setUndoStack(prev => {
       const newStack = [...prev, snapshot];
-      return newStack.length > 50 ? newStack.slice(-50) : newStack;
+      return newStack.length > 100 ? newStack.slice(-100) : newStack;
     });
     setRedoStack([]); // Clear redo stack when new action is performed
   }, []);

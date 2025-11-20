@@ -17,6 +17,7 @@ const RightToolbar = ({
   updateSlideElement,
   updateSlide,
   currentSlide,
+  currentSlideIndex,
   addTextBox,
   addShape,
   addImage,
@@ -35,6 +36,7 @@ const RightToolbar = ({
   onTabForced,
   updateAllSlides,
   onCurrentTabChange,
+  pushSnapshot,
 }) => {
   const [activeTab, setActiveTab] = useState('Insert');
   const [showClipartOptions, setShowClipartOptions] = useState(false);
@@ -171,6 +173,9 @@ const RightToolbar = ({
         <ChartOptions
           selectedElement={selectedElement}
           updateSlideElement={updateSlideElement}
+          slides={slides}
+          currentSlideIndex={currentSlideIndex}
+          pushSnapshot={pushSnapshot}
           bringForward={bringForward}
           bringToFront={bringToFront}
           sendBackward={sendBackward}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import LayerActions from '../shared/LayerActions';
 import ChartDataModal from '../../ChartDataModal/ChartDataModal';
 import ChartNameInput from './components/ChartNameInput';
@@ -10,6 +10,9 @@ import { getBarColor, handleBarColorChange, removeDataPoint, addDataPoint } from
 const ChartOptions = ({
   selectedElement,
   updateSlideElement,
+  slides,
+  currentSlideIndex,
+  pushSnapshot,
   bringForward,
   bringToFront,
   sendBackward,
@@ -20,9 +23,35 @@ const ChartOptions = ({
 }) => {
   const [isDataModalOpen, setIsDataModalOpen] = useState(false);
   const [modalInitialPosition, setModalInitialPosition] = useState(null);
+  const hasLiveSnapshotRef = useRef(false);
+
+  useEffect(() => {
+    hasLiveSnapshotRef.current = false;
+  }, [selectedElement?.id, isDataModalOpen]);
   
-  const handleSaveData = (updates) => {
-    updateSlideElement(selectedElement.id, updates);
+  const handleSaveData = (updates, options = {}) => {
+    if (!selectedElement) return;
+    
+    const isLiveUpdate = Boolean(options.isLive);
+    
+    if (isLiveUpdate) {
+      if (!hasLiveSnapshotRef.current && pushSnapshot) {
+        try {
+          pushSnapshot({
+            slides,
+            selectedElement,
+            currentSlideIndex
+          });
+        } catch (error) {
+          console.error('Failed to snapshot chart edit:', error);
+        }
+        hasLiveSnapshotRef.current = true;
+      }
+      updateSlideElement(selectedElement.id, { ...updates, __internal: 'chart-live' });
+    } else {
+      hasLiveSnapshotRef.current = false;
+      updateSlideElement(selectedElement.id, updates);
+    }
   };
 
   const handleEditDataClick = (position) => {

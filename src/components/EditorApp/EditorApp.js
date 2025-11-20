@@ -610,6 +610,8 @@ function EditorApp() {
             deleteElement={deleteElementWithHistory}
             onTabChange={uiStateHook.handleTabChange}
             slides={slidesHook.slides}
+          currentSlideIndex={slidesHook.currentSlideIndex}
+          pushSnapshot={historyHook.pushSnapshot}
             forceTab={uiStateHook.forceRightToolbarTab}
             onTabForced={() => uiStateHook.setForceRightToolbarTab(null)}
             updateAllSlides={updateAllSlidesWithHistory}

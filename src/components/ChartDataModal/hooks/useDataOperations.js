@@ -74,7 +74,7 @@ export const useDataOperations = (element, labels, series, setLabels, setSeries)
 
   const handleSave = useCallback((onSave, onClose) => {
     const finalData = padChartData(labels, series, element.chartType, element);
-    onSave(finalData);
+    onSave(finalData, { isLive: false });
     onClose();
   }, [labels, series, element]);
 

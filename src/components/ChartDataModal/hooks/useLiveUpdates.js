@@ -43,7 +43,7 @@ export const useLiveUpdates = (isOpen, element, labels, series, onSave) => {
       
       // Send live update (without closing modal) - use ref to avoid stale closure
       if (onSaveRef.current) {
-        onSaveRef.current(finalData);
+        onSaveRef.current(finalData, { isLive: true });
       }
     }, 300);
     
