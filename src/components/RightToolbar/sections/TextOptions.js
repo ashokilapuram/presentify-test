@@ -18,15 +18,31 @@ const TextOptions = ({
   const borderColorButtonRef = useRef(null);
   const strokeColorButtonRef = useRef(null);
 
+  // Option Set 1 — Soft Modern Pastels (Text Background)
   const backgroundColors = [
-    '#ffffff', '#f8f9fa', '#0ea5e9', '#8b5cf6',
-    '#10b981', '#f59e0b'
+    '#FF6F61', // Soft Coral
+    '#F7B32B', // Warm Amber
+    '#6CCFF6', // Sky Blue
+    '#6E78FF', // Indigo Blue
+    '#68D391'  // Fresh Mint
   ];
 
+  // Option Set 2 — Vibrant Neo UI (Stroke colour)
+  const strokeColors = [
+    '#FF4F81', // Vivid Pink
+    '#FFB400', // Vibrant Yellow
+    '#00C2FF', // Electric Cyan
+    '#4F7CFF', // Bold Blue
+    '#00D68F'  // Neon Green
+  ];
+
+  // Option Set 3 — Professional Material-UI Inspired (Border colour)
   const borderColors = [
-    '#000000', '#6b7280', '#0ea5e9', '#8b5cf6',
-    '#10b981', '#f59e0b', '#f43f5e', '#06b6d4',
-    '#84cc16', '#a855f7', '#f97316', '#e5e7eb'
+    '#E53935', // Red 600
+    '#FB8C00', // Orange 600
+    '#43A047', // Green 600
+    '#1E88E5', // Blue 600
+    '#8E24AA'  // Purple 600
   ];
 
   // Calculate if a color is light or dark to determine icon color
@@ -76,41 +92,46 @@ const TextOptions = ({
         gap: '0.75rem',
         padding: '0.75rem'
       }}>
-        <div style={{
-          fontSize: '0.875rem',
-          fontWeight: '600',
-          color: '#404040',
-          marginBottom: '0.25rem'
-        }}>
-          Textbox Background
-        </div>
-        <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
-          {/* Quick Colors Grid - 2 rows */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(6, 1fr)', 
-            gap: '4px',
-            flex: 1
-          }}>
-            {backgroundColors.map((color, idx) => (
-              <div
-                key={idx}
-                className="color-swatch-small"
-                style={{
-                  backgroundColor: color,
-                  ...(color === '#ffffff' && { border: '1.5px solid #e5e7eb' })
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  updateSlideElement(selectedElement.id, { backgroundColor: color });
-                }}
-                title={color}
-              />
-            ))}
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {/* Column 1: Title and Quick Colors */}
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '0.5rem' }}>
+            <div style={{
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              color: '#404040'
+            }}>
+              Text Background
+            </div>
+            {/* Quick Colors - 5 swatches side by side */}
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'row',
+              gap: '4px',
+              alignItems: 'center'
+            }}>
+              {backgroundColors.map((color, idx) => (
+                <div
+                  key={idx}
+                  className="color-swatch-small"
+                  style={{
+                    backgroundColor: color,
+                    width: '20px',
+                    height: '20px',
+                    flexShrink: 0,
+                    ...(color === '#ffffff' && { border: '1.5px solid #e5e7eb' })
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    updateSlideElement(selectedElement.id, { backgroundColor: color });
+                  }}
+                  title={color}
+                />
+              ))}
+            </div>
           </div>
           
-          {/* Background Color Button and Delete Button */}
-          <div style={{ display: 'flex', flexDirection: 'row', gap: '6px' }}>
+          {/* Column 2: Background Color Button and Delete Button */}
+          <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', flexShrink: 0, alignItems: 'center' }}>
             <div style={{ position: 'relative', width: '36px', height: '36px' }}>
               <div style={{ position: 'absolute', top: 0, left: 0, width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none' }}>
                 <ModernColorPicker
@@ -168,34 +189,40 @@ const TextOptions = ({
             </div>
             <button
               onClick={(e) => {
-                e.stopPropagation();
-                updateSlideElement(selectedElement.id, { backgroundColor: undefined });
+                if (selectedElement.backgroundColor) {
+                  e.stopPropagation();
+                  updateSlideElement(selectedElement.id, { backgroundColor: undefined });
+                }
               }}
+              disabled={!selectedElement.backgroundColor}
               style={{
                 width: '36px',
                 height: '36px',
                 background: '#ffffff',
                 border: '1px solid #e5e7eb',
                 borderRadius: '6px',
-                cursor: 'pointer',
+                cursor: selectedElement.backgroundColor ? 'pointer' : 'not-allowed',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#374151',
+                color: selectedElement.backgroundColor ? '#374151' : '#9ca3af',
                 fontSize: '16px',
                 transition: 'all 0.2s ease',
                 flexShrink: 0,
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+                opacity: selectedElement.backgroundColor ? 1 : 0.5
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#f9fafb';
-                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                if (selectedElement.backgroundColor) {
+                  e.currentTarget.style.background = '#f9fafb';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                }
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = '#ffffff';
                 e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
               }}
-              title="Remove background color"
+              title={selectedElement.backgroundColor ? "Remove background color" : "No background color applied"}
             >
               <Trash2 size={16} />
             </button>
@@ -258,44 +285,49 @@ const TextOptions = ({
         gap: '0.75rem',
         padding: '0.75rem'
       }}>
-        <div style={{
-          fontSize: '0.875rem',
-          fontWeight: '600',
-          color: '#404040',
-          marginBottom: '0.25rem'
-        }}>
-          Stroke colour & width
-        </div>
-        <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
-          {/* Quick Colors Grid - 1 row only (6 colors) */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(6, 1fr)', 
-            gap: '4px',
-            flex: 1
-          }}>
-            {borderColors.slice(0, 6).map((color, idx) => (
-              <div
-                key={idx}
-                className="color-swatch-small"
-                style={{
-                  backgroundColor: color,
-                  ...(color === '#ffffff' && { border: '1.5px solid #e5e7eb' })
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  updateSlideElement(selectedElement.id, { 
-                    strokeColor: color, 
-                    strokeWidth: (selectedElement.strokeWidth && selectedElement.strokeWidth > 0) ? selectedElement.strokeWidth : 1 
-                  });
-                }}
-                title={color}
-              />
-            ))}
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {/* Column 1: Title and Quick Colors */}
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '0.5rem' }}>
+            <div style={{
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              color: '#404040'
+            }}>
+              Stroke colour
+            </div>
+            {/* Quick Colors - 5 swatches side by side */}
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'row',
+              gap: '4px',
+              alignItems: 'center'
+            }}>
+              {strokeColors.map((color, idx) => (
+                <div
+                  key={idx}
+                  className="color-swatch-small"
+                  style={{
+                    backgroundColor: color,
+                    width: '20px',
+                    height: '20px',
+                    flexShrink: 0,
+                    ...(color === '#ffffff' && { border: '1.5px solid #e5e7eb' })
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    updateSlideElement(selectedElement.id, { 
+                      strokeColor: color, 
+                      strokeWidth: (selectedElement.strokeWidth && selectedElement.strokeWidth > 0) ? selectedElement.strokeWidth : 1 
+                    });
+                  }}
+                  title={color}
+                />
+              ))}
+            </div>
           </div>
           
-          {/* Stroke Color Button and Delete Button */}
-          <div style={{ display: 'flex', flexDirection: 'row', gap: '6px' }}>
+          {/* Column 2: Stroke Color Button and Delete Button */}
+          <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', flexShrink: 0, alignItems: 'center' }}>
             <div style={{ position: 'relative', width: '36px', height: '36px' }}>
               <div style={{ position: 'absolute', top: 0, left: 0, width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none' }}>
                 <ModernColorPicker
@@ -356,34 +388,40 @@ const TextOptions = ({
             </div>
             <button
               onClick={(e) => {
-                e.stopPropagation();
-                updateSlideElement(selectedElement.id, { strokeColor: undefined, strokeWidth: 0 });
+                if (selectedElement.strokeColor && selectedElement.strokeWidth > 0) {
+                  e.stopPropagation();
+                  updateSlideElement(selectedElement.id, { strokeColor: undefined, strokeWidth: 0 });
+                }
               }}
+              disabled={!selectedElement.strokeColor || !selectedElement.strokeWidth || selectedElement.strokeWidth === 0}
               style={{
                 width: '36px',
                 height: '36px',
                 background: '#ffffff',
                 border: '1px solid #e5e7eb',
                 borderRadius: '6px',
-                cursor: 'pointer',
+                cursor: (selectedElement.strokeColor && selectedElement.strokeWidth > 0) ? 'pointer' : 'not-allowed',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#374151',
+                color: (selectedElement.strokeColor && selectedElement.strokeWidth > 0) ? '#374151' : '#9ca3af',
                 fontSize: '16px',
                 transition: 'all 0.2s ease',
                 flexShrink: 0,
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+                opacity: (selectedElement.strokeColor && selectedElement.strokeWidth > 0) ? 1 : 0.5
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#f9fafb';
-                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                if (selectedElement.strokeColor && selectedElement.strokeWidth > 0) {
+                  e.currentTarget.style.background = '#f9fafb';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                }
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = '#ffffff';
                 e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
               }}
-              title="Remove stroke color"
+              title={(selectedElement.strokeColor && selectedElement.strokeWidth > 0) ? "Remove stroke color" : "No stroke color applied"}
             >
               <Trash2 size={16} />
             </button>
@@ -391,16 +429,20 @@ const TextOptions = ({
         </div>
 
         {/* Stroke width slider - compact, replacing second row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', width: '100%', minWidth: 0 }}>
+          <span style={{ fontSize: '12px', color: (!selectedElement.strokeColor || !selectedElement.strokeWidth || selectedElement.strokeWidth === 0) ? '#9ca3af' : '#6b7280', flexShrink: 0, whiteSpace: 'nowrap', opacity: (!selectedElement.strokeColor || !selectedElement.strokeWidth || selectedElement.strokeWidth === 0) ? 0.5 : 1 }}>Width</span>
           <input
             type="range"
             onClick={(e) => e.stopPropagation()}
             min="0"
             max="10"
             value={selectedElement.strokeWidth || 0}
+            disabled={!selectedElement.strokeColor || !selectedElement.strokeWidth || selectedElement.strokeWidth === 0}
             onChange={(e) => {
-              e.stopPropagation();
-              updateSlideElement(selectedElement.id, { strokeWidth: parseInt(e.target.value) });
+              if (selectedElement.strokeColor && selectedElement.strokeWidth > 0) {
+                e.stopPropagation();
+                updateSlideElement(selectedElement.id, { strokeWidth: parseInt(e.target.value) });
+              }
             }}
             onInput={(e) => {
               const value = e.target.value;
@@ -412,7 +454,8 @@ const TextOptions = ({
             style={{ 
               flex: 1,
               height: '4px',
-              cursor: 'pointer',
+              cursor: (!selectedElement.strokeColor || !selectedElement.strokeWidth || selectedElement.strokeWidth === 0) ? 'not-allowed' : 'pointer',
+              opacity: (!selectedElement.strokeColor || !selectedElement.strokeWidth || selectedElement.strokeWidth === 0) ? 0.5 : 1,
               '--slider-value': `${((selectedElement.strokeWidth || 0) / 10) * 100}%`
             }}
           />
@@ -421,7 +464,7 @@ const TextOptions = ({
             textAlign: 'center',
             fontSize: '11px',
             fontWeight: '600',
-            color: '#374151',
+            color: (!selectedElement.strokeColor || !selectedElement.strokeWidth || selectedElement.strokeWidth === 0) ? '#9ca3af' : '#374151',
             padding: '2px 6px',
             background: '#ffffff',
             borderRadius: '4px',
@@ -429,7 +472,8 @@ const TextOptions = ({
             height: '20px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            opacity: (!selectedElement.strokeColor || !selectedElement.strokeWidth || selectedElement.strokeWidth === 0) ? 0.5 : 1
           }}>
             {selectedElement.strokeWidth || 0}px
           </div>
@@ -442,41 +486,46 @@ const TextOptions = ({
         gap: '0.75rem',
         padding: '0.75rem'
       }}>
-        <div style={{
-          fontSize: '0.875rem',
-          fontWeight: '600',
-          color: '#404040',
-          marginBottom: '0.25rem'
-        }}>
-          Border colour & width
-        </div>
-        <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-start' }}>
-          {/* Quick Colors Grid - 1 row only (6 colors) */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(6, 1fr)', 
-            gap: '4px',
-            flex: 1
-          }}>
-            {borderColors.slice(0, 6).map((color, idx) => (
-              <div
-                key={idx}
-                className="color-swatch-small"
-                style={{
-                  backgroundColor: color,
-                  ...(color === '#ffffff' && { border: '1.5px solid #e5e7eb' })
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  updateSlideElement(selectedElement.id, { borderColor: color, borderWidth: 4 });
-                }}
-                title={color}
-              />
-            ))}
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {/* Column 1: Title and Quick Colors */}
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '0.5rem' }}>
+            <div style={{
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              color: '#404040'
+            }}>
+              Border colour
+            </div>
+            {/* Quick Colors - 5 swatches side by side */}
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'row',
+              gap: '4px',
+              alignItems: 'center'
+            }}>
+              {borderColors.map((color, idx) => (
+                <div
+                  key={idx}
+                  className="color-swatch-small"
+                  style={{
+                    backgroundColor: color,
+                    width: '20px',
+                    height: '20px',
+                    flexShrink: 0,
+                    ...(color === '#ffffff' && { border: '1.5px solid #e5e7eb' })
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    updateSlideElement(selectedElement.id, { borderColor: color, borderWidth: 4 });
+                  }}
+                  title={color}
+                />
+              ))}
+            </div>
           </div>
           
-          {/* Border Color Button and Delete Button */}
-          <div style={{ display: 'flex', flexDirection: 'row', gap: '6px' }}>
+          {/* Column 2: Border Color Button and Delete Button */}
+          <div style={{ display: 'flex', flexDirection: 'row', gap: '6px', flexShrink: 0, alignItems: 'center' }}>
             <div style={{ position: 'relative', width: '36px', height: '36px' }}>
               <div style={{ position: 'absolute', top: 0, left: 0, width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none' }}>
                 <ModernColorPicker
@@ -534,21 +583,159 @@ const TextOptions = ({
             </div>
             <button
               onClick={(e) => {
-                e.stopPropagation();
-                updateSlideElement(selectedElement.id, { borderColor: undefined, borderWidth: 0 });
+                if (selectedElement.borderColor && selectedElement.borderWidth > 0) {
+                  e.stopPropagation();
+                  updateSlideElement(selectedElement.id, { borderColor: undefined, borderWidth: 0 });
+                }
               }}
+              disabled={!selectedElement.borderColor || !selectedElement.borderWidth || selectedElement.borderWidth === 0}
               style={{
                 width: '36px',
                 height: '36px',
                 background: '#ffffff',
                 border: '1px solid #e5e7eb',
                 borderRadius: '6px',
+                cursor: (selectedElement.borderColor && selectedElement.borderWidth > 0) ? 'pointer' : 'not-allowed',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: (selectedElement.borderColor && selectedElement.borderWidth > 0) ? '#374151' : '#9ca3af',
+                fontSize: '16px',
+                transition: 'all 0.2s ease',
+                flexShrink: 0,
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+                opacity: (selectedElement.borderColor && selectedElement.borderWidth > 0) ? 1 : 0.5
+              }}
+              onMouseEnter={(e) => {
+                if (selectedElement.borderColor && selectedElement.borderWidth > 0) {
+                  e.currentTarget.style.background = '#f9fafb';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#ffffff';
+                e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
+              }}
+              title={(selectedElement.borderColor && selectedElement.borderWidth > 0) ? "Remove border color" : "No border color applied"}
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        </div>
+
+        {/* Border width slider - compact, replacing second row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', width: '100%', minWidth: 0 }}>
+              <span style={{ fontSize: '12px', color: (!selectedElement.borderColor || !selectedElement.borderWidth || selectedElement.borderWidth === 0) ? '#9ca3af' : '#6b7280', flexShrink: 0, whiteSpace: 'nowrap', opacity: (!selectedElement.borderColor || !selectedElement.borderWidth || selectedElement.borderWidth === 0) ? 0.5 : 1 }}>Width</span>
+              <input
+                type="range"
+                onClick={(e) => e.stopPropagation()}
+                min="0"
+                max="10"
+                value={selectedElement.borderWidth || 0}
+                disabled={!selectedElement.borderColor || !selectedElement.borderWidth || selectedElement.borderWidth === 0}
+                onChange={(e) => {
+                  if (selectedElement.borderColor && selectedElement.borderWidth > 0) {
+                    e.stopPropagation();
+                    updateSlideElement(selectedElement.id, { borderWidth: parseInt(e.target.value) });
+                  }
+                }}
+                onInput={(e) => {
+                  const value = e.target.value;
+                  const min = e.target.min || 0;
+                  const max = e.target.max || 10;
+                  const percent = ((value - min) / (max - min)) * 100;
+                  e.target.style.setProperty('--slider-value', `${percent}%`);
+                }}
+                style={{
+                  flex: 1,
+                  height: '4px',
+                  cursor: (!selectedElement.borderColor || !selectedElement.borderWidth || selectedElement.borderWidth === 0) ? 'not-allowed' : 'pointer',
+                  opacity: (!selectedElement.borderColor || !selectedElement.borderWidth || selectedElement.borderWidth === 0) ? 0.5 : 1,
+                  '--slider-value': `${((selectedElement.borderWidth || 0) / 10) * 100}%`
+                }}
+              />
+          <div style={{
+            minWidth: '28px',
+            textAlign: 'center',
+            fontSize: '11px',
+            fontWeight: '600',
+            color: (!selectedElement.borderColor || !selectedElement.borderWidth || selectedElement.borderWidth === 0) ? '#9ca3af' : '#374151',
+            padding: '2px 6px',
+            background: '#ffffff',
+            borderRadius: '4px',
+            border: '1px solid #e5e7eb',
+            height: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: (!selectedElement.borderColor || !selectedElement.borderWidth || selectedElement.borderWidth === 0) ? 0.5 : 1
+          }}>
+            {selectedElement.borderWidth || 0}px
+          </div>
+        </div>
+      </div>
+
+      <div className="option-group" style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '0.75rem',
+        padding: '0.75rem'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '0.25rem',
+          height: 'auto',
+          minHeight: 'auto'
+        }}>
+          <div style={{
+            fontSize: '0.875rem',
+            fontWeight: '600',
+            color: '#404040'
+          }}>
+            Text Styles
+          </div>
+          {/* Delete button - only show when text style is applied */}
+          {(selectedElement.fillLinearGradientColorStops || 
+            (selectedElement.shadowColor && selectedElement.shadowBlur > 0) || 
+            selectedElement.strokeLinearGradientColorStops ||
+            (selectedElement.scaleX !== undefined && selectedElement.scaleX !== 1) ||
+            (selectedElement.scaleY !== undefined && selectedElement.scaleY !== 1)) && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                updateSlideElement(selectedElement.id, {
+                  fillLinearGradientColorStops: undefined,
+                  fillLinearGradientStartPoint: undefined,
+                  fillLinearGradientEndPoint: undefined,
+                  shadowColor: undefined,
+                  shadowBlur: 0,
+                  shadowOffsetX: 0,
+                  shadowOffsetY: 0,
+                  shadowOpacity: 0,
+                  strokeLinearGradientColorStops: undefined,
+                  strokeLinearGradientStartPoint: undefined,
+                  strokeLinearGradientEndPoint: undefined,
+                  textOpacity: 1,
+                  scaleX: 1,
+                  scaleY: 1,
+                  color: selectedElement.color || '#000000' // Keep original color or default to black
+                });
+              }}
+              className="text-style-delete-btn"
+              style={{
+                width: '24px',
+                height: '24px',
+                background: '#ffffff',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#374151',
-                fontSize: '16px',
+                padding: '2px',
                 transition: 'all 0.2s ease',
                 flexShrink: 0,
                 boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
@@ -561,56 +748,370 @@ const TextOptions = ({
                 e.currentTarget.style.background = '#ffffff';
                 e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
               }}
-              title="Remove border color"
+              title="Remove text style"
             >
-              <Trash2 size={16} />
+              <Trash2 size={16} style={{ width: '100%', height: '100%', minWidth: '16px', minHeight: '16px' }} />
             </button>
-          </div>
+          )}
         </div>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(2, 1fr)', 
+          gap: '0.5rem'
+        }}>
+          {/* 1. Mesh Glow */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              updateSlideElement(selectedElement.id, {
+                fillLinearGradientStartPoint: { x: -50, y: -50 },
+                fillLinearGradientEndPoint: { x: 200, y: 200 },
+                fillLinearGradientColorStops: [0, "#ff00cc", 1, "#3333ff"],
+                shadowColor: "rgba(0,0,0,0.3)",
+                shadowBlur: 15,
+                shadowOffsetX: 0,
+                shadowOffsetY: 0,
+                shadowOpacity: 1,
+                strokeColor: undefined,
+                strokeWidth: 0,
+                strokeLinearGradientColorStops: undefined,
+                strokeLinearGradientStartPoint: undefined,
+                strokeLinearGradientEndPoint: undefined,
+                textOpacity: 1,
+                scaleX: 1,
+                scaleY: 1
+              });
+            }}
+            style={{
+              padding: '0',
+              background: '#f9fafb',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              overflow: 'hidden',
+              aspectRatio: '2/1',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#d1d5db';
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#e5e7eb';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+            title="Mesh Gradient Glow"
+          >
+            <img 
+              src="/images/textoptions/mesh glow.png" 
+              alt="Mesh Glow"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'fill',
+                display: 'block'
+              }}
+            />
+          </button>
 
-            {/* Border width slider - compact, replacing second row */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px' }}>
-              <input
-                type="range"
-                onClick={(e) => e.stopPropagation()}
-                min="0"
-                max="10"
-                value={selectedElement.borderWidth || 0}
-                onChange={(e) => {
-                  e.stopPropagation();
-                  updateSlideElement(selectedElement.id, { borderWidth: parseInt(e.target.value) });
-                }}
-                onInput={(e) => {
-                  const value = e.target.value;
-                  const min = e.target.min || 0;
-                  const max = e.target.max || 10;
-                  const percent = ((value - min) / (max - min)) * 100;
-                  e.target.style.setProperty('--slider-value', `${percent}%`);
-                }}
-                style={{
-                  flex: 1,
-                  height: '4px',
-                  cursor: 'pointer',
-                  '--slider-value': `${((selectedElement.borderWidth || 0) / 10) * 100}%`
-                }}
-              />
-          <div style={{
-            minWidth: '28px',
-            textAlign: 'center',
-            fontSize: '11px',
-            fontWeight: '600',
-            color: '#374151',
-            padding: '2px 6px',
-            background: '#ffffff',
-            borderRadius: '4px',
-            border: '1px solid #e5e7eb',
-            height: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            {selectedElement.borderWidth || 0}px
-          </div>
+          {/* 2. Neon Glow */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              updateSlideElement(selectedElement.id, {
+                color: "#00eaff",
+                shadowColor: "#00eaff",
+                shadowBlur: 25,
+                shadowOffsetX: 0,
+                shadowOffsetY: 0,
+                shadowOpacity: 1,
+                fillLinearGradientColorStops: undefined,
+                fillLinearGradientStartPoint: undefined,
+                fillLinearGradientEndPoint: undefined,
+                strokeColor: undefined,
+                strokeWidth: 0,
+                strokeLinearGradientColorStops: undefined,
+                strokeLinearGradientStartPoint: undefined,
+                strokeLinearGradientEndPoint: undefined,
+                textOpacity: 1,
+                scaleX: 1,
+                scaleY: 1
+              });
+            }}
+            style={{
+              padding: '0',
+              background: '#f9fafb',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              overflow: 'hidden',
+              aspectRatio: '2/1',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#d1d5db';
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#e5e7eb';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+            title="Neon Glow (Cyberpunk)"
+          >
+            <img 
+              src="/images/textoptions/neon glow.png" 
+              alt="Neon Glow"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'fill',
+                display: 'block'
+              }}
+            />
+          </button>
+
+          {/* 3. Metallic */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              const textHeight = selectedElement.height || 50;
+              updateSlideElement(selectedElement.id, {
+                fillLinearGradientColorStops: [0, "#e0e0e0", 0.5, "#ffffff", 1, "#a0a0a0"],
+                fillLinearGradientStartPoint: { x: 0, y: 0 },
+                fillLinearGradientEndPoint: { x: 0, y: textHeight },
+                shadowColor: "rgba(0,0,0,0.4)",
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowOffsetY: 0,
+                shadowOpacity: 1,
+                strokeColor: undefined,
+                strokeWidth: 0,
+                strokeLinearGradientColorStops: undefined,
+                strokeLinearGradientStartPoint: undefined,
+                strokeLinearGradientEndPoint: undefined,
+                textOpacity: 1,
+                scaleX: 1,
+                scaleY: 1
+              });
+            }}
+            style={{
+              padding: '0',
+              background: '#f9fafb',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              overflow: 'hidden',
+              aspectRatio: '2/1',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#d1d5db';
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#e5e7eb';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+            title="Metallic Chrome"
+          >
+            <img 
+              src="/images/textoptions/metallic.png" 
+              alt="Metallic"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'fill',
+                display: 'block'
+              }}
+            />
+          </button>
+
+          {/* 5. Frosted */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              updateSlideElement(selectedElement.id, {
+                color: "#ffffff",
+                textOpacity: 0.6,
+                shadowColor: "rgba(255,255,255,0.8)",
+                shadowBlur: 15,
+                shadowOffsetX: 0,
+                shadowOffsetY: 0,
+                shadowOpacity: 1,
+                fillLinearGradientColorStops: undefined,
+                fillLinearGradientStartPoint: undefined,
+                fillLinearGradientEndPoint: undefined,
+                strokeColor: undefined,
+                strokeWidth: 0,
+                strokeLinearGradientColorStops: undefined,
+                strokeLinearGradientStartPoint: undefined,
+                strokeLinearGradientEndPoint: undefined,
+                scaleX: 1,
+                scaleY: 1
+              });
+            }}
+            style={{
+              padding: '0',
+              background: '#f9fafb',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              overflow: 'hidden',
+              aspectRatio: '2/1',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#d1d5db';
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#e5e7eb';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+            title="Frosted Blur (glass-like)"
+          >
+            <img 
+              src="/images/textoptions/frosted.png" 
+              alt="Frosted"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'fill',
+                display: 'block'
+              }}
+            />
+          </button>
+
+          {/* 6. Gradient Stroke */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              const textWidth = selectedElement.width || 200;
+              updateSlideElement(selectedElement.id, {
+                strokeLinearGradientColorStops: [0, "#ff7f50", 1, "#6a5acd"],
+                strokeLinearGradientStartPoint: { x: 0, y: 0 },
+                strokeLinearGradientEndPoint: { x: textWidth, y: 0 },
+                strokeWidth: 3,
+                strokeColor: undefined,
+                color: "transparent",
+                fillLinearGradientColorStops: undefined,
+                fillLinearGradientStartPoint: undefined,
+                fillLinearGradientEndPoint: undefined,
+                shadowColor: undefined,
+                shadowBlur: 0,
+                shadowOffsetX: 0,
+                shadowOffsetY: 0,
+                shadowOpacity: 0,
+                textOpacity: 1,
+                scaleX: 1,
+                scaleY: 1
+              });
+            }}
+            style={{
+              padding: '0',
+              background: '#f9fafb',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              overflow: 'hidden',
+              aspectRatio: '2/1',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#d1d5db';
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#e5e7eb';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+            title="Gradient Stroke Outline"
+          >
+            <img 
+              src="/images/textoptions/gradient stroke.png" 
+              alt="Gradient Stroke"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'fill',
+                display: 'block'
+              }}
+            />
+          </button>
+
+          {/* 7. Cyberwave */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              updateSlideElement(selectedElement.id, {
+                color: "#ff00ff",
+                shadowColor: "#6600ff",
+                shadowBlur: 30,
+                shadowOffsetX: 0,
+                shadowOffsetY: 0,
+                shadowOpacity: 1,
+                fillLinearGradientColorStops: undefined,
+                fillLinearGradientStartPoint: undefined,
+                fillLinearGradientEndPoint: undefined,
+                strokeColor: undefined,
+                strokeWidth: 0,
+                strokeLinearGradientColorStops: undefined,
+                strokeLinearGradientStartPoint: undefined,
+                strokeLinearGradientEndPoint: undefined,
+                textOpacity: 1,
+                scaleX: 1.1,
+                scaleY: 1
+              });
+            }}
+            style={{
+              padding: '0',
+              background: '#f9fafb',
+              border: '1px solid #e5e7eb',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              overflow: 'hidden',
+              aspectRatio: '2/1',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#d1d5db';
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#e5e7eb';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+            title="Retro Cyberwave Glow"
+          >
+            <img 
+              src="/images/textoptions/cyberwave.png" 
+              alt="Cyberwave"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'fill',
+                display: 'block'
+              }}
+            />
+          </button>
         </div>
       </div>
 

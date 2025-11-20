@@ -366,34 +366,40 @@ const ShapeOptions = ({
             </div>
             <button
               onClick={(e) => {
-                e.stopPropagation();
-                updateSlideElement(selectedElement.id, { borderColor: undefined, borderWidth: 0 });
+                if (selectedElement.borderColor && selectedElement.borderWidth > 0) {
+                  e.stopPropagation();
+                  updateSlideElement(selectedElement.id, { borderColor: undefined, borderWidth: 0 });
+                }
               }}
+              disabled={!selectedElement.borderColor || !selectedElement.borderWidth || selectedElement.borderWidth === 0}
               style={{
                 width: '36px',
                 height: '36px',
                 background: '#ffffff',
                 border: '1px solid #e5e7eb',
                 borderRadius: '6px',
-                cursor: 'pointer',
+                cursor: (selectedElement.borderColor && selectedElement.borderWidth > 0) ? 'pointer' : 'not-allowed',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#374151',
+                color: (selectedElement.borderColor && selectedElement.borderWidth > 0) ? '#374151' : '#9ca3af',
                 fontSize: '16px',
                 transition: 'all 0.2s ease',
                 flexShrink: 0,
-                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+                opacity: (selectedElement.borderColor && selectedElement.borderWidth > 0) ? 1 : 0.5
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#f9fafb';
-                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                if (selectedElement.borderColor && selectedElement.borderWidth > 0) {
+                  e.currentTarget.style.background = '#f9fafb';
+                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                }
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = '#ffffff';
                 e.currentTarget.style.boxShadow = '0 1px 2px rgba(0, 0, 0, 0.05)';
               }}
-              title="Remove border color"
+              title={(selectedElement.borderColor && selectedElement.borderWidth > 0) ? "Remove border color" : "No border color applied"}
             >
               <Trash2 size={16} />
             </button>
@@ -408,9 +414,12 @@ const ShapeOptions = ({
                 min="0"
                 max="10"
                 value={selectedElement.borderWidth || 0}
+                disabled={!selectedElement.borderColor || !selectedElement.borderWidth || selectedElement.borderWidth === 0}
                 onChange={(e) => {
-                  e.stopPropagation();
-                  updateSlideElement(selectedElement.id, { borderWidth: parseInt(e.target.value) });
+                  if (selectedElement.borderColor && selectedElement.borderWidth > 0) {
+                    e.stopPropagation();
+                    updateSlideElement(selectedElement.id, { borderWidth: parseInt(e.target.value) });
+                  }
                 }}
                 onInput={(e) => {
                   const value = e.target.value;
@@ -422,7 +431,8 @@ const ShapeOptions = ({
                 style={{
                   flex: 1,
                   height: '4px',
-                  cursor: 'pointer',
+                  cursor: (!selectedElement.borderColor || !selectedElement.borderWidth || selectedElement.borderWidth === 0) ? 'not-allowed' : 'pointer',
+                  opacity: (!selectedElement.borderColor || !selectedElement.borderWidth || selectedElement.borderWidth === 0) ? 0.5 : 1,
                   '--slider-value': `${((selectedElement.borderWidth || 0) / 10) * 100}%`
                 }}
               />
@@ -431,7 +441,7 @@ const ShapeOptions = ({
             textAlign: 'center',
             fontSize: '11px',
             fontWeight: '600',
-            color: '#374151',
+            color: (!selectedElement.borderColor || !selectedElement.borderWidth || selectedElement.borderWidth === 0) ? '#9ca3af' : '#374151',
             padding: '2px 6px',
             background: '#ffffff',
             borderRadius: '4px',
@@ -439,7 +449,8 @@ const ShapeOptions = ({
             height: '20px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            opacity: (!selectedElement.borderColor || !selectedElement.borderWidth || selectedElement.borderWidth === 0) ? 0.5 : 1
           }}>
             {selectedElement.borderWidth || 0}px
           </div>

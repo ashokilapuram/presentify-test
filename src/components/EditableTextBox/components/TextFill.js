@@ -19,11 +19,56 @@ export function TextFill({
 }) {
   const hasBackground = element.backgroundColor && element.backgroundColor !== 'transparent';
   const textOpacity = element.textOpacity !== undefined ? element.textOpacity : 1;
-  const textColor = hasBackground 
-    ? (textOpacity < 1 ? hexToRgba(element.color, textOpacity) : element.color)
-    : (textOpacity < 1 ? hexToRgba(element.color, textOpacity) : element.color);
+  
+  // Determine fill color - use gradient if available, otherwise use solid color
+  let fillColor = element.color || '#000000';
+  if (textOpacity < 1 && !element.fillLinearGradientColorStops) {
+    fillColor = hexToRgba(fillColor, textOpacity);
+  } else if (textOpacity < 1 && element.fillLinearGradientColorStops) {
+    // For gradients, opacity is handled separately
+    fillColor = fillColor;
+  }
 
   const displayText = processTextForDisplay(value || "", element);
+
+  // Prepare gradient properties
+  const gradientProps = {};
+  if (element.fillLinearGradientColorStops && Array.isArray(element.fillLinearGradientColorStops)) {
+    gradientProps.fillLinearGradientColorStops = element.fillLinearGradientColorStops;
+    if (element.fillLinearGradientStartPoint) {
+      gradientProps.fillLinearGradientStartPoint = element.fillLinearGradientStartPoint;
+    }
+    if (element.fillLinearGradientEndPoint) {
+      gradientProps.fillLinearGradientEndPoint = element.fillLinearGradientEndPoint;
+    }
+  }
+
+  // Prepare shadow properties
+  const shadowProps = {};
+  if (element.shadowColor !== undefined) {
+    shadowProps.shadowColor = element.shadowColor;
+  }
+  if (element.shadowBlur !== undefined) {
+    shadowProps.shadowBlur = element.shadowBlur;
+  }
+  if (element.shadowOffsetX !== undefined) {
+    shadowProps.shadowOffsetX = element.shadowOffsetX;
+  }
+  if (element.shadowOffsetY !== undefined) {
+    shadowProps.shadowOffsetY = element.shadowOffsetY;
+  }
+  if (element.shadowOpacity !== undefined) {
+    shadowProps.shadowOpacity = element.shadowOpacity;
+  }
+
+  // Prepare scale properties
+  const scaleProps = {};
+  if (element.scaleX !== undefined) {
+    scaleProps.scaleX = element.scaleX;
+  }
+  if (element.scaleY !== undefined) {
+    scaleProps.scaleY = element.scaleY;
+  }
 
   return (
     <Text
@@ -36,7 +81,11 @@ export function TextFill({
       fontSize={element.fontSize}
       fontFamily={element.fontFamily || "Arial"}
       fontStyle={`${element.fontStyle === 'italic' ? 'italic ' : ''}${element.fontWeight === 'bold' ? 'bold' : 'normal'}`.trim()}
-      fill={textColor}
+      fill={element.fillLinearGradientColorStops ? undefined : fillColor}
+      opacity={element.fillLinearGradientColorStops && textOpacity < 1 ? textOpacity : 1}
+      {...gradientProps}
+      {...shadowProps}
+      {...scaleProps}
       textDecoration={element.textDecoration || 'none'}
       align={element.textAlign}
       verticalAlign="top"

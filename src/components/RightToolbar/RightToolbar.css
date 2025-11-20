@@ -2593,6 +2593,57 @@ body.dark .action-button-icon.danger:hover svg {
   }
 }
 
+/* Text Style Delete Button - Ensure icon is maximum size on all screens */
+.text-style-delete-btn {
+  width: 24px !important;
+  height: 24px !important;
+  padding: 2px !important;
+}
+
+.text-style-delete-btn svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+}
+
+/* Responsive adjustments for text style delete button */
+@media (max-width: 1100px) {
+  .text-style-delete-btn {
+    width: 22px !important;
+    height: 22px !important;
+    padding: 2px !important;
+  }
+  
+  .text-style-delete-btn svg {
+    width: 14px !important;
+    height: 14px !important;
+    min-width: 14px !important;
+    min-height: 14px !important;
+    max-width: 14px !important;
+    max-height: 14px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .text-style-delete-btn {
+    width: 20px !important;
+    height: 20px !important;
+    padding: 2px !important;
+  }
+  
+  .text-style-delete-btn svg {
+    width: 12px !important;
+    height: 12px !important;
+    min-width: 12px !important;
+    min-height: 12px !important;
+    max-width: 12px !important;
+    max-height: 12px !important;
+  }
+}
+
 /* Table Single Row Layout */
 .table-header-second-row {
   display: flex;

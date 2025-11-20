@@ -4,19 +4,45 @@ export function useAutoResize(element, isEditing, value, textareaRef, textRef, o
   // Simple auto-resize textarea based on content
   const autoResize = useCallback(() => {
     if (textareaRef.current) {
+      // Preserve cursor position during resize
+      const cursorPos = textareaRef.current.selectionStart;
+      const cursorEnd = textareaRef.current.selectionEnd;
+      
       textareaRef.current.style.height = 'auto';
       const scrollHeight = textareaRef.current.scrollHeight;
       const newHeight = Math.max(element.height, scrollHeight);
       textareaRef.current.style.height = `${newHeight}px`;
+      
+      // Restore cursor position after resize
+      try {
+        textareaRef.current.setSelectionRange(cursorPos, cursorEnd);
+      } catch (err) {
+        // Ignore errors (might happen if textarea is not focused)
+      }
     }
   }, [element.height, textareaRef]);
 
   // Auto-resize when value changes (only when editing)
   useEffect(() => {
-    if (isEditing) {
+    if (isEditing && textareaRef.current) {
+      // Preserve cursor position before auto-resize
+      const cursorPos = textareaRef.current.selectionStart;
+      const cursorEnd = textareaRef.current.selectionEnd;
+      
       autoResize();
+      
+      // Restore cursor position after auto-resize
+      requestAnimationFrame(() => {
+        if (textareaRef.current) {
+          try {
+            textareaRef.current.setSelectionRange(cursorPos, cursorEnd);
+          } catch (err) {
+            // Ignore errors
+          }
+        }
+      });
     }
-  }, [value, isEditing, autoResize]);
+  }, [value, isEditing, autoResize, textareaRef]);
 
   // Auto-resize when font properties change (when not editing): mirror Konva height
   useEffect(() => {

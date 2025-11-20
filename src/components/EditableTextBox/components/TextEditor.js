@@ -73,11 +73,14 @@ export function TextEditor({
           // Mark that user has interacted
           userHasInteractedRef.current = true;
           
+          const textarea = e.target;
+          // Preserve cursor position before any state updates
+          const cursorPos = textarea.selectionStart;
+          const cursorEnd = textarea.selectionEnd;
+          
           // Auto-apply bullets/numbers if listType is set but current line doesn't have marker
           const listType = element.listType || 'none';
           if (listType === 'bullet' || listType === 'number') {
-            const textarea = e.target;
-            const cursorPos = textarea.selectionStart;
             const textBeforeCursor = textarea.value.substring(0, cursorPos);
             const lines = textBeforeCursor.split('\n');
             const currentLine = lines[lines.length - 1];
@@ -119,18 +122,41 @@ export function TextEditor({
               
               textarea.value = newText;
               setValue(newText);
-              setTimeout(() => {
-                textarea.setSelectionRange(newCursorPos, newCursorPos);
-              }, 0);
+              // Restore cursor position after state update
+              requestAnimationFrame(() => {
+                if (textarea === textareaRef.current) {
+                  try {
+                    textarea.setSelectionRange(newCursorPos, newCursorPos);
+                  } catch (err) {
+                    // Ignore errors
+                  }
+                }
+              });
               return; // Don't continue with normal input handling
             }
           }
           
           // Auto-resize textarea to fit content
-          e.target.style.height = 'auto';
-          e.target.style.height = e.target.scrollHeight + 'px';
+          textarea.style.height = 'auto';
+          textarea.style.height = textarea.scrollHeight + 'px';
+          
           // Update state value on input to trigger autoResize effect on value change
-          setValue(e.target.value);
+          // Use a ref to track if we need to restore cursor
+          const currentValue = textarea.value;
+          setValue(currentValue);
+          
+          // Restore cursor position after state update completes
+          // Use requestAnimationFrame to ensure DOM has updated
+          requestAnimationFrame(() => {
+            if (textarea === textareaRef.current) {
+              try {
+                // Restore the exact cursor position
+                textarea.setSelectionRange(cursorPos, cursorEnd);
+              } catch (err) {
+                // Ignore errors (might happen if textarea was unmounted)
+              }
+            }
+          });
         }}
         onFocus={(e) => {
           // Auto-resize on focus to ensure full text is visible
