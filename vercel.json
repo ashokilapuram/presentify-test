@@ -19,6 +19,10 @@
       "dest": "/images/$1"
     },
     {
+      "src": "/clipart/(.*)",
+      "dest": "/clipart/$1"
+    },
+    {
       "src": "/templates/(.*)",
       "dest": "/templates/$1",
       "headers": {

@@ -36,12 +36,13 @@ const ClipartOptions = ({ addClipart, onClose }) => {
       };
 
       const loadedGroups = {};
+      const publicUrl = process.env.PUBLIC_URL || '';
       
       for (const [folder, files] of Object.entries(clipartManifest)) {
         loadedGroups[folder] = files.map(fileName => ({
           name: fileName.replace('.png', ''),
-          path: `/clipart/${folder}/${fileName}`,
-          url: `/clipart/${folder}/${fileName}`
+          path: `${publicUrl}/clipart/${folder}/${fileName}`,
+          url: `${publicUrl}/clipart/${folder}/${fileName}`
         }));
       }
 
