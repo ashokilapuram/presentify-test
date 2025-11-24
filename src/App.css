@@ -615,10 +615,20 @@ body.dark .toolbar-bottom {
   box-shadow: var(--shadow-md);
 }
 
+.toolbar-button.primary svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
 .toolbar-button.primary:hover {
   background: var(--accent-white-hover);
   transform: translateY(-2px);
   box-shadow: 0 0 15px var(--accent-white-glow);
+}
+
+.toolbar-button.primary:hover svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .toolbar-button.disabled {
@@ -876,7 +886,7 @@ body.dark .toolbar-bottom {
   width: 100%;
   padding: var(--space-3) var(--space-6);
   background: var(--neutral-50);
-  color: var(--text-secondary);
+  color: #000000;
   border: 1px solid var(--neutral-200);
   border-radius: var(--radius-lg);
   cursor: pointer;
@@ -889,12 +899,22 @@ body.dark .toolbar-bottom {
   transition: all var(--transition-normal);
 }
 
+.templates-button svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
 .templates-button:hover {
   background: var(--bg-quaternary);
   border-color: var(--border-medium);
-  color: var(--text-primary);
+  color: #000000;
   transform: translateY(-1px);
   box-shadow: 0 0 8px var(--accent-white-glow);
+}
+
+.templates-button:hover svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
 }
 
 .sidebar-content {

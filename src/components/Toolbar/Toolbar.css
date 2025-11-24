@@ -31,13 +31,15 @@
 .format-container .toolbar-button svg {
   width: 14px;
   height: 14px;
-  stroke: currentColor;
+  stroke: #000000;
+  color: #000000;
   display: block;
 }
 
 /* SVG Styling for Toolbar Buttons */
 .toolbar-button svg {
-  stroke: currentColor;
+  stroke: #000000;
+  color: #000000;
   display: block;
 }
 
@@ -179,6 +181,8 @@
 
 .format-container .toolbar-button.active svg {
   stroke-width: 3;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 /* Ensure format-container fits properly without affecting toolbar-top */
@@ -257,6 +261,11 @@
   font-weight: 700;
 }
 
+.formatting-button.active svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
 /* Bold, Italic, Underline specific styling - Make them sharp and consistent */
 .formatting-button:has(.fi-bold),
 .formatting-button:has(.fi-italic),
@@ -277,21 +286,40 @@
   color: #ffffff;
 }
 
+.formatting-button:has(.fi-bold).active svg,
+.formatting-button:has(.fi-italic).active svg,
+.formatting-button:has(.fi-underline).active svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
 /* Make all formatting icons sharp and consistent with RightToolbar */
 .toolbar-button svg {
-  color: #6b7280;
+  color: #000000;
   font-weight: 900;
   stroke-width: 2;
 }
 
 .toolbar-button:hover svg {
-  color: #374151;
+  color: #000000;
   stroke-width: 2.5;
 }
 
 .toolbar-button.active svg {
-  color: #ffffff;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
   stroke-width: 2.5;
+}
+
+/* Primary buttons (like Slideshow) should have white icons */
+.toolbar-button.primary svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.toolbar-button.primary:hover svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .color-picker {
@@ -1167,6 +1195,11 @@ body.dark .toolbar-button.active {
     color: #fff !important;
     border-color: #000 !important;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+  }
+  
+  .formatting-button.active svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
   }
 
 }

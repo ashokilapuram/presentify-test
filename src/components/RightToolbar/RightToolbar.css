@@ -74,7 +74,8 @@
 
 .text-element-button svg {
   font-size: 1.1rem;
-  color: var(--neutral-600);
+  color: #000000 !important;
+  stroke: #000000 !important;
 }
 
 /* Shapes Row - 4 icon buttons in a row */
@@ -116,7 +117,8 @@
 
 .shape-icon-button svg {
   font-size: 1.2rem;
-  color: var(--neutral-600);
+  color: #000000 !important;
+  stroke: #000000 !important;
 }
 
 /* Shapes more button */
@@ -184,7 +186,8 @@
 
 .chart-element-button svg {
   font-size: 1.1rem;
-  color: var(--neutral-600);
+  color: #000000 !important;
+  stroke: #000000 !important;
 }
 
 /* Media Row - consistent button styling */
@@ -235,12 +238,14 @@
 }
 
 .media-element-button.active svg {
-  color: var(--neutral-800);
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .media-element-button svg {
   font-size: 1.4rem;
-  color: var(--neutral-600);
+  color: #000000 !important;
+  stroke: #000000 !important;
 }
 
 /* Right Toolbar Tabs */
@@ -392,6 +397,11 @@
   transform: translateY(-1px);
 }
 
+.option-button.active svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
 .option-row {
   display: flex;
   gap: var(--space-2, 0.5rem);
@@ -432,6 +442,21 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
+/* Make all insert button icons black */
+.insert-button svg,
+.insert-button .fi {
+  color: #000000 !important;
+  stroke: #000000 !important;
+  fill: none;
+}
+
+/* When insert button is active, make icons white */
+.insert-button.active svg,
+.insert-button.active .fi {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
 /* Shape Grid */
 .shape-grid {
   display: grid;
@@ -465,6 +490,14 @@
   box-shadow: 
     0 8px 24px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Make all shape button icons black */
+.shape-button svg,
+.shape-icon-button svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
+  fill: none;
 }
 
 /* Theme Images Grid */

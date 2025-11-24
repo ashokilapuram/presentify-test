@@ -35,7 +35,9 @@ const ChartOptions = ({
     const isLiveUpdate = Boolean(options.isLive);
     
     if (isLiveUpdate) {
-      if (!hasLiveSnapshotRef.current && pushSnapshot) {
+      // Live update (debounced): save snapshot BEFORE each update for proper undo/redo
+      // Each debounced update creates a separate undo point
+      if (pushSnapshot) {
         try {
           pushSnapshot({
             slides,
@@ -45,12 +47,23 @@ const ChartOptions = ({
         } catch (error) {
           console.error('Failed to snapshot chart edit:', error);
         }
-        hasLiveSnapshotRef.current = true;
       }
+      // Mark that we've saved a snapshot for this editing session
+      hasLiveSnapshotRef.current = true;
+      // Use __internal to prevent updateSlideElement from creating another snapshot
       updateSlideElement(selectedElement.id, { ...updates, __internal: 'chart-live' });
     } else {
+      // Save button clicked: only save snapshot if one wasn't already saved during live updates
+      // If hasLiveSnapshotRef is true, we already have a snapshot, so skip it
+      // If false (e.g., pie charts or no edits made), we need a snapshot
+      if (hasLiveSnapshotRef.current) {
+        // Snapshot already saved during live updates, don't save another one
+        updateSlideElement(selectedElement.id, { ...updates, __internal: 'chart-save' });
+      } else {
+        // No snapshot saved yet, let updateSlideElement save it normally
+        updateSlideElement(selectedElement.id, updates);
+      }
       hasLiveSnapshotRef.current = false;
-      updateSlideElement(selectedElement.id, updates);
     }
   };
 
