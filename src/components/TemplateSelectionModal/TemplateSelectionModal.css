@@ -28,11 +28,11 @@
 @keyframes templateModalSlideIn {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
+    transform:  scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform:  scale(1);
   }
 }
 
@@ -90,7 +90,6 @@
 
 .template-card:hover {
   border-color: #000000;
-  transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
@@ -131,8 +130,8 @@
 
 .template-info h3 {
   margin: 0 0 8px 0;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 500;
   color: #111827;
 }
 
@@ -180,7 +179,6 @@
 
 .btn-create-new:hover {
   background: #1f1f1f;
-  transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -224,7 +222,7 @@
   }
   
   .template-info h3 {
-    font-size: 13px;
+    font-size: 12px;
     margin: 0 0 4px 0;
   }
   
@@ -270,7 +268,7 @@
   }
   
   .template-info h3 {
-    font-size: 16px;
+    font-size: 13px;
   }
   
   .template-info p {
@@ -306,7 +304,7 @@
   }
   
   .template-info h3 {
-    font-size: 14px;
+    font-size: 12px;
   }
   
   .template-info p {
@@ -329,7 +327,7 @@
   }
   
   .template-info h3 {
-    font-size: 12px;
+    font-size: 11px;
   }
   
   .template-info p {

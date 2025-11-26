@@ -114,16 +114,14 @@
   width: 100%;
   height: 5px;
   border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    #8b5cf6 0%,
-    #4f46e5 16%,
-    #3b82f6 32%,
-    #10b981 48%,
-    #facc15 64%,
-    #f59e0b 80%,
-    #ef4444 100%
-  );
+  background: linear-gradient(90deg,
+      #8b5cf6 0%,
+      #4f46e5 16%,
+      #3b82f6 32%,
+      #10b981 48%,
+      #facc15 64%,
+      #f59e0b 80%,
+      #ef4444 100%);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15),
     0 1px 2px rgba(0, 0, 0, 0.35);
   display: block;
@@ -357,52 +355,52 @@
     gap: 0.3rem;
     padding: var(--space-2) 0.45rem;
   }
-  
+
   .format-container .toolbar-button {
     min-width: 22px;
     height: 22px;
     padding: 0.1rem 0.15rem;
     font-size: 0.7rem;
   }
-  
+
   .format-container .toolbar-button svg {
     width: 13px;
     height: 13px;
   }
-  
+
   .format-container .dropdown-trigger {
     padding: 0.2rem 0.4rem;
     font-size: 0.7rem;
     min-width: 70px;
     height: 22px;
   }
-  
+
   .format-container .formatting-separator {
     font-size: 0.65rem;
     margin: 0 0.2rem;
   }
-  
+
   .format-container .color-button-container .toolbar-button {
     height: 22px;
     min-width: 22px;
     padding: 0.1rem 0.15rem;
   }
-  
+
   .format-container .color-button-container .toolbar-button span {
     font-size: 8px;
   }
-  
+
   .font-size-btn {
     min-width: 20px !important;
     height: 22px !important;
     font-size: 0.9rem;
   }
-  
+
   .font-size-display {
     min-width: 24px;
     font-size: 0.7rem;
   }
-  
+
   .format-container .font-color-btn {
     width: 30px;
     height: 22px;
@@ -410,11 +408,11 @@
     gap: 1px;
     border-radius: 6px;
   }
-  
+
   .format-container .font-color-btn__label {
     font-size: 11px;
   }
-  
+
   .format-container .font-color-btn__swatch {
     width: 100%;
     height: 4px;
@@ -427,25 +425,25 @@
     gap: 0.5rem;
     padding: 0.4rem 0.6rem;
   }
-  
+
   .formatting-separator {
     font-size: 0.8rem;
     margin: 0 0.4rem;
   }
-  
+
   .formatting-button {
     min-width: 22px;
     height: 22px;
     font-size: 9px;
     flex-shrink: 0;
   }
-  
+
   .color-button-container .toolbar-button {
     height: 22px;
     min-width: 22px;
     padding: 0.2rem 0.4rem;
   }
-  
+
   .color-button-container .toolbar-button span {
     font-size: 9px;
   }
@@ -457,11 +455,11 @@
     padding: var(--space-1) var(--space-2);
     font-size: 0.75rem;
   }
-  
+
   .toolbar-actions .toolbar-button.dropdown-trigger {
     padding: var(--space-1) var(--space-2);
   }
-  
+
   .formatting-separator {
     font-size: 0.7rem;
     margin: 0 0.3rem;
@@ -478,11 +476,11 @@
     padding: var(--space-2) var(--space-3);
     font-size: 0.8rem;
   }
-  
+
   .toolbar-actions .toolbar-button.dropdown-trigger {
     padding: var(--space-2) var(--space-3);
   }
-  
+
   .formatting-separator {
     font-size: 0.75rem;
     margin: 0 0.4rem;
@@ -491,14 +489,14 @@
   .format-container {
     padding: 0.25rem 0.5rem;
   }
-  
+
   .color-button {
     min-width: 22px;
     height: 22px;
     font-size: 9px;
     flex-shrink: 0;
   }
-  
+
   .formatting-select {
     min-width: 80px;
     max-width: 90px;
@@ -506,17 +504,17 @@
     font-size: 10px;
     flex-shrink: 0;
   }
-  
+
   .color-button-container .toolbar-button {
     height: 22px;
     min-width: 22px;
     padding: 0.2rem 0.4rem;
   }
-  
+
   .color-button-container .toolbar-button span {
     font-size: 9px;
   }
-  
+
   .format-container .font-color-btn {
     width: 31px;
     height: 24px;
@@ -524,11 +522,11 @@
     gap: 1px;
     border-radius: 6px;
   }
-  
+
   .format-container .font-color-btn__label {
     font-size: 12px;
   }
-  
+
   .format-container .font-color-btn__swatch {
     width: 100%;
     height: 5px;
@@ -551,42 +549,42 @@
     gap: 0.4rem;
     padding: 0.25rem 0.6rem;
   }
-  
+
   .format-container .toolbar-button {
     min-width: 26px;
     height: 26px;
     padding: 0.2rem 0.25rem;
     font-size: 0.8rem;
   }
-  
+
   .format-container .toolbar-button svg {
     width: 16px;
     height: 16px;
   }
-  
+
   .format-container .dropdown-trigger {
     padding: 0.3rem 0.5rem;
     font-size: 0.8rem;
     min-width: 85px;
     height: 26px;
   }
-  
+
   .format-container .formatting-separator {
     font-size: 0.75rem;
     margin: 0 0.25rem;
   }
-  
+
   .font-size-btn {
     min-width: 24px !important;
     height: 26px !important;
     font-size: 1.1rem;
   }
-  
+
   .font-size-display {
     min-width: 30px;
     font-size: 0.8rem;
   }
-  
+
   .format-container .font-color-btn {
     width: 32px;
     height: 26px;
@@ -594,21 +592,21 @@
     gap: 1px;
     border-radius: 6px;
   }
-  
+
   .format-container .font-color-btn__label {
     font-size: 13px;
   }
-  
+
   .format-container .font-color-btn__swatch {
     width: 100%;
     height: 5px;
   }
-  
+
   .toolbar-formatting {
     gap: 1rem;
     padding: 1rem 2rem;
   }
-  
+
   .formatting-separator {
     font-size: 1rem;
     margin: 0 0.6rem;
@@ -756,52 +754,52 @@
     gap: 0.25rem;
     padding: 0.2rem 0.35rem;
   }
-  
+
   .format-container .toolbar-button {
     min-width: 20px;
     height: 20px;
     padding: 0.1rem 0.15rem;
     font-size: 0.65rem;
   }
-  
+
   .format-container .toolbar-button svg {
     width: 12px;
     height: 12px;
   }
-  
+
   .format-container .dropdown-trigger {
     padding: 0.15rem 0.3rem;
     font-size: 0.65rem;
     min-width: 60px;
     height: 20px;
   }
-  
+
   .format-container .formatting-separator {
     font-size: 0.6rem;
     margin: 0 0.15rem;
   }
-  
+
   .format-container .color-button-container .toolbar-button {
     height: 20px;
     min-width: 20px;
     padding: 0.1rem 0.15rem;
   }
-  
+
   .format-container .color-button-container .toolbar-button span {
     font-size: 7px;
   }
-  
+
   .font-size-btn {
     min-width: 18px !important;
     height: 20px !important;
     font-size: 0.8rem;
   }
-  
+
   .font-size-display {
     min-width: 22px;
     font-size: 0.65rem;
   }
-  
+
   .format-container .font-color-btn {
     width: 28px;
     height: 20px;
@@ -809,20 +807,21 @@
     gap: 1px;
     border-radius: 6px;
   }
-  
+
   .format-container .font-color-btn__label {
     font-size: 10px;
   }
-  
+
   .format-container .font-color-btn__swatch {
     width: 100%;
     height: 4px;
   }
-  
+
   .toolbar-top {
     flex-wrap: nowrap;
     align-items: center;
-    gap: 0.75rem; /* slightly tighter */
+    gap: 0.75rem;
+    /* slightly tighter */
   }
 
   .toolbar-logo-icon {
@@ -836,7 +835,8 @@
   }
 
   .toolbar-logo {
-    font-size: 1.25rem; /* shrink a touch */
+    font-size: 1.25rem;
+    /* shrink a touch */
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -862,20 +862,31 @@
   }
 
   .toolbar-tabs {
-    max-width: 55vw; /* leave room for actions */
+    max-width: 55vw;
+    /* leave room for actions */
     overflow-x: auto;
     overflow-y: hidden;
     white-space: nowrap;
     gap: 0.25rem;
-    padding: 0.25rem; /* reduce inner padding */
+    padding: 0.25rem;
+    /* reduce inner padding */
   }
-  .toolbar-tabs::-webkit-scrollbar { height: 6px; }
-  .toolbar-tabs::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
+
+  .toolbar-tabs::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .toolbar-tabs::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
 
   .toolbar-tab {
-    padding: 0.4rem 0.6rem; /* smaller tab pill */
+    padding: 0.4rem 0.6rem;
+    /* smaller tab pill */
     font-size: 0.8rem;
-    flex: 0 0 auto; /* prevent shrinking/wrapping */
+    flex: 0 0 auto;
+    /* prevent shrinking/wrapping */
   }
 
   .toolbar-actions {
@@ -883,6 +894,7 @@
     gap: 0.4rem;
     flex-shrink: 0;
   }
+
   .toolbar-actions .toolbar-button {
     padding: 0.25rem 0.5rem;
     font-size: 0.8rem;
@@ -1015,6 +1027,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -1025,6 +1038,7 @@
     opacity: 0;
     transform: translateY(-20px) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -1037,39 +1051,39 @@
     background: #1f2937;
     color: #f9fafb;
   }
-  
+
   .text-modal-header {
     background: #111827;
     border-bottom-color: #374151;
   }
-  
+
   .text-modal-header h3 {
     color: #f9fafb;
   }
-  
+
   .text-modal-close {
     color: #9ca3af;
   }
-  
+
   .text-modal-close:hover {
     background: #374151;
     color: #f9fafb;
   }
-  
+
   .text-option {
     background: #1f2937;
     border-color: #374151;
   }
-  
+
   .text-option:hover {
     background: #0f172a;
     border-color: #0ea5e9;
   }
-  
+
   .text-option-content h4 {
     color: #f9fafb;
   }
-  
+
   .text-option-content p {
     color: #9ca3af;
   }
@@ -1175,6 +1189,7 @@ body.dark .toolbar-button.active {
    Smooth desktop-only styling (applies only on ≥1024px)
    ----------------------------------------------------------- */
 @media (min-width: 1024px) {
+
   .formatting-button,
   .color-button,
   .formatting-select {
@@ -1196,7 +1211,7 @@ body.dark .toolbar-button.active {
     border-color: #000 !important;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
   }
-  
+
   .formatting-button.active svg {
     color: #ffffff !important;
     stroke: #ffffff !important;
@@ -1208,12 +1223,13 @@ body.dark .toolbar-button.active {
    Custom Dropdown Styling (desktop only)
    ----------------------------------------------------------- */
 @media (min-width: 1024px) {
+
   /* Ensure toolbar-bottom allows dropdown overflow */
   .toolbar-bottom {
     overflow: visible !important;
     z-index: 10002;
   }
-  
+
   .custom-dropdown {
     position: relative;
     display: inline-block;
@@ -1234,7 +1250,7 @@ body.dark .toolbar-button.active {
     color: #111827;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
   }
 
   .dropdown-trigger:hover {
@@ -1245,7 +1261,7 @@ body.dark .toolbar-button.active {
   .dropdown-trigger:focus {
     outline: none;
     border-color: #111827;
-    box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
   }
 
   .dropdown-menu {
@@ -1256,7 +1272,7 @@ body.dark .toolbar-button.active {
     background: #ffffff;
     border: 1px solid #d1d5db;
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     backdrop-filter: blur(8px);
     z-index: 10001;
     margin-top: 4px;
@@ -1335,7 +1351,7 @@ body.dark .toolbar-button.active {
   color: #111827;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1364,7 +1380,7 @@ body.dark .toolbar-button.active {
 .dropdown-trigger:focus {
   outline: none;
   border-color: #111827;
-  box-shadow: 0 0 0 3px rgba(0,0,0,0.1);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
 }
 
 .dropdown-menu {
@@ -1375,7 +1391,7 @@ body.dark .toolbar-button.active {
   background: #ffffff;
   border: 1px solid #d1d5db;
   border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(8px);
   margin-top: 4px;
   max-height: 200px;
@@ -1521,7 +1537,7 @@ body.dark .toolbar-button.active {
     gap: 0.2rem;
     padding: 0.25rem 0.3rem;
   }
-  
+
   .format-container .toolbar-button {
     min-width: 20px;
     height: 20px;
@@ -1531,47 +1547,47 @@ body.dark .toolbar-button.active {
     align-items: center;
     justify-content: center;
   }
-  
+
   .format-container .toolbar-button svg {
     width: 11px;
     height: 11px;
   }
-  
+
   .format-container .dropdown-trigger {
     padding: 0.15rem 0.3rem;
     font-size: 0.65rem;
     min-width: 65px;
     height: 20px;
   }
-  
+
   .format-container .formatting-separator {
     font-size: 0.6rem;
     margin: 0 0.1rem;
   }
-  
+
   .format-container .color-button-container .toolbar-button {
     height: 20px;
     min-width: 20px;
     padding: 0.08rem 0.12rem;
     border-radius: 2px;
   }
-  
+
   .format-container .color-button-container .toolbar-button span {
     font-size: 7px;
   }
-  
+
   .format-container .font-size-btn {
     min-width: 18px !important;
     height: 20px !important;
     font-size: 0.8rem;
   }
-  
+
   .format-container .font-size-display {
     min-width: 20px;
     font-size: 0.65rem;
     padding: 0 0.15rem;
   }
-  
+
   .format-container .font-color-btn {
     width: 28px;
     height: 20px;
@@ -1579,18 +1595,13 @@ body.dark .toolbar-button.active {
     gap: 1px;
     border-radius: 6px;
   }
-  
+
   .format-container .font-color-btn__label {
     font-size: 10px;
   }
-  
+
   .format-container .font-color-btn__swatch {
     width: 100%;
     height: 4px;
   }
 }
-
-
-
-
-  

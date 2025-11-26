@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Trash2 } from 'lucide-react';
 import ModernColorPicker from '../../shared/ModernColorPicker';
 
@@ -13,11 +13,107 @@ const PieChartDataPoints = ({
   removeDataPoint,
   addDataPoint
 }) => {
+  // Track display values for number inputs to allow empty strings
+  const [displayValues, setDisplayValues] = useState({});
+  // Track which inputs are currently focused to prevent overwriting user input
+  const focusedInputs = useRef(new Set());
+  // Track previous values to detect external changes
+  const prevValuesRef = useRef(selectedElement.values);
+  // Track if component has mounted
+  const isMountedRef = useRef(false);
+
+  // Initialize display values on mount
+  useEffect(() => {
+    if (!isMountedRef.current) {
+      const currentValues = selectedElement.values || [];
+      const initialDisplayValues = {};
+      currentValues.forEach((value, index) => {
+        if (value === 0 || value === undefined || value === null) {
+          initialDisplayValues[index] = '';
+        } else {
+          initialDisplayValues[index] = value.toString();
+        }
+      });
+      setDisplayValues(initialDisplayValues);
+      prevValuesRef.current = currentValues;
+      isMountedRef.current = true;
+    }
+  }, []);
+
+  // Update display values when selectedElement changes (but not if user is editing)
+  useEffect(() => {
+    if (!isMountedRef.current) return;
+    
+    const currentValues = selectedElement.values || [];
+    const prevValues = prevValuesRef.current || [];
+    // Check if values actually changed from outside (not from our own updates)
+    const valuesChanged = JSON.stringify(prevValues) !== JSON.stringify(currentValues);
+    
+    if (valuesChanged) {
+      const newDisplayValues = {};
+      currentValues.forEach((value, index) => {
+        // Only update if this input is not currently focused
+        if (!focusedInputs.current.has(index)) {
+          if (value === 0 || value === undefined || value === null) {
+            newDisplayValues[index] = '';
+          } else {
+            newDisplayValues[index] = value.toString();
+          }
+        }
+      });
+      setDisplayValues(prev => ({ ...prev, ...newDisplayValues }));
+      prevValuesRef.current = currentValues;
+    }
+  }, [selectedElement.values]);
+
+  const handleValueChange = (index, value) => {
+    setDisplayValues(prev => ({ ...prev, [index]: value }));
+    // Only update the actual value if it's not empty
+    if (value !== '' && value !== null && value !== undefined) {
+      const num = Number(value);
+      const finalValue = Math.max(0, isNaN(num) ? 0 : num);
+      const newValues = [...(selectedElement.values || [])];
+      newValues[index] = finalValue;
+      // For pie charts, clear series array to ensure values are used directly
+      const updates = { values: newValues };
+      if (selectedElement.chartType === 'pie') {
+        updates.series = undefined;
+      }
+      updateSlideElement(selectedElement.id, updates);
+    }
+  };
+
+  const handleValueFocus = (index) => {
+    focusedInputs.current.add(index);
+  };
+
+  const handleValueBlur = (index) => {
+    focusedInputs.current.delete(index);
+    const displayValue = displayValues[index];
+    // Convert empty string to 0 on blur
+    if (displayValue === '' || displayValue === undefined || displayValue === null) {
+      const newValues = [...(selectedElement.values || [])];
+      newValues[index] = 0;
+      // For pie charts, clear series array to ensure values are used directly
+      const updates = { values: newValues };
+      if (selectedElement.chartType === 'pie') {
+        updates.series = undefined;
+      }
+      updateSlideElement(selectedElement.id, updates);
+      setDisplayValues(prev => ({ ...prev, [index]: '' }));
+    }
+  };
+
   return (
     <>
       <div className="option-group" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {(selectedElement.labels || []).map((label, index) => {
-          const value = (selectedElement.values || [])[index] ?? 0;
+          const displayValue = displayValues[index] !== undefined 
+            ? displayValues[index] 
+            : ((selectedElement.values || [])[index] === 0 || (selectedElement.values || [])[index] === undefined || (selectedElement.values || [])[index] === null 
+              ? '' 
+              : ((selectedElement.values || [])[index]).toString());
+          
           return (
             <div
               key={index}
@@ -55,20 +151,11 @@ const PieChartDataPoints = ({
               />
               <input
                 type="number"
-                value={value}
+                value={displayValue}
                 min="0"
-                onChange={(e) => {
-                  const num = Number(e.target.value);
-                  const finalValue = Math.max(0, isNaN(num) ? 0 : num);
-                  const newValues = [...(selectedElement.values || [])];
-                  newValues[index] = finalValue;
-                  // For pie charts, clear series array to ensure values are used directly
-                  const updates = { values: newValues };
-                  if (selectedElement.chartType === 'pie') {
-                    updates.series = undefined;
-                  }
-                  updateSlideElement(selectedElement.id, updates);
-                }}
+                onChange={(e) => handleValueChange(index, e.target.value)}
+                onFocus={() => handleValueFocus(index)}
+                onBlur={() => handleValueBlur(index)}
                 placeholder="Value"
                 style={{
                   padding: '4px 6px',

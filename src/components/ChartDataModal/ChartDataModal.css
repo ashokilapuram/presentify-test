@@ -50,11 +50,11 @@
 @keyframes modalSlideIn {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.96);
+    transform:  scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform:  scale(1);
   }
 }
 
@@ -111,7 +111,6 @@
   border-color: #9ca3af;
   color: #111827;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  transform: translateY(-1px);
 }
 
 .close-button.blink {
@@ -295,7 +294,6 @@
 
 .add-series-button:hover {
   background: #1f2937;
-  transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -379,7 +377,6 @@
 
 .add-row-button:hover {
   background: #1f2937;
-  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -434,7 +431,6 @@
 
 .btn-primary:hover {
   background: #1f2937;
-  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 

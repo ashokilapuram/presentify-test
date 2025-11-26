@@ -18,8 +18,15 @@ export const useDataOperations = (element, labels, series, setLabels, setSeries)
   }, [series, setSeries]);
 
   const handleValueChange = useCallback((seriesIndex, rowIndex, value) => {
-    const num = Number(value);
-    const finalValue = isNaN(num) ? 0 : (element.chartType === 'pie' || element.chartType === 'line' ? Math.max(0, num) : num);
+    // Allow empty string, convert to 0 only when it's actually empty and we're processing
+    let finalValue;
+    if (value === '' || value === null || value === undefined) {
+      // Keep as 0 for now, but allow empty string in display
+      finalValue = 0;
+    } else {
+      const num = Number(value);
+      finalValue = isNaN(num) ? 0 : (element.chartType === 'pie' || element.chartType === 'line' ? Math.max(0, num) : num);
+    }
     const newSeries = [...series];
     const newValues = [...newSeries[seriesIndex].values];
     newValues[rowIndex] = finalValue;
